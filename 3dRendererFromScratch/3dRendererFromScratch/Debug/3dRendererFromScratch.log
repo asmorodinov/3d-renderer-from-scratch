@@ -1,2 +1,8 @@
 ﻿  main.cpp
+C:\Users\User\source\repos\3dRendererFromScratch\3dRendererFromScratch\Engine\Object.h(46,41): warning C4018: '<=': signed/unsigned mismatch
+C:\Users\User\source\repos\3dRendererFromScratch\3dRendererFromScratch\Engine\Object.h(47,45): warning C4018: '<=': signed/unsigned mismatch
+  class template optional is only available with C++17 or later.
+C:\Users\User\source\repos\3dRendererFromScratch\3dRendererFromScratch\main.cpp(12,44): warning C4305: '+=': truncation from 'double' to 'float'
+C:\Users\User\source\repos\3dRendererFromScratch\3dRendererFromScratch\main.cpp(13,48): warning C4305: '+=': truncation from 'double' to 'float'
+C:\Users\User\source\repos\3dRendererFromScratch\3dRendererFromScratch\main.cpp(14,52): warning C4305: '+=': truncation from 'double' to 'float'
   3dRendererFromScratch.vcxproj -> C:\Users\User\source\repos\3dRendererFromScratch\Debug\3dRendererFromScratch.exe
