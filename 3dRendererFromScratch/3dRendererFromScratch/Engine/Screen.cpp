@@ -29,6 +29,8 @@ void Screen::checkAndSetPixelColor(size_t x, size_t y, ColorType color) {
     colorBuffer[x][y] = color;
 }
 
+void Screen::clear() { colorBuffer = ColorBuffer(width, std::vector<ColorType>(height, clearColor)); }
+
 size_t Screen::getWidth() const { return width; }
 size_t Screen::getHeight() const { return height; }
 

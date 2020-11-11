@@ -28,4 +28,9 @@ class LogDuration {
 #define UNIQ_ID(lineno) UNIQ_ID_IMPL(lineno)
 #endif
 
+#define LOG
+#ifdef LOG
 #define LOG_DURATION(message) LogDuration UNIQ_ID(__LINE__){message};
+#else
+#define LOG_DURATION(message)
+#endif
