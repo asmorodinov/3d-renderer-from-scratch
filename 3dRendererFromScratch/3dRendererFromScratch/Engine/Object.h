@@ -38,4 +38,16 @@ class Point : public Object {
     unsigned pixelRadius;
 };
 
+class Line : public Object {
+ public:
+    Line(glm::vec3 pos1, glm::vec3 pos2, ColorType color = {1.0f, 1.0f, 1.0f});
+
+    void draw(const Camera& camera, Screen& screen) override;
+    void update(float dt) override;
+
+ private:
+    ColorType color;
+    glm::vec3 pos1, pos2;
+};
+
 }  // namespace eng

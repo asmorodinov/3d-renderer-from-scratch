@@ -2,16 +2,23 @@
 
 namespace eng {
 
-Renderer::Renderer(size_t width, size_t height) : screen(width, height, {0.3f, 0.85f, 0.45f}) {}
+Renderer::Renderer(size_t width, size_t height) : screen(width, height, {0.2f, 0.45f, 0.25f}) {
+    screenTexture.create(width, height);
+    screenSprite = sf::Sprite(screenTexture);
+}
 
 Screen& Renderer::getScreen() { return screen; }
 World& Renderer::getWorld() { return world; }
+
+void Renderer::clearScreen() { screen.clear(); }
 
 void Renderer::renderSceneToScreen() {
     for (auto& object : world.getObjects()) object->draw(world.getCamera(), screen);
 }
 
 void Renderer::renderScreenToFile(const std::string& file) const {
+    LOG_DURATION("render scene to file");
+
     size_t width = screen.getWidth();
     size_t height = screen.getHeight();
 
@@ -27,7 +34,39 @@ void Renderer::renderScreenToFile(const std::string& file) const {
         }
     }
 
-    stbi_write_png(file.c_str(), width, height, 3, &pixels[0], width * 3);
+    LOG_DURATION("stbi write image");
+
+    assert(file.size() >= 4);
+    auto extension = file.substr(file.size() - 4);
+
+    if (extension == ".png") {
+        stbi_write_png(file.c_str(), width, height, 3, &pixels[0], width * 3);
+    } else if (extension == ".jpg") {
+        stbi_write_jpg(file.c_str(), width, height, 3, &pixels[0], 100);
+    } else {
+        assert(0);
+    }
+}
+
+void Renderer::renderScreenToSFMLWindow(sf::RenderWindow& window) {
+    size_t width = screen.getWidth();
+    size_t height = screen.getHeight();
+
+    std::vector<sf::Uint8> pixels(width * height * 4, 0);
+
+    for (size_t x = 0; x < width; ++x) {
+        for (size_t y = 0; y < height; ++y) {
+            ColorType color = screen.getPixelColor(x, y);
+
+            pixels[4 * (y * width + x) + 0] = sf::Uint8(255.99f * color.r);
+            pixels[4 * (y * width + x) + 1] = sf::Uint8(255.99f * color.g);
+            pixels[4 * (y * width + x) + 2] = sf::Uint8(255.99f * color.b);
+            pixels[4 * (y * width + x) + 3] = sf::Uint8(255);
+        }
+    }
+
+    screenTexture.update(&pixels[0]);
+    window.draw(screenSprite);
 }
 
 }  // namespace eng

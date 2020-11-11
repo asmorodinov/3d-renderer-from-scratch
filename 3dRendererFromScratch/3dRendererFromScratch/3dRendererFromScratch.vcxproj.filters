@@ -30,9 +30,6 @@
     <ClCompile Include="Engine\Screen.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\stb_image_implementation.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Engine\Renderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

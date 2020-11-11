@@ -21,6 +21,8 @@ class Screen {
     void setPixelColor(size_t x, size_t y, ColorType color);
     void checkAndSetPixelColor(size_t x, size_t y, ColorType color);
 
+    void clear();
+
     size_t getWidth() const;
     size_t getHeight() const;
 

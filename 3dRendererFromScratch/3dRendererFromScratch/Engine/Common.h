@@ -16,9 +16,6 @@ struct Transform {
     glm::quat orientation = glm::quat();
     glm::vec3 scale = glm::vec3(1.0f);
 
-    // This is a temporary hack, will be removed later   [TODO]: Remove
-    glm::mat4 extraTransform = glm::mat4(1.0f);
-
     glm::mat4 getModel() const;
 };
 
