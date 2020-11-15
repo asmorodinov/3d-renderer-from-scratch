@@ -1,5 +1,7 @@
 #pragma once
 
+#include <algorithm>
+#include <climits>
 #include <iostream>
 #include <memory>
 
@@ -48,6 +50,18 @@ class Line : public Object {
  private:
     ColorType color;
     glm::vec3 pos1, pos2;
+};
+
+class Triangle : public Object {
+ public:
+    Triangle(glm::vec3 pos1, glm::vec3 pos2, glm::vec3 pos3, ColorType color = {1.0f, 1.0f, 1.0f});
+
+    void draw(const Camera& camera, Screen& screen) override;
+    void update(float dt) override;
+
+ private:
+    ColorType color;
+    glm::vec3 pos1, pos2, pos3;
 };
 
 }  // namespace eng
