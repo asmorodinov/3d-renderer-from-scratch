@@ -57,6 +57,8 @@ void Renderer::renderScreenToSFMLWindow(sf::RenderWindow& window) {
     for (size_t x = 0; x < width; ++x) {
         for (size_t y = 0; y < height; ++y) {
             ColorType color = screen.getPixelColor(x, y);
+            // color = ColorType(screen.getPixelDepth(x, y));
+            // color = (color - 1.0f) * 20.0f;
 
             pixels[4 * (y * width + x) + 0] = sf::Uint8(255.99f * color.r);
             pixels[4 * (y * width + x) + 1] = sf::Uint8(255.99f * color.g);

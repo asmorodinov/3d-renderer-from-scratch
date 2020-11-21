@@ -47,30 +47,61 @@ int main() {
 
         renderer.getWorld().getObjects().clear();
 
-        for (int x = -1; x <= 1; ++x)
-            for (int y = -1; y <= 1; ++y) {
-                glm::mat4 model = glm::mat4(1.0f);
-                model = glm::translate(model, glm::vec3(1.5f * x, 1.5f * y, -6.0));
-                model = glm::rotate(model, glm::radians(t), glm::vec3(1.0f, 0.8f, -0.7f));
-                model = glm::scale(model, glm::vec3(0.4f));
+        for (int z = 0; z <= 1; ++z)
+            for (int x = -2; x <= 2; ++x)
+                for (int y = -1; y <= 1; ++y) {
+                    glm::mat4 model = glm::mat4(1.0f);
+                    model = glm::translate(model, glm::vec3(1.3f * x, 1.3f * y, -6.5 - 1.3f * z));
+                    model = glm::rotate(model, glm::radians(t), glm::vec3(1.0f, 0.8f, -0.7f));
+                    model = glm::scale(model, glm::vec3(0.5f));
 
-                std::vector<glm::vec3> points = {{1, 1, 1}, {-1, -1, 1}, {-1, 1, -1}, {1, -1, -1}};
-                for (auto& p : points) p = model * glm::vec4(p, 1.0f);
+                    glm::mat4 model2 = glm::mat4(1.0f);
+                    model2 = glm::translate(model2, glm::vec3(1.3f * x, 1.3f * y, -6.5 - 1.3f * z));
+                    model2 = glm::rotate(model2, glm::radians(t), glm::vec3(1.0f, 0.8f, -0.7f));
+                    model2 = glm::scale(model2, -glm::vec3(0.5f));
 
-                for (auto [i, j, k] : std::vector<std::array<int, 3>>{{0, 2, 1}, {0, 1, 3}, {0, 3, 2}, {1, 2, 3}}) {
-                    renderer.getWorld().getObjects().emplace_back(std::make_unique<eng::Triangle>(
-                        points[i], points[j], points[k], eng::ColorType{i / 3.0f, j / 3.0f, k / 3.0f}));
-                }
+                    std::vector<glm::vec3> points = {{1, 1, 1}, {-1, -1, 1}, {-1, 1, -1}, {1, -1, -1}};
+                    for (auto& p : points) p = model * glm::vec4(p, 1.0f);
 
-                for (int i = 0; i < 4; ++i)
-                    for (int j = i + 1; j < 4; ++j)
+                    std::vector<glm::vec3> points2 = {{1, 1, 1}, {-1, -1, 1}, {-1, 1, -1}, {1, -1, -1}};
+                    for (auto& p : points2) p = model2 * glm::vec4(p, 1.0f);
+
+                    if (1)
+                        for (auto [i, j, k] : std::vector<std::array<int, 3>>{{0, 2, 1}, {0, 1, 3}, {0, 3, 2}, {1, 2, 3}}) {
+                            renderer.getWorld().getObjects().emplace_back(std::make_unique<eng::Triangle>(
+                                points[i], points[j], points[k], eng::ColorType{i / 3.0f, j / 3.0f, k / 3.0f}));
+                            renderer.getWorld().getObjects().emplace_back(std::make_unique<eng::Triangle>(
+                                points[j], points[i], points[k], eng::ColorType{i / 3.0f, j / 3.0f, k / 3.0f}));
+                        }
+
+                    if (1)
+                        for (auto [i, j, k] : std::vector<std::array<int, 3>>{{0, 2, 1}, {0, 1, 3}, {0, 3, 2}, {1, 2, 3}}) {
+                            renderer.getWorld().getObjects().emplace_back(std::make_unique<eng::Triangle>(
+                                points2[i], points2[j], points2[k], eng::ColorType{i / 3.0f, j / 3.0f, k / 3.0f}));
+                            renderer.getWorld().getObjects().emplace_back(std::make_unique<eng::Triangle>(
+                                points2[j], points2[i], points2[k], eng::ColorType{i / 3.0f, j / 3.0f, k / 3.0f}));
+                        }
+
+                    if (0)
+                        for (int i = 0; i < 4; ++i)
+                            for (int j = i + 1; j < 4; ++j)
+                                renderer.getWorld().getObjects().emplace_back(
+                                    std::make_unique<eng::Line>(points[i], points[j], eng::ColorType(0.85f)));
+
+                    for (int i = 0; i < 4; ++i)
                         renderer.getWorld().getObjects().emplace_back(
-                            std::make_unique<eng::Line>(points[i], points[j], eng::ColorType(0.85f)));
+                            std::make_unique<eng::Point>(points[i] + glm::vec3(0, 0, 0.01), eng::ColorType{0.8f, 0.2f, 0.3f}, 2));
 
-                for (int i = 0; i < 4; ++i)
-                    renderer.getWorld().getObjects().emplace_back(
-                        std::make_unique<eng::Point>(points[i], eng::ColorType{0.8f, 0.2f, 0.3f}, 2));
-            }
+                    if (0)
+                        for (int i = 0; i < 4; ++i)
+                            for (int j = i + 1; j < 4; ++j)
+                                renderer.getWorld().getObjects().emplace_back(
+                                    std::make_unique<eng::Line>(points2[i], points2[j], eng::ColorType(0.85f)));
+
+                    for (int i = 0; i < 4; ++i)
+                        renderer.getWorld().getObjects().emplace_back(std::make_unique<eng::Point>(
+                            points2[i] + glm::vec3(0, 0, 0.01), eng::ColorType{0.8f, 0.2f, 0.3f}, 2));
+                }
 
         renderer.clearScreen();
         renderer.renderSceneToScreen();

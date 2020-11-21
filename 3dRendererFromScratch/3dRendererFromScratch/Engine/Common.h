@@ -19,7 +19,4 @@ struct Transform {
     glm::mat4 getModel() const;
 };
 
-glm::vec2 LocalCoordsToScreenCoords(const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix,
-                                    const glm::mat4& objectModel, glm::vec3 localCoords);
-
 }  // namespace eng
