@@ -13,13 +13,4 @@ glm::mat4 Transform::getModel() const {
     return model;
 }
 
-glm::vec2 LocalCoordsToScreenCoords(const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix,
-                                    const glm::mat4& objectModel, glm::vec3 localCoords) {
-    glm::vec4 worldCoords = objectModel * glm::vec4(localCoords, 1.0f);
-
-    glm::vec4 screenCoords4 = projectionMatrix * viewMatrix * worldCoords;
-
-    return glm::vec2(screenCoords4.x, screenCoords4.y) / screenCoords4.w;
-}
-
 }  // namespace eng
