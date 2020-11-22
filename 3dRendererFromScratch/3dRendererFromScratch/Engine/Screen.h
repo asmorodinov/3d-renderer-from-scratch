@@ -41,6 +41,9 @@ class Screen {
     size_t getWidth() const;
     size_t getHeight() const;
 
+    void setClearColor(ColorType clr);
+    ColorType getClearColor() const;
+
  private:
     float near, far;
     size_t width, height;

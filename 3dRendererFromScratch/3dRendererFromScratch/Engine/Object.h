@@ -55,7 +55,7 @@ class Line : public Object {
 
 class Triangle : public Object {
  public:
-    Triangle(glm::vec3 pos1, glm::vec3 pos2, glm::vec3 pos3, ColorType color = {1.0f, 1.0f, 1.0f});
+    Triangle(glm::vec3 pos1, glm::vec3 pos2, glm::vec3 pos3, ColorType color = {1.0f, 1.0f, 1.0f}, bool s = false);
 
     void draw(const Camera& camera, Screen& screen) override;
     void update(float dt) override;
@@ -63,6 +63,8 @@ class Triangle : public Object {
  private:
     ColorType color;
     glm::vec3 pos1, pos2, pos3;
+    bool s;
+    static Texture texture;
 };
 
 }  // namespace eng
