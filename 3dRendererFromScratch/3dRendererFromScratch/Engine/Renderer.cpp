@@ -2,7 +2,7 @@
 
 namespace eng {
 
-Renderer::Renderer(size_t width, size_t height) : screen(width, height, {0.2f, 0.45f, 0.25f}) {
+Renderer::Renderer(size_t width, size_t height) : screen(width, height, 0.6f * glm::vec3(0.2f, 0.45f, 0.25f)) {
     screenTexture.create(width, height);
     screenSprite = sf::Sprite(screenTexture);
 }

@@ -71,36 +71,37 @@ void Line::draw(const Camera& camera, Screen& screen) {
 
 void Line::update(float dt) {}
 
-Triangle::Triangle(glm::vec3 pos1, glm::vec3 pos2, glm::vec3 pos3, ColorType color)
-    : color(color), pos1(pos1), pos2(pos2), pos3(pos3) {}
+Texture Triangle::texture = Texture("texture.png");
+Triangle::Triangle(glm::vec3 pos1, glm::vec3 pos2, glm::vec3 pos3, ColorType color, bool s)
+    : color(color), pos1(pos1), pos2(pos2), pos3(pos3), s(s) {}
 
 void Triangle::draw(const Camera& camera, Screen& screen) {
-    glm::vec3 p1 = screen.localCoordsToScreenCoordsXYZ(camera.getViewMatrix(), t.getModel(), pos1);
-    glm::vec3 p2 = screen.localCoordsToScreenCoordsXYZ(camera.getViewMatrix(), t.getModel(), pos2);
-    glm::vec3 p3 = screen.localCoordsToScreenCoordsXYZ(camera.getViewMatrix(), t.getModel(), pos3);
+    glm::vec3 p0 = screen.localCoordsToScreenCoordsXYZ(camera.getViewMatrix(), t.getModel(), pos1);
+    glm::vec3 p1 = screen.localCoordsToScreenCoordsXYZ(camera.getViewMatrix(), t.getModel(), pos2);
+    glm::vec3 p2 = screen.localCoordsToScreenCoordsXYZ(camera.getViewMatrix(), t.getModel(), pos3);
 
-    glm::vec3 p1w = t.getModel() * glm::vec4(pos1, 1.0f);
-    glm::vec3 p2w = t.getModel() * glm::vec4(pos2, 1.0f);
-    glm::vec3 p3w = t.getModel() * glm::vec4(pos3, 1.0f);
+    glm::vec3 p0w = t.getModel() * glm::vec4(pos1, 1.0f);
+    glm::vec3 p1w = t.getModel() * glm::vec4(pos2, 1.0f);
+    glm::vec3 p2w = t.getModel() * glm::vec4(pos3, 1.0f);
 
-    glm::vec3 l1 = p2w - p1w;
-    glm::vec3 l2 = p3w - p1w;
+    glm::vec3 l1 = p1w - p0w;
+    glm::vec3 l2 = p2w - p0w;
     glm::vec3 normal = glm::cross(l1, l2);
     glm::vec3 cameraRay = p1w - camera.getPosition();
     if (glm::dot(normal, cameraRay) < 0.0f) return;
 
+    if (p0.x <= -1.0f || p0.x >= 1.0f || p0.y <= -1.0f || p0.y >= 1.0f) return;
     if (p1.x <= -1.0f || p1.x >= 1.0f || p1.y <= -1.0f || p1.y >= 1.0f) return;
     if (p2.x <= -1.0f || p2.x >= 1.0f || p2.y <= -1.0f || p2.y >= 1.0f) return;
-    if (p3.x <= -1.0f || p3.x >= 1.0f || p3.y <= -1.0f || p3.y >= 1.0f) return;
 
-    int x0 = int(screen.getWidth() * (p1.x + 1.0f) / 2.0f);
-    int y0 = int(screen.getHeight() * (p1.y + 1.0f) / 2.0f);
+    int x0 = int(screen.getWidth() * (p0.x + 1.0f) / 2.0f);
+    int y0 = int(screen.getHeight() * (p0.y + 1.0f) / 2.0f);
 
-    int x1 = int(screen.getWidth() * (p2.x + 1.0f) / 2.0f);
-    int y1 = int(screen.getHeight() * (p2.y + 1.0f) / 2.0f);
+    int x1 = int(screen.getWidth() * (p1.x + 1.0f) / 2.0f);
+    int y1 = int(screen.getHeight() * (p1.y + 1.0f) / 2.0f);
 
-    int x2 = int(screen.getWidth() * (p3.x + 1.0f) / 2.0f);
-    int y2 = int(screen.getHeight() * (p3.y + 1.0f) / 2.0f);
+    int x2 = int(screen.getWidth() * (p2.x + 1.0f) / 2.0f);
+    int y2 = int(screen.getHeight() * (p2.y + 1.0f) / 2.0f);
 
     int minx = std::min({x0, x1, x2});
     int miny = std::min({y0, y1, y2});
@@ -113,27 +114,58 @@ void Triangle::draw(const Camera& camera, Screen& screen) {
 
     auto insideTriangle = [&](int x, int y) { return e01(x, y) >= 0 && e12(x, y) >= 0 && e20(x, y) >= 0; };
 
+    glm::vec2 t0, t1, t2;
+    if (!s) {
+        t0 = {0, 0};
+        t1 = {1, 0};
+        t2 = {0, 1};
+    } else {
+        t0 = {1, 1};
+        t1 = {0, 1};
+        t2 = {1, 0};
+    }
+    t0 /= p0.z;
+    t1 /= p1.z;
+    t2 /= p2.z;
+
+    glm::vec3 c0, c1, c2;
+    if (!s) {
+        c0 = {1, 0, 0};
+        c1 = {0, 1, 0};
+        c2 = {0, 0, 1};
+    } else {
+        c0 = {0, 1, 1};
+        c1 = {0, 0, 1};
+        c2 = {0, 1, 0};
+    }
+    c0 /= p0.z;
+    c1 /= p1.z;
+    c2 /= p2.z;
+
     for (int x = minx; x <= maxx; ++x) {
         for (int y = miny; y <= maxy; ++y) {
             if (!insideTriangle(x, y)) continue;
 
-            int l0 = e12(x, y);
-            int l1 = e20(x, y);
-            int l2 = e01(x, y);
-            int l = l0 + l1 + l2;
-            float z = static_cast<float>(l0 * p1.z + l1 * p2.z + l2 * p3.z) / l;
+            float w0 = e12(x, y);
+            float w1 = e20(x, y);
+            float w2 = e01(x, y);
+            float l = w0 + w1 + w2;
+            w0 /= l;
+            w1 /= l;
+            w2 /= l;
+            float z = 1.0f / (w0 / p0.z + w1 / p1.z + w2 / p2.z);
 
-            glm::vec3 color1 = color;
-            float tx = 6.0f * static_cast<float>(l0) / l;
-            float ty = 6.0f * static_cast<float>(l1) / l;
-            tx = tx - std::floor(tx);
-            ty = ty - std::floor(ty);
-            bool brighter = (tx < 0.5f) != (ty < 0.5f);
-            if (!brighter) color1 *= 0.9f;
+            glm::vec3 color1 = z * (w0 * c0 + w1 * c1 + w2 * c2);
+            glm::vec2 t = z * (w0 * t0 + w1 * t1 + w2 * t2);
 
-            // std::cout << z << '\n';
+            // color1 = glm::vec3(t, 0.0f);
+            color1 = color1 * 0.2f + 0.8f * texture.sample(t.s, t.t);
 
-            screen.setPixelColor(size_t(x), size_t(y), color1 * (0.3f + 0.7f * glm::vec3(l0, l1, l2) / (float)l), 1.0f / z);
+            // t = 6.0f * t - glm::floor(6.0f * t);
+            // bool brighter = (t.s < 0.5f) != (t.t < 0.5f);
+            // if (!brighter) color1 += 0.2f;
+
+            screen.setPixelColor(size_t(x), size_t(y), color1, z);
         }
     }
 }

@@ -43,7 +43,7 @@ void Screen::depthCheckSetPixelColor(size_t x, size_t y, float z, ColorType colo
     assert(x < width && y < height);
 
     // std::cout << z << '\n';
-    if (z < -1 || z > 1) return;
+    // if (z < -1 || z > 1) return;
 
     // minz = std::min(z, minz);
     // maxz = std::max(z, maxz);
@@ -86,11 +86,14 @@ glm::vec3 Screen::localCoordsToScreenCoordsXYZ(const glm::mat4& viewMatrix, cons
 
     glm::vec4 position = projectionMatrix * viewMatrix * worldCoords;
 
-    float z = position.z / position.w;
-    return glm::vec3(position.x / position.w, position.y / position.w, 1.0f / z);
+    float z = position.w;
+    return glm::vec3(position.x / position.w, position.y / position.w, z);
 }
 
 size_t Screen::getWidth() const { return width; }
 size_t Screen::getHeight() const { return height; }
+
+void Screen::setClearColor(ColorType clr) { clearColor = clr; }
+ColorType Screen::getClearColor() const { return clearColor; }
 
 }  // namespace eng
