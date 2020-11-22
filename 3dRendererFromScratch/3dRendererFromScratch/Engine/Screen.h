@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <iostream>
 #include <limits>
 #include <cassert>
@@ -49,6 +50,9 @@ class Screen {
     DepthBuffer depthBuffer;
 
     glm::mat4 projectionMatrix;
+
+    // float minz = 1.2f;
+    // float maxz = -1.2f;
 };
 
 }  // namespace eng
