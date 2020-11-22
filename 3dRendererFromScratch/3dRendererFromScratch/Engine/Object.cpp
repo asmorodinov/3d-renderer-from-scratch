@@ -87,7 +87,7 @@ void Triangle::draw(const Camera& camera, Screen& screen) {
     glm::vec3 l2 = p3w - p1w;
     glm::vec3 normal = glm::cross(l1, l2);
     glm::vec3 cameraRay = p1w - camera.getPosition();
-    if (glm::dot(normal, cameraRay) > 0.0f) return;
+    if (glm::dot(normal, cameraRay) < 0.0f) return;
 
     if (p1.x <= -1.0f || p1.x >= 1.0f || p1.y <= -1.0f || p1.y >= 1.0f) return;
     if (p2.x <= -1.0f || p2.x >= 1.0f || p2.y <= -1.0f || p2.y >= 1.0f) return;
@@ -123,9 +123,17 @@ void Triangle::draw(const Camera& camera, Screen& screen) {
             int l = l0 + l1 + l2;
             float z = static_cast<float>(l0 * p1.z + l1 * p2.z + l2 * p3.z) / l;
 
+            glm::vec3 color1 = color;
+            float tx = 6.0f * static_cast<float>(l0) / l;
+            float ty = 6.0f * static_cast<float>(l1) / l;
+            tx = tx - std::floor(tx);
+            ty = ty - std::floor(ty);
+            bool brighter = (tx < 0.5f) != (ty < 0.5f);
+            if (!brighter) color1 *= 0.9f;
+
             // std::cout << z << '\n';
 
-            screen.setPixelColor(size_t(x), size_t(y), glm::vec3(l0, l1, l2) / (float)l, z);
+            screen.setPixelColor(size_t(x), size_t(y), color1 * (0.3f + 0.7f * glm::vec3(l0, l1, l2) / (float)l), 1.0f / z);
         }
     }
 }
