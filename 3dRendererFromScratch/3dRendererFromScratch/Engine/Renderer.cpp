@@ -2,7 +2,7 @@
 
 namespace eng {
 
-Renderer::Renderer(size_t width, size_t height) : screen(width, height, 0.6f * glm::vec3(0.2f, 0.45f, 0.25f)) {
+Renderer::Renderer(size_t width, size_t height) : screen(width, height, 0.2f * glm::vec3(0.2f, 0.45f, 0.25f)) {
     screenTexture.create(width, height);
     screenSprite = sf::Sprite(screenTexture);
 }
@@ -56,7 +56,7 @@ void Renderer::renderScreenToSFMLWindow(sf::RenderWindow& window) {
 
     for (size_t x = 0; x < width; ++x) {
         for (size_t y = 0; y < height; ++y) {
-            ColorType color = screen.getPixelColor(x, y);
+            ColorType color = screen.getPixelColor(x, height - 1 - y);
             // color = ColorType(screen.getPixelDepth(x, y));
             // color = (color - 1.0f) * 20.0f;
 

@@ -3,7 +3,7 @@
 namespace eng {
 
 Screen::Screen(size_t width, size_t height, ColorType clearColor)
-    : near(0.6f),
+    : near(1.0f),
       far(10.0f),
       width(width),
       height(height),
@@ -43,7 +43,7 @@ void Screen::depthCheckSetPixelColor(size_t x, size_t y, float z, ColorType colo
     assert(x < width && y < height);
 
     // std::cout << z << '\n';
-    // if (z < -1 || z > 1) return;
+    if (z < -1 || z > 1) return;
 
     // minz = std::min(z, minz);
     // maxz = std::max(z, maxz);
@@ -71,23 +71,13 @@ void Screen::clear() {
     // std::cout << "min: " << minz << " max: " << maxz << '\n';
 }
 
-glm::vec2 Screen::localCoordsToScreenCoords(const glm::mat4& viewMatrix, const glm::mat4& objectModel,
-                                            glm::vec3 localCoords) const {
-    glm::vec4 worldCoords = objectModel * glm::vec4(localCoords, 1.0f);
-
-    glm::vec4 screenCoords4 = projectionMatrix * viewMatrix * worldCoords;
-
-    return glm::vec2(screenCoords4.x, screenCoords4.y) / screenCoords4.w;
-}
-
-glm::vec3 Screen::localCoordsToScreenCoordsXYZ(const glm::mat4& viewMatrix, const glm::mat4& objectModel,
-                                               glm::vec3 localCoords) const {
+glm::vec4 Screen::localSpaceToScreenSpace(const glm::mat4& viewMatrix, const glm::mat4& objectModel,
+                                          glm::vec3 localCoords) const {
     glm::vec4 worldCoords = objectModel * glm::vec4(localCoords, 1.0f);
 
     glm::vec4 position = projectionMatrix * viewMatrix * worldCoords;
 
-    float z = position.w;
-    return glm::vec3(position.x / position.w, position.y / position.w, z);
+    return glm::vec4(position.x / position.w, position.y / position.w, position.z / position.w, position.w);
 }
 
 size_t Screen::getWidth() const { return width; }

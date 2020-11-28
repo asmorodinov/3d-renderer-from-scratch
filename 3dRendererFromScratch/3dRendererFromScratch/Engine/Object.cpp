@@ -9,7 +9,7 @@ Point::Point(glm::vec3 position, ColorType color, unsigned pixelRadius) : color(
 }
 
 void Point::draw(const Camera& camera, Screen& screen) {
-    glm::vec3 screenCoords = screen.localCoordsToScreenCoordsXYZ(camera.getViewMatrix(), t.getModel(), glm::vec3(0.0f));
+    glm::vec4 screenCoords = screen.localSpaceToScreenSpace(camera.getViewMatrix(), t.getModel(), glm::vec3(0.0f));
 
     if (screenCoords.x <= -1.0f || screenCoords.x >= 1.0f || screenCoords.y <= -1.0f || screenCoords.y >= 1.0f) return;
 
@@ -29,8 +29,8 @@ void Point::update(float dt) {}
 Line::Line(glm::vec3 pos1, glm::vec3 pos2, ColorType color) : color(color), pos1(pos1), pos2(pos2) {}
 
 void Line::draw(const Camera& camera, Screen& screen) {
-    glm::vec3 p1 = screen.localCoordsToScreenCoordsXYZ(camera.getViewMatrix(), t.getModel(), pos1);
-    glm::vec3 p2 = screen.localCoordsToScreenCoordsXYZ(camera.getViewMatrix(), t.getModel(), pos2);
+    glm::vec4 p1 = screen.localSpaceToScreenSpace(camera.getViewMatrix(), t.getModel(), pos1);
+    glm::vec4 p2 = screen.localSpaceToScreenSpace(camera.getViewMatrix(), t.getModel(), pos2);
 
     if (p1.x <= -1.0f || p1.x >= 1.0f || p1.y <= -1.0f || p1.y >= 1.0f) return;
     if (p2.x <= -1.0f || p2.x >= 1.0f || p2.y <= -1.0f || p2.y >= 1.0f) return;
@@ -76,9 +76,9 @@ Triangle::Triangle(glm::vec3 pos1, glm::vec3 pos2, glm::vec3 pos3, ColorType col
     : color(color), pos1(pos1), pos2(pos2), pos3(pos3), s(s) {}
 
 void Triangle::draw(const Camera& camera, Screen& screen) {
-    glm::vec3 p0 = screen.localCoordsToScreenCoordsXYZ(camera.getViewMatrix(), t.getModel(), pos1);
-    glm::vec3 p1 = screen.localCoordsToScreenCoordsXYZ(camera.getViewMatrix(), t.getModel(), pos2);
-    glm::vec3 p2 = screen.localCoordsToScreenCoordsXYZ(camera.getViewMatrix(), t.getModel(), pos3);
+    glm::vec4 p0 = screen.localSpaceToScreenSpace(camera.getViewMatrix(), t.getModel(), pos1);
+    glm::vec4 p1 = screen.localSpaceToScreenSpace(camera.getViewMatrix(), t.getModel(), pos2);
+    glm::vec4 p2 = screen.localSpaceToScreenSpace(camera.getViewMatrix(), t.getModel(), pos3);
 
     glm::vec3 p0w = t.getModel() * glm::vec4(pos1, 1.0f);
     glm::vec3 p1w = t.getModel() * glm::vec4(pos2, 1.0f);
@@ -86,9 +86,9 @@ void Triangle::draw(const Camera& camera, Screen& screen) {
 
     glm::vec3 l1 = p1w - p0w;
     glm::vec3 l2 = p2w - p0w;
-    glm::vec3 normal = glm::cross(l1, l2);
+    glm::vec3 normal = -glm::normalize(glm::cross(l1, l2));
     glm::vec3 cameraRay = p1w - camera.getPosition();
-    if (glm::dot(normal, cameraRay) < 0.0f) return;
+    if (glm::dot(normal, -cameraRay) < 0.0f) return;
 
     if (p0.x <= -1.0f || p0.x >= 1.0f || p0.y <= -1.0f || p0.y >= 1.0f) return;
     if (p1.x <= -1.0f || p1.x >= 1.0f || p1.y <= -1.0f || p1.y >= 1.0f) return;
@@ -124,23 +124,9 @@ void Triangle::draw(const Camera& camera, Screen& screen) {
         t1 = {0, 1};
         t2 = {1, 0};
     }
-    t0 /= p0.z;
-    t1 /= p1.z;
-    t2 /= p2.z;
-
-    glm::vec3 c0, c1, c2;
-    if (!s) {
-        c0 = {1, 0, 0};
-        c1 = {0, 1, 0};
-        c2 = {0, 0, 1};
-    } else {
-        c0 = {0, 1, 1};
-        c1 = {0, 0, 1};
-        c2 = {0, 1, 0};
-    }
-    c0 /= p0.z;
-    c1 /= p1.z;
-    c2 /= p2.z;
+    t0 /= p0.w;
+    t1 /= p1.w;
+    t2 /= p2.w;
 
     for (int x = minx; x <= maxx; ++x) {
         for (int y = miny; y <= maxy; ++y) {
@@ -154,18 +140,29 @@ void Triangle::draw(const Camera& camera, Screen& screen) {
             w1 /= l;
             w2 /= l;
             float z = 1.0f / (w0 / p0.z + w1 / p1.z + w2 / p2.z);
+            float w = 1.0f / (w0 / p0.w + w1 / p1.w + w2 / p2.w);
 
-            glm::vec3 color1 = z * (w0 * c0 + w1 * c1 + w2 * c2);
-            glm::vec2 t = z * (w0 * t0 + w1 * t1 + w2 * t2);
+            glm::vec2 t = w * (w0 * t0 + w1 * t1 + w2 * t2);
+            glm::vec3 color1 = texture.sample(t.s, t.t);
+            glm::vec3 lighting = color1 * 0.0f;
 
-            // color1 = glm::vec3(t, 0.0f);
-            color1 = color1 * 0.2f + 0.8f * texture.sample(t.s, t.t);
+            glm::vec3 FragPos = w * (w0 * p0w / p0.w + w1 * p1w / p1.w + w2 * p2w / p2.w);
+            glm::vec3 viewPos = camera.getPosition();
+            glm::vec3 lightPos = glm::vec3(2, 1, 0);
+            glm::vec3 viewDir = glm::normalize(viewPos - FragPos);
+            glm::vec3 lightDir = glm::normalize(lightPos - FragPos);
+            glm::vec3 diffuse = (glm::max(glm::dot(normal, lightDir), 0.0f) + 0.5f) * color1 * glm::vec3(1.0f) * 1.0f;
+            glm::vec3 halfwayDir = glm::normalize(lightDir + viewDir);
+            float spec = glm::pow(glm::max(glm::dot(normal, halfwayDir), 0.0f), 32.0f);
+            glm::vec3 specular = glm::vec3(1.0f) * spec;
 
-            // t = 6.0f * t - glm::floor(6.0f * t);
-            // bool brighter = (t.s < 0.5f) != (t.t < 0.5f);
-            // if (!brighter) color1 += 0.2f;
+            float d = length(lightPos - FragPos);
+            float attenuation = 1.0 / (1.0 + 0.00001 * d * d * d);
+            diffuse *= attenuation / 1.7;
+            specular *= attenuation / 1.7;
+            lighting += glm::vec3(1.0f) * (diffuse + specular);
 
-            screen.setPixelColor(size_t(x), size_t(y), color1, z);
+            screen.setPixelColor(size_t(x), size_t(y), lighting, z);
         }
     }
 }
