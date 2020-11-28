@@ -34,9 +34,7 @@ class Screen {
 
     void clear();
 
-    glm::vec2 localCoordsToScreenCoords(const glm::mat4& viewMatrix, const glm::mat4& objectModel, glm::vec3 localCoords) const;
-    glm::vec3 localCoordsToScreenCoordsXYZ(const glm::mat4& viewMatrix, const glm::mat4& objectModel,
-                                           glm::vec3 localCoords) const;
+    glm::vec4 localSpaceToScreenSpace(const glm::mat4& viewMatrix, const glm::mat4& objectModel, glm::vec3 localCoords) const;
 
     size_t getWidth() const;
     size_t getHeight() const;
