@@ -16,12 +16,17 @@ class World {
 
     const Camera& getCamera() const;
     Camera& getCamera();
-    const std::vector<ObjectPtr>& getObjects() const;
-    std::vector<ObjectPtr>& getObjects();
+
+    const ObjectsVec& getObjects() const;
+    ObjectsVec& getObjects();
+
+    const LightsVec& getPointLights() const;
+    LightsVec& getPointLights();
 
  private:
     Camera camera;
     std::vector<ObjectPtr> objects;
+    LightsVec pointLights;
 };
 
 }  // namespace eng

@@ -4,7 +4,11 @@ namespace eng {
 
 const Camera& World::getCamera() const { return camera; }
 Camera& World::getCamera() { return camera; }
-const std::vector<ObjectPtr>& World::getObjects() const { return objects; }
-std::vector<ObjectPtr>& World::getObjects() { return objects; }
+
+const ObjectsVec& World::getObjects() const { return objects; }
+ObjectsVec& World::getObjects() { return objects; }
+
+const LightsVec& World::getPointLights() const { return pointLights; }
+LightsVec& World::getPointLights() { return pointLights; }
 
 }  // namespace eng

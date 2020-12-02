@@ -89,7 +89,7 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)ThirdPartyLibraries\glm;$(SolutionDir)ThirdPartyLibraries\stb_image;$(SolutionDir)ThirdPartyLibraries\sfml\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -106,7 +106,7 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)ThirdPartyLibraries\glm;$(SolutionDir)ThirdPartyLibraries\stb_image;$(SolutionDir)ThirdPartyLibraries\sfml\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -125,7 +125,7 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)ThirdPartyLibraries\glm;$(SolutionDir)ThirdPartyLibraries\stb_image;$(SolutionDir)ThirdPartyLibraries\sfml\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -146,7 +146,7 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)ThirdPartyLibraries\glm;$(SolutionDir)ThirdPartyLibraries\stb_image;$(SolutionDir)ThirdPartyLibraries\sfml\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -160,18 +160,25 @@
   <ItemGroup>
     <ClCompile Include="Engine\Camera.cpp" />
     <ClCompile Include="Engine\Common.cpp" />
+    <ClCompile Include="Engine\Light.cpp" />
     <ClCompile Include="Engine\Object.cpp" />
+    <ClCompile Include="Engine\Primitives.cpp" />
     <ClCompile Include="Engine\Renderer.cpp" />
     <ClCompile Include="Engine\Screen.cpp" />
+    <ClCompile Include="Engine\Texture.cpp" />
     <ClCompile Include="Engine\World.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Camera.h" />
     <ClInclude Include="Engine\Common.h" />
+    <ClInclude Include="Engine\Light.h" />
     <ClInclude Include="Engine\Object.h" />
+    <ClInclude Include="Engine\Primitives.h" />
     <ClInclude Include="Engine\Renderer.h" />
     <ClInclude Include="Engine\Screen.h" />
+    <ClInclude Include="Engine\Shader.h" />
+    <ClInclude Include="Engine\Texture.h" />
     <ClInclude Include="Engine\World.h" />
     <ClInclude Include="profile.h" />
   </ItemGroup>
