@@ -89,9 +89,16 @@ TriangleObj::TriangleObj(glm::vec3 pos1, glm::vec3 pos2, glm::vec3 pos3, ColorTy
 
 void TriangleObj::draw(const Camera& camera, Screen& screen, const LightsVec& lights) {
     glm::mat4 model = t.getModel();
-    glm::vec3 p0 = model * glm::vec4(pos1, 1.0f);
-    glm::vec3 p1 = model * glm::vec4(pos2, 1.0f);
-    glm::vec3 p2 = model * glm::vec4(pos3, 1.0f);
+    glm::vec4 p0_ = model * glm::vec4(pos1, 1.0f);
+    glm::vec4 p1_ = model * glm::vec4(pos2, 1.0f);
+    glm::vec4 p2_ = model * glm::vec4(pos3, 1.0f);
+    p0_ /= p0_.w;
+    p1_ /= p1_.w;
+    p2_ /= p2_.w;
+    glm::vec3 p0 = glm::vec3(p0_);
+    glm::vec3 p1 = glm::vec3(p1_);
+    glm::vec3 p2 = glm::vec3(p2_);
+
     glm::vec3 normal = -glm::normalize(glm::cross(p1 - p0, p2 - p0));
 
     glm::mat4 transform = screen.getProjectionMatrix() * camera.getViewMatrix();
