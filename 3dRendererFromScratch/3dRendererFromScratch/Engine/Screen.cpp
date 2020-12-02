@@ -43,7 +43,7 @@ void Screen::depthCheckSetPixelColor(size_t x, size_t y, float z, ColorType colo
     assert(x < width && y < height);
 
     // std::cout << z << '\n';
-    if (z < -1 || z > 1) return;
+    // if (z < -1 || z > 1) return;
 
     // minz = std::min(z, minz);
     // maxz = std::max(z, maxz);

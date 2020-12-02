@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <concepts>
 #include <functional>
+#include <utility>
 #include <vector>
 
 #include <glm/glm.hpp>
@@ -14,13 +15,13 @@
 namespace eng {
 
 template <class T>
-concept InterpolatableAndSwapable = requires(T s, T e, T r, float t) {
+concept Interpolatable = requires(T s, T e, T r, float t) {
     r = s * (1.0f - t) + e * t;
-    s.swap(e);
     s *= t;
+    s = T();
 };
 
-template <typename Const, InterpolatableAndSwapable Var>
+template <typename Const, Interpolatable Var>
 class Shader {
  public:
     Shader() : c(), shader() {}
@@ -45,14 +46,6 @@ struct PhongVar {
     }
     PhongVar operator*(float t) const { return {pos * t, uv * t}; }
     PhongVar operator+(const PhongVar& oth) const { return {pos + oth.pos, uv + oth.uv}; }
-    void swap(PhongVar& oth) {
-        auto t = pos;
-        auto t2 = uv;
-        pos = oth.pos;
-        uv = oth.uv;
-        oth.pos = t;
-        oth.uv = t2;
-    }
 };
 struct PhongConst {
     Texture t;
@@ -67,7 +60,6 @@ struct FlatVar {
     void operator*=(float t) {}
     FlatVar operator*(float t) const { return {}; }
     FlatVar operator+(const FlatVar& oth) const { return {}; }
-    void swap(FlatVar& oth) {}
 };
 struct FlatConst {
     glm::vec3 color;

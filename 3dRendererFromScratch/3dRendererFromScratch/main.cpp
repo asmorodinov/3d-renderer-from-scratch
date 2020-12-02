@@ -9,8 +9,8 @@
 #include "profile.h"
 
 int main() {
-    size_t width = 1200;
-    size_t height = 800;
+    size_t width = 800;
+    size_t height = 600;
 
     sf::RenderWindow window(sf::VideoMode(width, height), "SFML window");
     eng::Renderer renderer(width, height);
@@ -49,7 +49,8 @@ int main() {
             glm::vec3 viewDir = glm::normalize(viewPos - FragPos);
             glm::vec3 lightDir = glm::normalize(lightPos - FragPos);
 
-            glm::vec3 diffuse = (glm::max(glm::dot(normal, lightDir), 0.0f) + 0.2f) * color1 * light.color * light.diff;
+            float diff = (glm::max(glm::dot(normal, lightDir), 0.0f) + 0.2f);
+            glm::vec3 diffuse = diff * color1 * light.color * light.diff;
 
             glm::vec3 halfwayDir = glm::normalize(lightDir + viewDir);
             float spec = glm::pow(glm::max(glm::dot(normal, halfwayDir), 0.0f), 32.0f);
@@ -90,7 +91,7 @@ int main() {
             lastTime = time;
         }
 
-        float t = 0.4f * 360.0f / 20.0f * time;
+        float t = 0.2f * 360.0f / 20.0f * time;
         float t2 = t * 5.0f;
 
         auto& objects = renderer.getWorld().getObjects();
@@ -108,16 +109,16 @@ int main() {
         if (lights.empty()) {
             lights.push_back(eng::PointLight({2, 0.1, 0}, {0.2, 1, 0.2}, 1.2f, 0.5f));
             lights.push_back(eng::PointLight({-2, 0.1, 0}, {1, 0.2, 0.2}, 1.2f, 0.5f));
-            lights.push_back(eng::PointLight({0, 0.1, 2}, {0.2, 0.2, 1.0}, 1.2f, 0.5f));
-            lights.push_back(eng::PointLight({0, 0.1, -2}, {0.2, 1.0, 1.0}, 1.2f, 0.5f));
+            // lights.push_back(eng::PointLight({0, 0.1, 2}, {0.2, 0.2, 1.0}, 1.2f, 0.5f));
+            // lights.push_back(eng::PointLight({0, 0.1, -2}, {0.2, 1.0, 1.0}, 1.2f, 0.5f));
         }
 
         float s = 1.6f;
         float h = -0.8;
         objects.emplace_back(std::make_unique<eng::TriangleObj>(glm::vec3(-s, h, s), glm::vec3(-s, h, -s), glm::vec3(s, h, s),
-                                                                eng::ColorType(1.0f), pshader, fshader));
+                                                                eng::ColorType(1.0f), pshader, fshader, false, false));
         objects.emplace_back(std::make_unique<eng::TriangleObj>(glm::vec3(s, h, -s), glm::vec3(s, h, s), glm::vec3(-s, h, -s),
-                                                                eng::ColorType(1.0f), pshader, fshader, true));
+                                                                eng::ColorType(1.0f), pshader, fshader, true, false));
 
         float sc = 1.1f;
         for (int z = -1; z <= 1; ++z)
@@ -159,10 +160,11 @@ int main() {
                                                                                 fshader, false, flat));
                     }
 
-                    for (auto [i, j, k] : std::vector<std::array<int, 3>>{{2, 0, 1}, {1, 0, 3}, {3, 0, 2}, {2, 1, 3}}) {
-                        objects.emplace_back(std::make_unique<eng::TriangleObj>(points2[j], points2[i], points2[k], color,
-                                                                                pshader, fshader, false, flat));
-                    }
+                    if (1)
+                        for (auto [i, j, k] : std::vector<std::array<int, 3>>{{2, 0, 1}, {1, 0, 3}, {3, 0, 2}, {2, 1, 3}}) {
+                            objects.emplace_back(std::make_unique<eng::TriangleObj>(points2[j], points2[i], points2[k], color,
+                                                                                    pshader, fshader, false, flat));
+                        }
                 }
 
         renderer.clearScreen();
