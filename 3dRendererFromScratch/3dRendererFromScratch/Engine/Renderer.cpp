@@ -12,8 +12,14 @@ World& Renderer::getWorld() { return world; }
 
 void Renderer::clearScreen() { screen.clear(); }
 
-void Renderer::renderSceneToScreen() {
-    for (auto& object : world.getObjects()) object->draw(world.getCamera(), screen, world.getPointLights());
+size_t Renderer::renderSceneToScreen() {
+    size_t trianglesDrawn = 0;
+    for (auto& object : world.getObjects()) {
+        object->draw(world.getCamera(), screen, world.getPointLights());
+        trianglesDrawn += object->getTriangleCount();
+    }
+
+    return trianglesDrawn;
 }
 
 void Renderer::renderScreenToFile(const std::string& file) const {

@@ -15,7 +15,7 @@ namespace eng {
 struct Texture {
     Texture();
     Texture(const std::string& file);
-    ColorType sample(float x, float y) const;
+    glm::vec4 sample(float x, float y, int n = 1, int m = 1) const;
 
     size_t w, h;
     ColorBuffer buffer;

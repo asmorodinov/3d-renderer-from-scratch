@@ -29,10 +29,13 @@ class Shader {
     Const& getConst() { return c; }
     void setConst(const Const& c1) { c = c1; }
 
-    auto& getShader() { return shader; }
+    using Func = std::function<glm::vec4(const Const&, const Var&, const LightsVec&)>;
+
+    const auto& getShader() const { return shader; }
+    void setShader(const Func& f) { shader = f; }
 
  private:
-    std::function<glm::vec3(const Const&, const Var&, const LightsVec&)> shader;
+    Func shader;
     Const c;
 };
 
@@ -61,9 +64,8 @@ struct FlatVar {
     FlatVar operator*(float t) const { return {}; }
     FlatVar operator+(const FlatVar& oth) const { return {}; }
 };
-struct FlatConst {
-    glm::vec3 color;
-};
-using FlatShader = Shader<FlatConst, FlatVar>;
+using FlatShader = Shader<glm::vec3, FlatVar>;
+
+using TextureShader = Shader<Texture, glm::vec2>;
 
 }  // namespace eng

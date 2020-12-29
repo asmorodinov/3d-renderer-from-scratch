@@ -17,6 +17,7 @@ struct Triangle {
     Var v0, v1, v2;
 };
 
+using TexturedTriangle = Triangle<glm::vec2>;
 using PhongTriangle = Triangle<PhongVar>;
 using FlatTriangle = Triangle<FlatVar>;
 
@@ -25,24 +26,19 @@ struct InterpolatedVariables {
     float z;
     float w;
     Var t;
-    // hack
-    glm::vec3 bar;
 
     void operator*=(float f) {
         z *= f;
         w *= f;
         t *= f;
-        bar *= f;
     }
-    InterpolatedVariables operator*(float f) const { return {z * f, w * f, t * f, bar * f}; }
-    InterpolatedVariables operator+(const InterpolatedVariables& oth) const {
-        return {z + oth.z, w + oth.w, t + oth.t, bar + oth.bar};
-    }
+    InterpolatedVariables operator*(float f) const { return {z * f, w * f, t * f}; }
+    InterpolatedVariables operator+(const InterpolatedVariables& oth) const { return {z + oth.z, w + oth.w, t + oth.t}; }
 };
 
 template <typename Const, Interpolatable Var>
-void drawTriangle_(const Triangle<Var>& t, const glm::mat4& transform, Shader<Const, Var>& shader, Screen& screen,
-                   const LightsVec& lights) {
+void drawTriangleNormalVersion(const Triangle<Var>& t, const glm::mat4& transform, Shader<Const, Var>& shader, Screen& screen,
+                               const LightsVec& lights) {
     glm::vec4 p0 = transform * glm::vec4(t.p0, 1.0f);
     glm::vec4 p1 = transform * glm::vec4(t.p1, 1.0f);
     glm::vec4 p2 = transform * glm::vec4(t.p2, 1.0f);
@@ -50,9 +46,9 @@ void drawTriangle_(const Triangle<Var>& t, const glm::mat4& transform, Shader<Co
     p1 = glm::vec4(p1.x / p1.w, p1.y / p1.w, p1.z / p1.w, p1.w);
     p2 = glm::vec4(p2.x / p2.w, p2.y / p2.w, p2.z / p2.w, p2.w);
 
-    if (p0.x <= -1.0f || p0.x >= 1.0f || p0.y <= -1.0f || p0.y >= 1.0f) return;
-    if (p1.x <= -1.0f || p1.x >= 1.0f || p1.y <= -1.0f || p1.y >= 1.0f) return;
-    if (p2.x <= -1.0f || p2.x >= 1.0f || p2.y <= -1.0f || p2.y >= 1.0f) return;
+    if ((p0.x < -1.0f && p1.x < -1.0f && p2.x < -1.0f) || (p0.x > 1.0f && p1.x > 1.0f && p2.x > 1.0f) ||
+        (p0.y < -1.0f && p1.y < -1.0f && p2.y < -1.0f) || (p0.y > 1.0f && p1.y > 1.0f && p2.y > 1.0f))
+        return;
 
     int x0 = int(screen.getWidth() * (p0.x + 1.0f) / 2.0f);
     int y0 = int(screen.getHeight() * (p0.y + 1.0f) / 2.0f);
@@ -83,8 +79,8 @@ void drawTriangle_(const Triangle<Var>& t, const glm::mat4& transform, Shader<Co
 
     auto& shaderFunc = shader.getShader();
 
-    for (int x = minx; x <= maxx; ++x) {
-        for (int y = miny; y <= maxy; ++y) {
+    for (int x = std::max(0, minx); x <= std::min(static_cast<int>(screen.getWidth()) - 1, maxx); ++x) {
+        for (int y = std::max(0, miny); y <= std::min(static_cast<int>(screen.getHeight()) - 1, maxy); ++y) {
             if (!insideTriangle(x, y)) continue;
 
             float w0 = e12(x, y);
@@ -98,12 +94,13 @@ void drawTriangle_(const Triangle<Var>& t, const glm::mat4& transform, Shader<Co
             if (z > screen.getPixelDepth(size_t(x), size_t(y))) continue;
 
             float w = 1.0f / (w0 / p0.w + w1 / p1.w + w2 / p2.w);
+            if (z < -1.0f || z > 1.0f || w < 0.0f) continue;
 
             Var t = (t0 * w0 + t1 * w1 + t2 * w2) * w;
-            // auto lighting = shaderFunc(shader.getConst(), t, lights);
-            auto lighting = glm::vec3(w0, w1, w2);
+            auto lighting = shaderFunc(shader.getConst(), t, lights);
+            if (lighting.a == 0.0f) continue;
 
-            screen.setPixelColor(size_t(x), size_t(y), lighting, z);
+            screen.setPixelColor(size_t(x), size_t(y), glm::vec3(lighting.r, lighting.g, lighting.b), z);
         }
     }
 }
@@ -111,9 +108,14 @@ void drawTriangle_(const Triangle<Var>& t, const glm::mat4& transform, Shader<Co
 template <typename Const, Interpolatable Var>
 void drawTriangle(const Triangle<Var>& t, const glm::mat4& transform, Shader<Const, Var>& shader, Screen& screen,
                   const LightsVec& lights) {
-    // drawTriangle_(t, transform, shader, screen, lights);
-    // return;
+    // drawTriangleOvercomplicatedVersion(t, transform, shader, screen, lights);
+    drawTriangleNormalVersion(t, transform, shader, screen, lights);
+}
 
+// approximately 20% faster than the normal version for the flat color shader, about 20% slower for the phong shader
+template <typename Const, Interpolatable Var>
+void drawTriangleOvercomplicatedVersion(const Triangle<Var>& t, const glm::mat4& transform, Shader<Const, Var>& shader,
+                                        Screen& screen, const LightsVec& lights) {
     glm::vec4 p0 = transform * glm::vec4(t.p0, 1.0f);
     glm::vec4 p1 = transform * glm::vec4(t.p1, 1.0f);
     glm::vec4 p2 = transform * glm::vec4(t.p2, 1.0f);
@@ -121,9 +123,9 @@ void drawTriangle(const Triangle<Var>& t, const glm::mat4& transform, Shader<Con
     p1 = glm::vec4(p1.x / p1.w, p1.y / p1.w, p1.z / p1.w, p1.w);
     p2 = glm::vec4(p2.x / p2.w, p2.y / p2.w, p2.z / p2.w, p2.w);
 
-    if (p0.x <= -1.0f || p0.x >= 1.0f || p0.y <= -1.0f || p0.y >= 1.0f) return;
-    if (p1.x <= -1.0f || p1.x >= 1.0f || p1.y <= -1.0f || p1.y >= 1.0f) return;
-    if (p2.x <= -1.0f || p2.x >= 1.0f || p2.y <= -1.0f || p2.y >= 1.0f) return;
+    if ((p0.x < -1.0f && p1.x < -1.0f && p2.x < -1.0f) || (p0.x > 1.0f && p1.x > 1.0f && p2.x > 1.0f) ||
+        (p0.y < -1.0f && p1.y < -1.0f && p2.y < -1.0f) || (p0.y > 1.0f && p1.y > 1.0f && p2.y > 1.0f))
+        return;
 
     int x0 = int(screen.getWidth() * (p0.x + 1.0f) / 2.0f);
     int y0 = int(screen.getHeight() * (p0.y + 1.0f) / 2.0f);
@@ -162,9 +164,9 @@ void drawTriangle(const Triangle<Var>& t, const glm::mat4& transform, Shader<Con
         std::swap(t1, t2);
     }
 
-    InterpolatedVariables<Var> iv0 = {p0.z, 1.0f / p0.w, t0, {0, 1, 1}};
-    InterpolatedVariables<Var> iv1 = {p1.z, 1.0f / p1.w, t1, {1, 0, 1}};
-    InterpolatedVariables<Var> iv2 = {p2.z, 1.0f / p2.w, t2, {1, 1, 0}};
+    InterpolatedVariables<Var> iv0 = {1.0f / p0.z, 1.0f / p0.w, t0};
+    InterpolatedVariables<Var> iv1 = {1.0f / p1.z, 1.0f / p1.w, t1};
+    InterpolatedVariables<Var> iv2 = {1.0f / p2.z, 1.0f / p2.w, t2};
 
     int dx1 = x1 - x0;
     int dy1 = y1 - y0;
@@ -191,7 +193,7 @@ void drawTriangle(const Triangle<Var>& t, const glm::mat4& transform, Shader<Con
     }
 
     if (dy1 && 1) {
-        for (int y = y0; y <= y1; ++y) {
+        for (int y = std::max(0, y0); y <= std::min(static_cast<int>(screen.getHeight()) - 1, y1); ++y) {
             int ax = x0 + (y - y0) * ddax;
             int bx = x0 + (y - y0) * ddbx;
 
@@ -205,23 +207,21 @@ void drawTriangle(const Triangle<Var>& t, const glm::mat4& transform, Shader<Con
                 std::swap(siv, eiv);
             }
 
-            float dt = 1.0f / (bx - ax);
-            float t = 0.0f;
-            for (int x = ax; x <= bx; ++x) {
+            for (int x = std::max(0, ax); x <= std::min(static_cast<int>(screen.getWidth()) - 1, bx); ++x) {
+                float t = static_cast<float>(x - ax) / (bx - ax);
+
                 iv = siv * (1.0f - t) + eiv * t;
 
                 float w = 1.0f / iv.w;
-                float z = glm::dot({iv0.z, iv1.z, iv2.z}, iv.bar * w);
+                float z = 1.0f / iv.z;
 
                 if (z > screen.getPixelDepth(size_t(x), size_t(y))) continue;
 
                 Var it = iv.t * w;
-                // auto lighting = shaderFunc(shader.getConst(), it, lights);
-                auto lighting = 1.0f - iv.bar * w;
+                auto lighting = shaderFunc(shader.getConst(), it, lights);
+                if (lighting.a == 0.0f) continue;
 
-                screen.setPixelColor(size_t(x), size_t(y), lighting, z);
-
-                t += dt;
+                screen.setPixelColor(size_t(x), size_t(y), glm::vec3(lighting.r, lighting.g, lighting.b), z);
             }
         }
     }
@@ -239,7 +239,7 @@ void drawTriangle(const Triangle<Var>& t, const glm::mat4& transform, Shader<Con
     }
 
     if (dy1) {
-        for (int y = y1; y <= y2; ++y) {
+        for (int y = std::max(0, y1); y <= std::min(static_cast<int>(screen.getHeight()) - 1, y2); ++y) {
             int ax = x1 + (y - y1) * ddax;
             int bx = x0 + (y - y0) * ddbx;
 
@@ -253,23 +253,21 @@ void drawTriangle(const Triangle<Var>& t, const glm::mat4& transform, Shader<Con
                 std::swap(siv, eiv);
             }
 
-            float dt = 1.0f / (bx - ax);
-            float t = 0.0f;
-            for (int x = ax; x <= bx; ++x) {
+            for (int x = std::max(0, ax); x <= std::min(static_cast<int>(screen.getWidth()) - 1, bx); ++x) {
+                float t = static_cast<float>(x - ax) / (bx - ax);
+
                 iv = siv * (1.0f - t) + eiv * t;
 
                 float w = 1.0f / iv.w;
-                float z = glm::dot({iv0.z, iv1.z, iv2.z}, iv.bar * w);
+                float z = 1.0f / iv.z;
 
                 if (z > screen.getPixelDepth(size_t(x), size_t(y))) continue;
 
                 Var it = iv.t * w;
-                // auto lighting = shaderFunc(shader.getConst(), it, lights);
-                auto lighting = 1.0f - iv.bar * w;
+                auto lighting = shaderFunc(shader.getConst(), it, lights);
+                if (lighting.a == 0.0f) continue;
 
-                screen.setPixelColor(size_t(x), size_t(y), lighting, z);
-
-                t += dt;
+                screen.setPixelColor(size_t(x), size_t(y), glm::vec3(lighting.r, lighting.g, lighting.b), z);
             }
         }
     }

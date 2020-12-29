@@ -3,7 +3,7 @@
 namespace eng {
 
 Screen::Screen(size_t width, size_t height, ColorType clearColor)
-    : near(1.0f),
+    : near(0.1f),
       far(10.0f),
       width(width),
       height(height),
@@ -43,7 +43,7 @@ void Screen::depthCheckSetPixelColor(size_t x, size_t y, float z, ColorType colo
     assert(x < width && y < height);
 
     // std::cout << z << '\n';
-    // if (z < -1 || z > 1) return;
+    if (z < -1 || z > 1) return;
 
     // minz = std::min(z, minz);
     // maxz = std::max(z, maxz);
