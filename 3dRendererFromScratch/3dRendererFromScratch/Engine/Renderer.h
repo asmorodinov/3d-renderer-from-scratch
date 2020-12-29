@@ -25,7 +25,7 @@ class Renderer {
 
     void clearScreen();
 
-    void renderSceneToScreen();
+    size_t renderSceneToScreen();
 
     void renderScreenToFile(const std::string& file) const;
     void renderScreenToSFMLWindow(sf::RenderWindow& window);
