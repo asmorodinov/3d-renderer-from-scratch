@@ -30,12 +30,16 @@ class Renderer {
     void renderScreenToFile(const std::string& file) const;
     void renderScreenToSFMLWindow(sf::RenderWindow& window);
 
+    void setRenderMode(RenderMode r);
+    RenderMode getRenderMode() const;
+
  private:
     Screen screen;
     sf::Texture screenTexture;
     sf::Sprite screenSprite;
 
     World world;
+    RenderMode rm;
 };
 
 }  // namespace eng

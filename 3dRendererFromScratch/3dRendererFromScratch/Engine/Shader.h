@@ -1,9 +1,12 @@
 #pragma once
 
+#include <assert.h>
 #include <algorithm>
 #include <concepts>
 #include <functional>
+#include <type_traits>
 #include <utility>
+#include <variant>
 #include <vector>
 
 #include <glm/glm.hpp>
@@ -14,58 +17,88 @@
 
 namespace eng {
 
-template <class T>
-concept Interpolatable = requires(T s, T e, T r, float t) {
-    r = s * (1.0f - t) + e * t;
-    s *= t;
-    s = T();
+template <class>
+inline constexpr bool always_false_v = false;
+
+class ShaderVariable {
+ public:
+    using var_t = std::variant<glm::vec4, glm::vec3, glm::vec2, float>;
+
+    template <typename T>
+    ShaderVariable(const T& v) : variable(v) {}
+
+    template <typename T>
+    void set(const T& v) {
+        variable = v;
+    }
+    template <typename T>
+    T get() const {
+        return std::get<T>(variable);
+    }
+
+    void operator*=(float t);
+    ShaderVariable operator*(float t) const;
+    ShaderVariable operator+(const ShaderVariable& other) const;
+
+ private:
+    var_t variable;
 };
 
-template <typename Const, Interpolatable Var>
+class ShaderVariablesVec {
+ public:
+    ShaderVariablesVec();
+    ShaderVariablesVec(const std::vector<ShaderVariable>& vec);
+
+    ShaderVariable& operator[](size_t i);
+    const ShaderVariable& operator[](size_t i) const;
+
+    void operator*=(float t);
+    ShaderVariablesVec operator*(float t) const;
+    ShaderVariablesVec operator+(const ShaderVariablesVec& other) const;
+
+ protected:
+    std::vector<ShaderVariable> vec;
+};
+
+class ShaderConstant {
+ public:
+    using var_t = std::variant<Texture*, glm::vec4, glm::vec3, glm::vec2, float, int>;
+
+    template <typename T>
+    ShaderConstant(const T& v) : variable(v) {}
+
+    template <typename T>
+    void set(const T& v) {
+        variable = v;
+    }
+    template <typename T>
+    T get() const {
+        return std::get<T>(variable);
+    }
+
+ private:
+    var_t variable;
+};
+using ShaderConstantsVec = std::vector<ShaderConstant>;
+
 class Shader {
  public:
+    using Const = ShaderConstantsVec;
+    using Var = ShaderVariablesVec;
+
     Shader() : c(), shader() {}
 
-    Const& getConst() { return c; }
-    void setConst(const Const& c1) { c = c1; }
+    Const& getConst();
+    void setConst(const Const& c1);
 
     using Func = std::function<glm::vec4(const Const&, const Var&, const LightsVec&)>;
 
-    const auto& getShader() const { return shader; }
-    void setShader(const Func& f) { shader = f; }
+    const Func& getShader() const;
+    void setShader(const Func& f);
 
  private:
     Func shader;
     Const c;
 };
-
-struct PhongVar {
-    glm::vec3 pos;
-    glm::vec2 uv;
-
-    void operator*=(float t) {
-        pos *= t;
-        uv *= t;
-    }
-    PhongVar operator*(float t) const { return {pos * t, uv * t}; }
-    PhongVar operator+(const PhongVar& oth) const { return {pos + oth.pos, uv + oth.uv}; }
-};
-struct PhongConst {
-    Texture t;
-    glm::vec3 viewPos;
-    glm::vec3 normal;
-};
-using PhongShader = Shader<PhongConst, PhongVar>;
-
-struct FlatVar {
-    FlatVar() {}
-
-    void operator*=(float t) {}
-    FlatVar operator*(float t) const { return {}; }
-    FlatVar operator+(const FlatVar& oth) const { return {}; }
-};
-using FlatShader = Shader<glm::vec3, FlatVar>;
-
-using TextureShader = Shader<Texture, glm::vec2>;
 
 }  // namespace eng

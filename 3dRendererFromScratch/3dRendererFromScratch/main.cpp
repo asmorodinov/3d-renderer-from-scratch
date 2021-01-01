@@ -6,8 +6,6 @@
 
 #include "Engine/Renderer.h"
 
-#include "profile.h"
-
 int main() {
     size_t width = 800;
     size_t height = 600;
@@ -34,32 +32,42 @@ int main() {
     text3.setCharacterSize(18);
     text3.setOrigin({0.0f, 0.0f});
 
-    eng::FlatShader fshader;
+    eng::Texture texture("data/texture.png");
+    eng::Texture texture2("data/texture2.png");
+    eng::Texture texture3("data/texture3.png");
+    eng::Texture swordTexture("data/sword.png");
+
+    eng::Shader fshader;
     fshader.setConst({glm::vec3(1.0f)});
 
-    fshader.setShader([](const glm::vec3& color, const eng::FlatVar& var, const eng::LightsVec& lights) -> glm::vec4 {
-        return glm::vec4(color, 1.0f);
-    });
+    fshader.setShader([](const eng::ShaderConstantsVec& consts, const eng::ShaderVariablesVec& var,
+                         const eng::LightsVec& lights) -> glm::vec4 { return glm::vec4(consts[0].get<glm::vec3>(), 1.0f); });
 
-    eng::TextureShader tshader;
-    tshader.setConst(eng::Texture("data/texture.png"));
+    eng::Shader tshader;
+    tshader.setConst({&texture});
 
-    tshader.setShader([](const eng::Texture& fl, const glm::vec2& var, const eng::LightsVec& lights) -> glm::vec4 {
-        return fl.sample(var.s, var.t);
-    });
+    tshader.setShader(
+        [](const eng::ShaderConstantsVec& consts, const eng::ShaderVariablesVec& var, const eng::LightsVec& lights) -> glm::vec4 {
+            auto uv = var[0].get<glm::vec2>();
+            return consts[0].get<eng::Texture*>()->sample(uv.s, uv.t);
+        });
 
-    eng::PhongShader pshader;
-    pshader.setConst({eng::Texture("data/texture.png"), glm::vec3(), glm::vec3()});
+    eng::Shader pshader;
+    pshader.setConst({&texture, glm::vec3(), glm::vec3()});
 
-    pshader.setShader([](const eng::PhongConst& ph, const eng::PhongVar& var, const eng::LightsVec& lights) -> glm::vec4 {
-        glm::vec4 color = ph.t.sample(var.uv.s, var.uv.t);
+    pshader.setShader([](const eng::ShaderConstantsVec& consts, const eng::ShaderVariablesVec& var,
+                         const eng::LightsVec& lights) -> glm::vec4 {
+        auto FragPos = var[0].get<glm::vec3>();
+        auto uv = var[1].get<glm::vec2>();
+
+        auto texture = consts[0].get<eng::Texture*>();
+        auto viewPos = consts[1].get<glm::vec3>();
+        auto normal = consts[2].get<glm::vec3>();
+
+        glm::vec4 color = texture->sample(uv.s, uv.t);
         glm::vec3 color1 = color;
 
         glm::vec3 lighting = color1 * 0.00f;
-
-        glm::vec3 FragPos = var.pos;
-        glm::vec3 viewPos = ph.viewPos;
-        glm::vec3 normal = ph.normal;
 
         for (const auto& light : lights) {
             glm::vec3 lightPos = light.pos;
@@ -85,29 +93,85 @@ int main() {
         return glm::vec4(lighting, color.a);
     });
 
-    eng::TextureShader tshader2 = tshader;
-    tshader2.setConst(eng::Texture("data/sword.png"));
-
-    eng::PhongShader pshader2 = pshader;
-    pshader2.getConst().t = eng::Texture("data/sword.png");
-
-    eng::TextureShader tshader3 = tshader;
-    tshader3.setConst(eng::Texture("data/texture2.png"));
-
-    eng::PhongShader pshader3 = pshader;
-    pshader3.getConst().t = eng::Texture("data/texture2.png");
-
-    eng::TextureShader tshader4 = tshader;
-    tshader4.setConst(eng::Texture("data/texture3.png"));
-
-    eng::PhongShader pshader4 = pshader;
-    pshader4.getConst().t = eng::Texture("data/texture3.png");
-
     int frames = 0;
     float lastTime = 0.0f;
     float fps = 0.0;
 
     eng::RenderMode fl = eng::RenderMode::Phong;
+
+    auto& objects = renderer.getWorld().getObjects();
+
+    auto& lights = renderer.getWorld().getPointLights();
+    if (lights.empty()) {
+        lights.push_back(eng::PointLight({2, 0.1, 0}, {0.2, 1, 0.2}, 1.2f, 0.5f));
+        lights.push_back(eng::PointLight({-2, 0.1, 0}, {1, 0.2, 0.2}, 1.2f, 0.5f));
+        lights.push_back(eng::PointLight({0, 0.1, 2}, {0.2, 0.2, 1.0}, 1.2f, 0.5f));
+        lights.push_back(eng::PointLight({0, 0.1, -2}, {0.2, 1.0, 1.0}, 1.2f, 0.5f));
+    }
+
+    // plane
+    float s = 2.6f;
+    float h = -0.8;
+
+    objects.emplace_back(std::make_unique<eng::Mesh>(eng::MeshData{{{-s, h, s}, {-s, h, -s}, {s, h, s}, {s, h, -s}},
+                                                                   {{0, 0}, {0, 1}, {1, 1}, {1, 0}},
+                                                                   {{0, 1, 2, 0, 3, 1}, {3, 2, 1, 2, 1, 3}}},
+                                                     &texture, eng::ColorType(1.0f), pshader, fshader, tshader));
+
+    // cube
+    float sz = 0.3f;
+    objects.emplace_back(std::make_unique<eng::Mesh>(eng::MeshData{{{-sz, -sz, -sz},
+                                                                    {-sz, -sz, sz},
+                                                                    {-sz, sz, -sz},
+                                                                    {-sz, sz, sz},
+                                                                    {sz, -sz, -sz},
+                                                                    {sz, -sz, sz},
+                                                                    {sz, sz, -sz},
+                                                                    {sz, sz, sz}},
+                                                                   {{0, 0}, {0, 1}, {1, 1}, {1, 0}},
+                                                                   {{1, 3, 7, 0, 1, 2},
+                                                                    {1, 7, 5, 0, 2, 3},
+                                                                    {5, 7, 6, 0, 1, 2},
+                                                                    {5, 6, 4, 0, 2, 3},
+                                                                    {4, 6, 2, 0, 1, 2},
+                                                                    {4, 2, 0, 0, 2, 3},
+                                                                    {0, 2, 3, 0, 1, 2},
+                                                                    {0, 3, 1, 0, 2, 3},
+                                                                    {3, 2, 6, 0, 1, 2},
+                                                                    {3, 6, 7, 0, 2, 3},
+                                                                    {0, 1, 5, 0, 1, 2},
+                                                                    {0, 5, 4, 0, 2, 3}}},
+                                                     &texture, eng::ColorType(1.0f), pshader, fshader, tshader));
+    objects.back()->getTransform().position = glm::vec3(-1.0f, h + sz, 0.8f);
+
+    // teapot
+    objects.emplace_back(std::make_unique<eng::Mesh>(eng::loadFromObj("data/teapot.obj", 0.4f, true, false), &texture3,
+                                                     eng::ColorType(1.0f), pshader, fshader, tshader));
+    objects.back()->getTransform().position.y = h;
+
+    // sphere
+    objects.emplace_back(std::make_unique<eng::Mesh>(eng::loadFromObj("data/lowPolySphere.obj", 0.4f, true), &texture2,
+                                                     eng::ColorType(1.0f), pshader, fshader, tshader));
+    objects.back()->getTransform().position = glm::vec3(1.0f, h + 0.4f, -0.8f);
+
+    // sword
+    objects.emplace_back(std::make_unique<eng::Mesh>(eng::loadFromObj("data/sword.obj", 2.0f, true), &swordTexture,
+                                                     eng::ColorType(1.0f), pshader, fshader, tshader));
+    objects.back()->getTransform().position = glm::vec3(-1.0f, h, -0.8f);
+
+    eng::Mesh light(eng::loadFromObj("data/light.obj", 0.1f, true, false), &texture, eng::ColorType(1.0f), pshader, fshader,
+                    tshader, eng::RenderMode::Wireframe);
+
+    for (int y = 0; y < lights.size(); ++y) {
+        glm::vec3 pos = lights[y].pos;
+        glm::vec3 color = lights[y].color;
+
+        auto lightObj = std::make_unique<eng::Mesh>(light);
+        lightObj->setPosition(pos);
+        lightObj->setColor(color);
+
+        objects.emplace_back(std::move(lightObj));
+    }
 
     float time = 0.0f;
     sf::Clock deltaClock;
@@ -116,7 +180,7 @@ int main() {
         while (window.pollEvent(event)) {
             if (event.type == sf::Event::Closed) window.close();
             if (event.type == sf::Event::KeyPressed) {
-                if (event.key.code == sf::Keyboard::Space) fl = static_cast<eng::RenderMode>((static_cast<int>(fl) + 1) % 3);
+                if (event.key.code == sf::Keyboard::Space) fl = static_cast<eng::RenderMode>((static_cast<int>(fl) + 1) % 4);
                 if (event.key.code == sf::Keyboard::Escape) window.close();
             }
         }
@@ -136,9 +200,6 @@ int main() {
         float t = 0.2f * 360.0f / 20.0f * time;
         float t2 = t * 5.0f;
 
-        auto& objects = renderer.getWorld().getObjects();
-        objects.clear();
-
         auto& cam = renderer.getWorld().getCamera();
         cam.setPosition(4.5f * glm::vec3(std::sin(glm::radians(t2 / 3.0f)), 0.0f, std::cos(glm::radians(t2 / 3.0f))) +
                         glm::vec3(0.0f, 0.8f + 0.8f * std::cos(glm::radians(t2 / 1.0f)), 0.0f));
@@ -147,87 +208,9 @@ int main() {
         auto& screen = renderer.getScreen();
         screen.setClearColor(clr * (2.0f + 0.2f * std::sin(glm::radians(t))));
 
-        auto& lights = renderer.getWorld().getPointLights();
-        if (lights.empty()) {
-            lights.push_back(eng::PointLight({2, 0.1, 0}, {0.2, 1, 0.2}, 1.2f, 0.5f));
-            lights.push_back(eng::PointLight({-2, 0.1, 0}, {1, 0.2, 0.2}, 1.2f, 0.5f));
-            lights.push_back(eng::PointLight({0, 0.1, 2}, {0.2, 0.2, 1.0}, 1.2f, 0.5f));
-            lights.push_back(eng::PointLight({0, 0.1, -2}, {0.2, 1.0, 1.0}, 1.2f, 0.5f));
-        }
-
-        float s = 2.6f;
-        float h = -0.8;
-
-        objects.emplace_back(std::make_unique<eng::Mesh>(eng::MeshData{{{-s, h, s}, {-s, h, -s}, {s, h, s}, {s, h, -s}},
-                                                                       {{0, 0}, {0, 1}, {1, 1}, {1, 0}},
-                                                                       {{0, 1, 2, 0, 3, 1}, {3, 2, 1, 2, 1, 3}}},
-                                                         eng::ColorType(1.0f), pshader, fshader, tshader, fl));
-
-        float sz = 0.3f;
-        objects.emplace_back(std::make_unique<eng::Mesh>(eng::MeshData{{{-sz, -sz, -sz},
-                                                                        {-sz, -sz, sz},
-                                                                        {-sz, sz, -sz},
-                                                                        {-sz, sz, sz},
-                                                                        {sz, -sz, -sz},
-                                                                        {sz, -sz, sz},
-                                                                        {sz, sz, -sz},
-                                                                        {sz, sz, sz}},
-                                                                       {{0, 0}, {0, 1}, {1, 1}, {1, 0}},
-                                                                       {{1, 3, 7, 0, 1, 2},
-                                                                        {1, 7, 5, 0, 2, 3},
-                                                                        {5, 7, 6, 0, 1, 2},
-                                                                        {5, 6, 4, 0, 2, 3},
-                                                                        {4, 6, 2, 0, 1, 2},
-                                                                        {4, 2, 0, 0, 2, 3},
-                                                                        {0, 2, 3, 0, 1, 2},
-                                                                        {0, 3, 1, 0, 2, 3},
-                                                                        {3, 2, 6, 0, 1, 2},
-                                                                        {3, 6, 7, 0, 2, 3},
-                                                                        {0, 1, 5, 0, 1, 2},
-                                                                        {0, 5, 4, 0, 2, 3}}},
-                                                         eng::ColorType(1.0f), pshader, fshader, tshader, fl));
-        objects.back()->getTransform().position = glm::vec3(-1.0f, h + sz, 0.8f);
-
-        objects.emplace_back(std::make_unique<eng::Mesh>(eng::loadFromObj("data/teapot.obj", 0.4f, true, false),
-                                                         eng::ColorType(1.0f), pshader4, fshader, tshader4, fl));
-        objects.back()->getTransform().position.y = h;
-
-        objects.emplace_back(std::make_unique<eng::Mesh>(eng::loadFromObj("data/lowPolySphere.obj", 0.4f, true),
-                                                         eng::ColorType(1.0f), pshader3, fshader, tshader3, fl));
-        objects.back()->getTransform().position = glm::vec3(1.0f, h + 0.4f, -0.8f);
-
-        objects.emplace_back(std::make_unique<eng::Mesh>(eng::loadFromObj("data/sword.obj", 2.0f, true), eng::ColorType(1.0f),
-                                                         pshader2, fshader, tshader2, fl));
-        objects.back()->getTransform().position = glm::vec3(-1.0f, h, -0.8f);
-
-        for (int y = 0; y < lights.size(); ++y) {
-            glm::vec3 pos = lights[y].pos;
-            glm::vec3 color = lights[y].color;
-            float scale = 0.1f;
-            eng::RenderMode flat = eng::RenderMode::FlatColor;
-
-            glm::mat4 model = glm::mat4(1.0f);
-            model = glm::translate(model, pos);
-            model = glm::scale(model, glm::vec3(scale));
-
-            glm::mat4 model2 = glm::mat4(1.0f);
-            model2 = glm::translate(model2, pos);
-            model2 = glm::scale(model2, -glm::vec3(scale));
-
-            std::vector<glm::vec3> points = {{1, 1, 1}, {-1, -1, 1}, {-1, 1, -1}, {1, -1, -1}};
-            for (auto& p : points) p = model * glm::vec4(p, 1.0f);
-
-            std::vector<glm::vec3> points2 = {{1, 1, 1}, {-1, -1, 1}, {-1, 1, -1}, {1, -1, -1}};
-            for (auto& p : points2) p = model2 * glm::vec4(p, 1.0f);
-
-            for (int i = 0; i < 4; ++i)
-                for (int j = i + 1; j < 4; ++j) {
-                    objects.emplace_back(std::make_unique<eng::Line>(points[i], points[j], color));
-                    objects.emplace_back(std::make_unique<eng::Line>(points2[i], points2[j], color));
-                }
-        }
-
         renderer.clearScreen();
+        renderer.setRenderMode(fl);
+
         text3.setString("triangles: " + std::to_string(renderer.renderSceneToScreen()));
 
         window.clear();
@@ -236,8 +219,6 @@ int main() {
         window.draw(text2);
         window.draw(text3);
         window.display();
-
-        // std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>(1000.0f * (1.0f / fps - dt))));
     }
 
     return 0;
