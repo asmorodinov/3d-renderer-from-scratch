@@ -1,0 +1,12 @@
+# Build results
+/Debug/
+/Release/
+/3dRendererFromScratch/Debug/
+/3dRendererFromScratch/Release/
+/3dRendererFromScratch/x64/
+/3dRendererFromScratch/x86/
+x64/
+x86/
+.vs/
+
+*.user
