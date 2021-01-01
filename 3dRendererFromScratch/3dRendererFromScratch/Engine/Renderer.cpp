@@ -15,7 +15,7 @@ void Renderer::clearScreen() { screen.clear(); }
 size_t Renderer::renderSceneToScreen() {
     size_t trianglesDrawn = 0;
     for (auto& object : world.getObjects()) {
-        object->draw(world.getCamera(), screen, world.getPointLights());
+        object->draw(rm, world.getCamera(), screen, world.getPointLights());
         trianglesDrawn += object->getTriangleCount();
     }
 
@@ -78,5 +78,9 @@ void Renderer::renderScreenToSFMLWindow(sf::RenderWindow& window) {
     screenTexture.update(&pixels[0]);
     window.draw(screenSprite);
 }
+
+void Renderer::setRenderMode(RenderMode r) { rm = r; }
+
+RenderMode Renderer::getRenderMode() const { return rm; }
 
 }  // namespace eng

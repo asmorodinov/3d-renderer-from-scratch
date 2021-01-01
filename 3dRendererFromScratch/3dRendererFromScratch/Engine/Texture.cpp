@@ -25,8 +25,8 @@ Texture::Texture(const std::string& file) {
 }
 
 glm::vec4 Texture::sample(float x, float y, int n, int m) const {
-    // constexpr float eps = 0.00001f;
-    // assert(x >= -eps && x <= 1 + eps && y >= -eps && y <= 1 + eps);
+    // temporary hack, this will be removed when I add triangle clipping with frustrum planes
+    // (e.g. to not render objects behind camera)
     if (x < 0 || y < 0 || x > 1 || y > 1) return glm::vec4();
 
     x = (x * n) - int(x * n);
