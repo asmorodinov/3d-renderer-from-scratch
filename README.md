@@ -8,6 +8,7 @@ TODO list:
 
 - [ ] Clipping triangles against frustrum planes 
 - [ ] ...
+- [ ] Cubemap textures
 - [ ] Different texture sampling modes
 - [ ] Alpha blending
 - [ ] Shadow mapping
