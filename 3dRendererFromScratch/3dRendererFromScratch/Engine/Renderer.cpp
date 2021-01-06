@@ -12,6 +12,28 @@ World& Renderer::getWorld() { return world; }
 
 void Renderer::clearScreen() { screen.clear(); }
 
+void Renderer::mouseMove(float x, float y) {
+    if (mx >= 0.0f && my >= 0.0f && x >= 0.0f && y >= 0.0f) {
+        camera.mouseMove(x - mx, y - my);
+    }
+    mx = x;
+    my = y;
+}
+
+void Renderer::keyPressedOrReleased(sf::Keyboard::Key key, bool mode) { camera.keyPressedOrReleased(key, mode); }
+
+void Renderer::update(float dt) {
+    for (auto& object : world.getObjects()) {
+        object->update(dt);
+    }
+    camera.update(dt);
+
+    if (playerControl) {
+        world.getCamera().setPosition(camera.position);
+        world.getCamera().setDirection(camera.direction);
+    }
+}
+
 size_t Renderer::renderSceneToScreen() {
     size_t trianglesDrawn = 0;
     for (auto& object : world.getObjects()) {

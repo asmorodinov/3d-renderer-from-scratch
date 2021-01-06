@@ -6,7 +6,7 @@ namespace eng {
 
 class Camera {
  public:
-    Camera(glm::vec3 position = glm::vec3(0.0f), glm::vec3 direction = glm::vec3(0, 0, 1));
+    Camera(glm::vec3 position = glm::vec3(0.0f), glm::vec3 direction = glm::vec3(0, 0, -1));
 
     glm::mat4 getViewMatrix() const;
 
