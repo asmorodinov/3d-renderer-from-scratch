@@ -10,7 +10,7 @@ MeshData loadFromObj(const std::string& filename, float scale, bool invertNormal
 
     MeshData mesh;
     if (uvCoords == false) {
-        mesh.textureCoords.push_back(glm::vec2());
+        mesh.textureCoords.push_back(glm::vec2(0.5f));
     }
 
     std::string s;
@@ -53,9 +53,9 @@ MeshData loadFromObj(const std::string& filename, float scale, bool invertNormal
     return mesh;
 }
 
-Mesh::Mesh(const MeshData& mesh, Texture* texture, ColorType color, Shader& ph, Shader& fl, Shader& td,
+Mesh::Mesh(const MeshData& mesh, Texture* texture, ColorType color, Shader& ph, Shader& fl, Shader& td, Shader& uv, Shader& nrm,
            std::optional<RenderMode> rm)
-    : mesh(mesh), texture(texture), color(color), ph(ph), fl(fl), td(td), rm(rm) {}
+    : mesh(mesh), texture(texture), color(color), ph(ph), fl(fl), td(td), uv(uv), nrm(nrm), rm(rm) {}
 
 void Mesh::draw(RenderMode r, const Camera& camera, Screen& screen, const LightsVec& lights) {
     glm::mat4 model = t.getModel();
@@ -79,13 +79,16 @@ void Mesh::draw(RenderMode r, const Camera& camera, Screen& screen, const Lights
         tr.p1 = p1;
         tr.p2 = p2;
 
-        if (r == RenderMode::Texture) {
+        if (r == RenderMode::Texture || r == RenderMode::UV) {
             tr.v0 = ShaderVariablesVec({mesh.textureCoords[face.ti]});
             tr.v1 = ShaderVariablesVec({mesh.textureCoords[face.tj]});
             tr.v2 = ShaderVariablesVec({mesh.textureCoords[face.tk]});
-
-            td.setConst({texture});
-            drawTriangle(tr, transform, td, screen, lights);
+            if (r == RenderMode::Texture) {
+                td.setConst({texture});
+                drawTriangle(tr, transform, td, screen, lights);
+            } else {
+                drawTriangle(tr, transform, uv, screen, lights);
+            }
         } else if (r == RenderMode::FlatColor) {
             fl.setConst({color});
 
@@ -95,15 +98,20 @@ void Mesh::draw(RenderMode r, const Camera& camera, Screen& screen, const Lights
             drawLine(p1, p2, color, transform, screen);
             drawLine(p2, p0, color, transform, screen);
         } else {
-            tr.v0 = ShaderVariablesVec({p0, mesh.textureCoords[face.ti]});
-            tr.v1 = ShaderVariablesVec({p1, mesh.textureCoords[face.tj]});
-            tr.v2 = ShaderVariablesVec({p2, mesh.textureCoords[face.tk]});
-
             glm::vec3 normal = -glm::normalize(glm::cross(p1 - p0, p2 - p0));
+            if (r == RenderMode::Phong) {
+                tr.v0 = ShaderVariablesVec({p0, mesh.textureCoords[face.ti]});
+                tr.v1 = ShaderVariablesVec({p1, mesh.textureCoords[face.tj]});
+                tr.v2 = ShaderVariablesVec({p2, mesh.textureCoords[face.tk]});
 
-            ph.setConst({texture, camera.getPosition(), normal});
+                ph.setConst({texture, camera.getPosition(), normal});
 
-            drawTriangle(tr, transform, ph, screen, lights);
+                drawTriangle(tr, transform, ph, screen, lights);
+            } else {
+                nrm.setConst({normal});
+
+                drawTriangle(tr, transform, nrm, screen, lights);
+            }
         }
     }
 }

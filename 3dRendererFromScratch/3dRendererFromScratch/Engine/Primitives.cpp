@@ -117,7 +117,7 @@ void drawTriangleNormalVersion(const Triangle& t, const glm::mat4& transform, Sh
             if (z > screen.getPixelDepth(size_t(x), size_t(y))) continue;
 
             float w = 1.0f / (w0 / p0.w + w1 / p1.w + w2 / p2.w);
-            if (z < -1.0f || z > 1.0f || w < 0.0f) continue;
+            if (z < 0.0f || z > 1.0f) continue;
 
             Var t = (t0 * w0 + t1 * w1 + t2 * w2) * w;
             auto lighting = shaderFunc(shader.getConst(), t, lights);

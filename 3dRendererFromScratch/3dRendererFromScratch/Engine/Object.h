@@ -18,7 +18,8 @@
 
 namespace eng {
 
-enum struct RenderMode { FlatColor, Wireframe, Texture, Phong };
+enum struct RenderMode { Wireframe, FlatColor, UV, Normals, Texture, Phong };
+
 class Object {
  public:
     virtual ~Object() = default;
@@ -53,7 +54,7 @@ MeshData loadFromObj(const std::string& filename, float scale = 1.0f, bool inver
 
 class Mesh : public Object {
  public:
-    Mesh(const MeshData& mesh, Texture* texture, ColorType color, Shader& ph, Shader& fl, Shader& td,
+    Mesh(const MeshData& mesh, Texture* texture, ColorType color, Shader& ph, Shader& fl, Shader& td, Shader& uv, Shader& nrm,
          std::optional<RenderMode> rm = std::nullopt);
 
     void draw(RenderMode r, const Camera& camera, Screen& screen, const LightsVec& lights) override;
@@ -75,6 +76,8 @@ class Mesh : public Object {
     Shader& ph;
     Shader& fl;
     Shader& td;
+    Shader& uv;
+    Shader& nrm;
 };
 
 }  // namespace eng

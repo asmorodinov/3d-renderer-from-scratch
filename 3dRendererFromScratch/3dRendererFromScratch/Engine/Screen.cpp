@@ -11,7 +11,7 @@ Screen::Screen(size_t width, size_t height, ColorType clearColor)
       clearColor(clearColor),
       colorBuffer(width, std::vector<ColorType>(height, clearColor)),
       depthBuffer(width, std::vector<float>(height, std::numeric_limits<float>::max())),
-      projectionMatrix(glm::perspective(glm::radians(45.0f), ratio, near, far)) {}
+      projectionMatrix(glm::perspectiveRH_ZO(glm::radians(45.0f), ratio, near, far)) {}
 
 const glm::mat4& Screen::getProjectionMatrix() const { return projectionMatrix; }
 
@@ -43,7 +43,7 @@ void Screen::depthCheckSetPixelColor(size_t x, size_t y, float z, ColorType colo
     assert(x < width && y < height);
 
     // std::cout << z << '\n';
-    if (z < -1 || z > 1) return;
+    if (z < 0 || z > 1) return;
 
     // minz = std::min(z, minz);
     // maxz = std::max(z, maxz);

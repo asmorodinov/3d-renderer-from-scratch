@@ -52,6 +52,20 @@ int main() {
             return consts[0].get<eng::Texture*>()->sample(uv.s, uv.t);
         });
 
+    eng::Shader uvshader;
+    uvshader.setShader(
+        [](const eng::ShaderConstantsVec& consts, const eng::ShaderVariablesVec& var, const eng::LightsVec& lights) -> glm::vec4 {
+            auto uv = var[0].get<glm::vec2>();
+            return glm::vec4(uv.s, uv.t, 0.5f, 1.0f);
+        });
+
+    eng::Shader normalshader;
+    normalshader.setShader(
+        [](const eng::ShaderConstantsVec& consts, const eng::ShaderVariablesVec& var, const eng::LightsVec& lights) -> glm::vec4 {
+            auto normal = consts[0].get<glm::vec3>();
+            return glm::vec4(0.5f * (normal + 1.0f), 1.0f);
+        });
+
     eng::Shader pshader;
     pshader.setConst({&texture, glm::vec3(), glm::vec3()});
 
@@ -116,7 +130,8 @@ int main() {
     objects.emplace_back(std::make_unique<eng::Mesh>(eng::MeshData{{{-s, h, s}, {-s, h, -s}, {s, h, s}, {s, h, -s}},
                                                                    {{0, 0}, {0, 1}, {1, 1}, {1, 0}},
                                                                    {{0, 1, 2, 0, 3, 1}, {3, 2, 1, 2, 1, 3}}},
-                                                     &texture, eng::ColorType(1.0f), pshader, fshader, tshader));
+                                                     &texture, eng::ColorType(1.0f), pshader, fshader, tshader, uvshader,
+                                                     normalshader));
 
     // cube
     float sz = 0.3f;
@@ -141,26 +156,31 @@ int main() {
                                                                     {3, 6, 7, 0, 2, 3},
                                                                     {0, 1, 5, 0, 1, 2},
                                                                     {0, 5, 4, 0, 2, 3}}},
-                                                     &texture, eng::ColorType(1.0f), pshader, fshader, tshader));
+                                                     &texture, eng::ColorType(1.0f), pshader, fshader, tshader, uvshader,
+                                                     normalshader));
     objects.back()->getTransform().position = glm::vec3(-1.0f, h + sz, 0.8f);
 
     // teapot
     objects.emplace_back(std::make_unique<eng::Mesh>(eng::loadFromObj("data/teapot.obj", 0.4f, true, false), &texture3,
-                                                     eng::ColorType(1.0f), pshader, fshader, tshader));
+                                                     eng::ColorType(1.0f), pshader, fshader, tshader, uvshader, normalshader));
     objects.back()->getTransform().position.y = h;
 
     // sphere
-    objects.emplace_back(std::make_unique<eng::Mesh>(eng::loadFromObj("data/lowPolySphere.obj", 0.4f, true), &texture2,
-                                                     eng::ColorType(1.0f), pshader, fshader, tshader));
-    objects.back()->getTransform().position = glm::vec3(1.0f, h + 0.4f, -0.8f);
+    for (int y = 0; y < 2; ++y)
+        for (int x = 0; x < 3; ++x) {
+            objects.emplace_back(std::make_unique<eng::Mesh>(eng::loadFromObj("data/lowPolySphere.obj", 0.4f, true), &texture2,
+                                                             eng::ColorType(1.0f), pshader, fshader, tshader, uvshader,
+                                                             normalshader));
+            objects.back()->getTransform().position = glm::vec3(1.0f + 2.0f * x, h + 0.4f + 2.0f * y, -0.8f);
+        }
 
     // sword
     objects.emplace_back(std::make_unique<eng::Mesh>(eng::loadFromObj("data/sword.obj", 2.0f, true), &swordTexture,
-                                                     eng::ColorType(1.0f), pshader, fshader, tshader));
+                                                     eng::ColorType(1.0f), pshader, fshader, tshader, uvshader, normalshader));
     objects.back()->getTransform().position = glm::vec3(-1.0f, h, -0.8f);
 
     eng::Mesh light(eng::loadFromObj("data/light.obj", 0.1f, true, false), &texture, eng::ColorType(1.0f), pshader, fshader,
-                    tshader, eng::RenderMode::Wireframe);
+                    tshader, uvshader, normalshader, eng::RenderMode::FlatColor);
 
     for (int y = 0; y < lights.size(); ++y) {
         glm::vec3 pos = lights[y].pos;
@@ -178,10 +198,19 @@ int main() {
     while (window.isOpen()) {
         sf::Event event;
         while (window.pollEvent(event)) {
-            if (event.type == sf::Event::Closed) window.close();
-            if (event.type == sf::Event::KeyPressed) {
-                if (event.key.code == sf::Keyboard::Space) fl = static_cast<eng::RenderMode>((static_cast<int>(fl) + 1) % 4);
+            if (event.type == sf::Event::Closed) {
+                window.close();
+            } else if (event.type == sf::Event::KeyPressed) {
+                if (event.key.code == sf::Keyboard::Space) fl = static_cast<eng::RenderMode>((static_cast<int>(fl) + 1) % 6);
                 if (event.key.code == sf::Keyboard::Escape) window.close();
+
+                renderer.keyPressedOrReleased(event.key.code, true);
+            } else if (event.type == sf::Event::KeyReleased) {
+                renderer.keyPressedOrReleased(event.key.code, false);
+            } else if (event.type == sf::Event::MouseMoved) {
+                renderer.mouseMove(event.mouseMove.x, event.mouseMove.y);
+            } else if (event.type == sf::Event::MouseEntered) {
+                renderer.mouseMove(-1.0f, -1.0f);
             }
         }
 
@@ -205,12 +234,10 @@ int main() {
                         glm::vec3(0.0f, 0.8f + 0.8f * std::cos(glm::radians(t2 / 1.0f)), 0.0f));
         cam.setDirection(-cam.getPosition());
 
-        auto& screen = renderer.getScreen();
-        screen.setClearColor(clr * (2.0f + 0.2f * std::sin(glm::radians(t))));
-
         renderer.clearScreen();
         renderer.setRenderMode(fl);
 
+        renderer.update(dt);
         text3.setString("triangles: " + std::to_string(renderer.renderSceneToScreen()));
 
         window.clear();
@@ -218,6 +245,7 @@ int main() {
         window.draw(text);
         window.draw(text2);
         window.draw(text3);
+
         window.display();
     }
 
