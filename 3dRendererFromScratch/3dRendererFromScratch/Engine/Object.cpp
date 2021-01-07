@@ -73,6 +73,7 @@ void Mesh::draw(RenderMode r, const Camera& camera, Screen& screen, const Lights
         glm::vec3 p0 = glm::vec3(p0_);
         glm::vec3 p1 = glm::vec3(p1_);
         glm::vec3 p2 = glm::vec3(p2_);
+        glm::vec3 normal = -glm::normalize(glm::cross(p1 - p0, p2 - p0));
 
         Triangle tr;
         p0_ = transform * p0_;
@@ -101,7 +102,6 @@ void Mesh::draw(RenderMode r, const Camera& camera, Screen& screen, const Lights
             drawLine(tr.p1, tr.p2, color, screen);
             drawLine(tr.p2, tr.p0, color, screen);
         } else {
-            glm::vec3 normal = -glm::normalize(glm::cross(p1 - p0, p2 - p0));
             if (r == RenderMode::Phong) {
                 tr.v0 = ShaderVariablesVec({p0, mesh.textureCoords[face.ti]});
                 tr.v1 = ShaderVariablesVec({p1, mesh.textureCoords[face.tj]});

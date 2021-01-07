@@ -29,7 +29,7 @@ void drawLine(glm::vec4 pos1, glm::vec4 pos2, ColorType color, Screen& screen) {
                                                      (std::pow(x1 - x0, 2) + std::pow(y1 - y0, 2)));
         float z = 1.0f / (t / p2.z + (1 - t) / p1.z);
 
-        if (x >= 0 && y >= 0 && x < screen.getWidth() && y < screen.getHeight()) {
+        if (z >= 0.0f && z <= 1.0f && x >= 0 && y >= 0 && x < screen.getWidth() && y < screen.getHeight()) {
             screen.setPixelColor(size_t(x), size_t(y), color, z);
         }
 
@@ -61,9 +61,6 @@ void drawTriangleNormalVersion(const Triangle& t, Shader& shader, Screen& screen
     glm::vec4 p0 = t.p0;
     glm::vec4 p1 = t.p1;
     glm::vec4 p2 = t.p2;
-    p0 = glm::vec4(p0.x / p0.w, p0.y / p0.w, p0.z / p0.w, p0.w);
-    p1 = glm::vec4(p1.x / p1.w, p1.y / p1.w, p1.z / p1.w, p1.w);
-    p2 = glm::vec4(p2.x / p2.w, p2.y / p2.w, p2.z / p2.w, p2.w);
 
     if ((p0.x < -1.0f && p1.x < -1.0f && p2.x < -1.0f) || (p0.x > 1.0f && p1.x > 1.0f && p2.x > 1.0f) ||
         (p0.y < -1.0f && p1.y < -1.0f && p2.y < -1.0f) || (p0.y > 1.0f && p1.y > 1.0f && p2.y > 1.0f))
@@ -93,9 +90,6 @@ void drawTriangleNormalVersion(const Triangle& t, Shader& shader, Screen& screen
     Var t0 = t.v0;
     Var t1 = t.v1;
     Var t2 = t.v2;
-    t0 *= 1.0f / p0.w;
-    t1 *= 1.0f / p1.w;
-    t2 *= 1.0f / p2.w;
 
     auto& shaderFunc = shader.getShader();
 
@@ -110,10 +104,10 @@ void drawTriangleNormalVersion(const Triangle& t, Shader& shader, Screen& screen
             w0 /= l;
             w1 /= l;
             w2 /= l;
-            float z = 1.0f / (w0 / p0.z + w1 / p1.z + w2 / p2.z);
+            float z = 1.0f / (w0 * p0.z + w1 * p1.z + w2 * p2.z);
             if (z > screen.getPixelDepth(size_t(x), size_t(y))) continue;
 
-            float w = 1.0f / (w0 / p0.w + w1 / p1.w + w2 / p2.w);
+            float w = 1.0f / (w0 * p0.w + w1 * p1.w + w2 * p2.w);
             if (z < 0.0f || z > 1.0f) continue;
 
             Var t = (t0 * w0 + t1 * w1 + t2 * w2) * w;
@@ -126,8 +120,20 @@ void drawTriangleNormalVersion(const Triangle& t, Shader& shader, Screen& screen
 }
 
 void drawTriangle(const Triangle& t, Shader& shader, Screen& screen, const LightsVec& lights) {
+    Triangle tr = t;
+    tr.v0 *= 1.0f / tr.p0.w;
+    tr.v1 *= 1.0f / tr.p1.w;
+    tr.v2 *= 1.0f / tr.p2.w;
+
+    tr.p0.z = 1.0f / tr.p0.z;
+    tr.p1.z = 1.0f / tr.p0.z;
+    tr.p2.z = 1.0f / tr.p0.z;
+
+    tr.p0.w = 1.0f / tr.p0.w;
+    tr.p1.w = 1.0f / tr.p0.w;
+    tr.p2.w = 1.0f / tr.p0.w;
     // drawTriangleOvercomplicatedVersion(t, transform, shader, screen, lights);
-    drawTriangleNormalVersion(t, shader, screen, lights);
+    drawTriangleNormalVersion(tr, shader, screen, lights);
 }
 
 void drawTriangleOvercomplicatedVersion(const Triangle& t, Shader& shader, Screen& screen, const LightsVec& lights) {
@@ -154,9 +160,6 @@ void drawTriangleOvercomplicatedVersion(const Triangle& t, Shader& shader, Scree
     Var t0 = t.v0;
     Var t1 = t.v1;
     Var t2 = t.v2;
-    t0 *= 1.0f / p0.w;
-    t1 *= 1.0f / p1.w;
-    t2 *= 1.0f / p2.w;
 
     if (y1 < y0) {
         std::swap(x0, x1);
@@ -177,9 +180,9 @@ void drawTriangleOvercomplicatedVersion(const Triangle& t, Shader& shader, Scree
         std::swap(t1, t2);
     }
 
-    InterpolatedVariables iv0 = {1.0f / p0.z, 1.0f / p0.w, t0};
-    InterpolatedVariables iv1 = {1.0f / p1.z, 1.0f / p1.w, t1};
-    InterpolatedVariables iv2 = {1.0f / p2.z, 1.0f / p2.w, t2};
+    InterpolatedVariables iv0 = {p0.z, p0.w, t0};
+    InterpolatedVariables iv1 = {p1.z, p1.w, t1};
+    InterpolatedVariables iv2 = {p2.z, p2.w, t2};
 
     int dx1 = x1 - x0;
     int dy1 = y1 - y0;
@@ -275,6 +278,7 @@ void drawTriangleOvercomplicatedVersion(const Triangle& t, Shader& shader, Scree
                 float z = 1.0f / iv.z;
 
                 if (z > screen.getPixelDepth(size_t(x), size_t(y))) continue;
+                if (z < 0.0f || z > 1.0f) continue;
 
                 Var it = iv.t * w;
                 auto lighting = shaderFunc(shader.getConst(), it, lights);
