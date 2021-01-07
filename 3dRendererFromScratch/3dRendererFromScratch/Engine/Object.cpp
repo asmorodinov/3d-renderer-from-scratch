@@ -75,9 +75,12 @@ void Mesh::draw(RenderMode r, const Camera& camera, Screen& screen, const Lights
         glm::vec3 p2 = glm::vec3(p2_);
 
         Triangle tr;
-        tr.p0 = p0;
-        tr.p1 = p1;
-        tr.p2 = p2;
+        p0_ = transform * p0_;
+        p1_ = transform * p1_;
+        p2_ = transform * p2_;
+        tr.p0 = glm::vec4(p0_.x / p0_.w, p0_.y / p0_.w, p0_.z / p0_.w, p0_.w);
+        tr.p1 = glm::vec4(p1_.x / p1_.w, p1_.y / p1_.w, p1_.z / p1_.w, p1_.w);
+        tr.p2 = glm::vec4(p2_.x / p2_.w, p2_.y / p2_.w, p2_.z / p2_.w, p2_.w);
 
         if (r == RenderMode::Texture || r == RenderMode::UV) {
             tr.v0 = ShaderVariablesVec({mesh.textureCoords[face.ti]});
@@ -85,18 +88,18 @@ void Mesh::draw(RenderMode r, const Camera& camera, Screen& screen, const Lights
             tr.v2 = ShaderVariablesVec({mesh.textureCoords[face.tk]});
             if (r == RenderMode::Texture) {
                 td.setConst({texture});
-                drawTriangle(tr, transform, td, screen, lights);
+                drawTriangle(tr, td, screen, lights);
             } else {
-                drawTriangle(tr, transform, uv, screen, lights);
+                drawTriangle(tr, uv, screen, lights);
             }
         } else if (r == RenderMode::FlatColor) {
             fl.setConst({color});
 
-            drawTriangle(tr, transform, fl, screen, lights);
+            drawTriangle(tr, fl, screen, lights);
         } else if (r == RenderMode::Wireframe) {
-            drawLine(p0, p1, color, transform, screen);
-            drawLine(p1, p2, color, transform, screen);
-            drawLine(p2, p0, color, transform, screen);
+            drawLine(tr.p0, tr.p1, color, screen);
+            drawLine(tr.p1, tr.p2, color, screen);
+            drawLine(tr.p2, tr.p0, color, screen);
         } else {
             glm::vec3 normal = -glm::normalize(glm::cross(p1 - p0, p2 - p0));
             if (r == RenderMode::Phong) {
@@ -106,11 +109,11 @@ void Mesh::draw(RenderMode r, const Camera& camera, Screen& screen, const Lights
 
                 ph.setConst({texture, camera.getPosition(), normal});
 
-                drawTriangle(tr, transform, ph, screen, lights);
+                drawTriangle(tr, ph, screen, lights);
             } else {
                 nrm.setConst({normal});
 
-                drawTriangle(tr, transform, nrm, screen, lights);
+                drawTriangle(tr, nrm, screen, lights);
             }
         }
     }

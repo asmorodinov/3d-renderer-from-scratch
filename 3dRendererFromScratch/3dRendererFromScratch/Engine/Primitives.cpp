@@ -2,11 +2,9 @@
 
 namespace eng {
 
-void drawLine(glm::vec3 pos1, glm::vec3 pos2, ColorType color, const glm::mat4& transform, Screen& screen) {
-    glm::vec4 p1 = transform * glm::vec4(pos1, 1.0f);
-    glm::vec4 p2 = transform * glm::vec4(pos2, 1.0f);
-    p1 = glm::vec4(p1.x / p1.w, p1.y / p1.w, p1.z / p1.w, p1.w);
-    p2 = glm::vec4(p2.x / p2.w, p2.y / p2.w, p2.z / p2.w, p2.w);
+void drawLine(glm::vec4 pos1, glm::vec4 pos2, ColorType color, Screen& screen) {
+    glm::vec4 p1 = pos1;
+    glm::vec4 p2 = pos2;
 
     if ((p1.x < -1.0f && p2.x < -1.0f) || (p1.x > 1.0f && p2.x > 1.0f) || (p1.y < -1.0f && p2.y < -1.0f) ||
         (p1.y > 1.0f && p2.y > 1.0f))
@@ -59,11 +57,10 @@ InterpolatedVariables InterpolatedVariables::operator+(const InterpolatedVariabl
     return {z + oth.z, w + oth.w, t + oth.t};
 }
 
-void drawTriangleNormalVersion(const Triangle& t, const glm::mat4& transform, Shader& shader, Screen& screen,
-                               const LightsVec& lights) {
-    glm::vec4 p0 = transform * glm::vec4(t.p0, 1.0f);
-    glm::vec4 p1 = transform * glm::vec4(t.p1, 1.0f);
-    glm::vec4 p2 = transform * glm::vec4(t.p2, 1.0f);
+void drawTriangleNormalVersion(const Triangle& t, Shader& shader, Screen& screen, const LightsVec& lights) {
+    glm::vec4 p0 = t.p0;
+    glm::vec4 p1 = t.p1;
+    glm::vec4 p2 = t.p2;
     p0 = glm::vec4(p0.x / p0.w, p0.y / p0.w, p0.z / p0.w, p0.w);
     p1 = glm::vec4(p1.x / p1.w, p1.y / p1.w, p1.z / p1.w, p1.w);
     p2 = glm::vec4(p2.x / p2.w, p2.y / p2.w, p2.z / p2.w, p2.w);
@@ -128,19 +125,15 @@ void drawTriangleNormalVersion(const Triangle& t, const glm::mat4& transform, Sh
     }
 }
 
-void drawTriangle(const Triangle& t, const glm::mat4& transform, Shader& shader, Screen& screen, const LightsVec& lights) {
+void drawTriangle(const Triangle& t, Shader& shader, Screen& screen, const LightsVec& lights) {
     // drawTriangleOvercomplicatedVersion(t, transform, shader, screen, lights);
-    drawTriangleNormalVersion(t, transform, shader, screen, lights);
+    drawTriangleNormalVersion(t, shader, screen, lights);
 }
 
-void drawTriangleOvercomplicatedVersion(const Triangle& t, const glm::mat4& transform, Shader& shader, Screen& screen,
-                                        const LightsVec& lights) {
-    glm::vec4 p0 = transform * glm::vec4(t.p0, 1.0f);
-    glm::vec4 p1 = transform * glm::vec4(t.p1, 1.0f);
-    glm::vec4 p2 = transform * glm::vec4(t.p2, 1.0f);
-    p0 = glm::vec4(p0.x / p0.w, p0.y / p0.w, p0.z / p0.w, p0.w);
-    p1 = glm::vec4(p1.x / p1.w, p1.y / p1.w, p1.z / p1.w, p1.w);
-    p2 = glm::vec4(p2.x / p2.w, p2.y / p2.w, p2.z / p2.w, p2.w);
+void drawTriangleOvercomplicatedVersion(const Triangle& t, Shader& shader, Screen& screen, const LightsVec& lights) {
+    glm::vec4 p0 = t.p0;
+    glm::vec4 p1 = t.p1;
+    glm::vec4 p2 = t.p2;
 
     if ((p0.x < -1.0f && p1.x < -1.0f && p2.x < -1.0f) || (p0.x > 1.0f && p1.x > 1.0f && p2.x > 1.0f) ||
         (p0.y < -1.0f && p1.y < -1.0f && p2.y < -1.0f) || (p0.y > 1.0f && p1.y > 1.0f && p2.y > 1.0f))
