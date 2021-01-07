@@ -11,10 +11,10 @@
 
 namespace eng {
 
-void drawLine(glm::vec3 pos1, glm::vec3 pos2, ColorType color, const glm::mat4& transform, Screen& screen);
+void drawLine(glm::vec4 pos1, glm::vec4 pos2, ColorType color, Screen& screen);
 
 struct Triangle {
-    glm::vec3 p0, p1, p2;
+    glm::vec4 p0, p1, p2;
     ShaderVariablesVec v0, v1, v2;
 };
 
@@ -28,13 +28,11 @@ struct InterpolatedVariables {
     InterpolatedVariables operator+(const InterpolatedVariables& oth) const;
 };
 
-void drawTriangleNormalVersion(const Triangle& t, const glm::mat4& transform, Shader& shader, Screen& screen,
-                               const LightsVec& lights);
+void drawTriangleNormalVersion(const Triangle& t, Shader& shader, Screen& screen, const LightsVec& lights);
 
-void drawTriangle(const Triangle& t, const glm::mat4& transform, Shader& shader, Screen& screen, const LightsVec& lights);
+void drawTriangle(const Triangle& t, Shader& shader, Screen& screen, const LightsVec& lights);
 
 // approximately 20% faster than the normal version for the flat color shader, about 20% slower for the phong shader
-void drawTriangleOvercomplicatedVersion(const Triangle& t, const glm::mat4& transform, Shader& shader, Screen& screen,
-                                        const LightsVec& lights);
+void drawTriangleOvercomplicatedVersion(const Triangle& t, Shader& shader, Screen& screen, const LightsVec& lights);
 
 }  // namespace eng
