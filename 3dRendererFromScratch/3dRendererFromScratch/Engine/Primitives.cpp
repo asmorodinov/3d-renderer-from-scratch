@@ -119,6 +119,125 @@ void drawTriangleNormalVersion(const Triangle& t, Shader& shader, Screen& screen
     }
 }
 
+float segmentPlaneIntersect(glm::vec3 point, glm::vec3 normal, glm::vec3 v1, glm::vec3 v2) {
+    normal = glm::normalize(normal);
+
+    float dot = glm::dot(point, normal);
+    float dot1 = glm::dot(v1, normal);
+    float dot2 = glm::dot(v2, normal);
+
+    return (dot - dot1) / (dot2 - dot1);
+}
+
+std::vector<Triangle> clipTriangleAgainstPlane(const Triangle& t, glm::vec3 point, glm::vec3 normal) {
+    normal = glm::normalize(normal);
+
+    auto distance = [&](glm::vec4 v) { return glm::dot(glm::vec3(v.x, v.y, 1.0f / v.z) - point, normal); };
+
+    using Point = std::pair<glm::vec4, ShaderVariablesVec>;
+
+    std::vector<Point> insidePoints;
+    std::vector<Point> outsidePoints;
+
+    // neeeded for the correctness of resulting triangles normals
+    bool oneInsideInvert = false;
+    bool oneOutsideInvert = false;
+
+    if (distance(t.p0) >= 0.0f) {
+        insidePoints.push_back({t.p0, t.v0});
+    } else {
+        outsidePoints.push_back({t.p0, t.v0});
+    }
+
+    if (distance(t.p1) >= 0.0f) {
+        oneInsideInvert = true;
+        insidePoints.push_back({t.p1, t.v1});
+    } else {
+        oneOutsideInvert = true;
+        outsidePoints.push_back({t.p1, t.v1});
+    }
+
+    if (distance(t.p2) >= 0.0f) {
+        insidePoints.push_back({t.p2, t.v2});
+    } else {
+        outsidePoints.push_back({t.p2, t.v2});
+    }
+
+    // triangle is full outside
+    if (insidePoints.empty()) return {};
+
+    // no clipping required, triangle is fully inside
+    if (insidePoints.size() == 3) return {t};
+
+    // need to clip, this will result with one smaller triangle
+    if (insidePoints.size() == 1) {
+        Triangle out;
+        out.p0 = insidePoints[0].first;
+        out.v0 = insidePoints[0].second;
+
+        int i1 = 0;
+        int i2 = 1;
+        if (oneInsideInvert) std::swap(i1, i2);
+
+        glm::vec4 p0_ = out.p0;
+        glm::vec4 p1_ = outsidePoints[i1].first;
+        glm::vec4 p2_ = outsidePoints[i2].first;
+
+        glm::vec3 p0 = {p0_.x, p0_.y, 1.0f / p0_.z};
+        glm::vec3 p1 = {p1_.x, p1_.y, 1.0f / p1_.z};
+        glm::vec3 p2 = {p2_.x, p2_.y, 1.0f / p2_.z};
+
+        float t = segmentPlaneIntersect(point, normal, p0, p1);
+
+        out.p1 = p1_ * t + p0_ * (1.0f - t);
+        out.v1 = outsidePoints[i1].second * t + out.v0 * (1.0f - t);
+
+        float t2 = segmentPlaneIntersect(point, normal, p0, p2);
+
+        out.p2 = p2_ * t2 + p0_ * (1.0f - t2);
+        out.v2 = outsidePoints[i2].second * t2 + out.v0 * (1.0f - t2);
+
+        return {out};
+    }
+    // need to clip, this will result in quad (2 triangles)
+    if (insidePoints.size() == 2) {
+        Triangle out1, out2;
+
+        int i1 = 0;
+        int i2 = 1;
+        if (oneOutsideInvert) std::swap(i1, i2);
+
+        glm::vec4 p0_ = insidePoints[i1].first;
+        glm::vec4 p1_ = insidePoints[i2].first;
+        glm::vec4 p2_ = outsidePoints[0].first;
+
+        glm::vec3 p0 = {p0_.x, p0_.y, 1.0f / p0_.z};
+        glm::vec3 p1 = {p1_.x, p1_.y, 1.0f / p1_.z};
+        glm::vec3 p2 = {p2_.x, p2_.y, 1.0f / p2_.z};
+
+        out1.p0 = p0_;
+        out1.v0 = insidePoints[i1].second;
+        out1.p1 = p1_;
+        out1.v1 = insidePoints[i2].second;
+
+        float t = segmentPlaneIntersect(point, normal, p0, p2);
+        out1.p2 = p2_ * t + p0_ * (1.0f - t);
+        out1.v2 = outsidePoints[0].second * t + insidePoints[i1].second * (1.0f - t);
+
+        out2.p0 = out1.p1;
+        out2.v0 = out1.v1;
+        out2.p2 = out1.p2;
+        out2.v2 = out1.v2;
+
+        float t2 = segmentPlaneIntersect(point, normal, p1, p2);
+        out2.p1 = p2_ * t2 + p1_ * (1.0f - t2);
+        out2.v1 = outsidePoints[0].second * t2 + insidePoints[i2].second * (1.0f - t2);
+
+        return {out1, out2};
+    }
+    return {};
+}
+
 void drawTriangle(const Triangle& t, Shader& shader, Screen& screen, const LightsVec& lights) {
     Triangle tr = t;
     tr.v0 *= 1.0f / tr.p0.w;
@@ -126,14 +245,35 @@ void drawTriangle(const Triangle& t, Shader& shader, Screen& screen, const Light
     tr.v2 *= 1.0f / tr.p2.w;
 
     tr.p0.z = 1.0f / tr.p0.z;
-    tr.p1.z = 1.0f / tr.p0.z;
-    tr.p2.z = 1.0f / tr.p0.z;
+    tr.p1.z = 1.0f / tr.p1.z;
+    tr.p2.z = 1.0f / tr.p2.z;
 
     tr.p0.w = 1.0f / tr.p0.w;
-    tr.p1.w = 1.0f / tr.p0.w;
-    tr.p2.w = 1.0f / tr.p0.w;
-    // drawTriangleOvercomplicatedVersion(t, transform, shader, screen, lights);
-    drawTriangleNormalVersion(tr, shader, screen, lights);
+    tr.p1.w = 1.0f / tr.p1.w;
+    tr.p2.w = 1.0f / tr.p2.w;
+
+    std::vector<glm::vec3> points = {{0, 0, 0.1f}, {-1, 0, 0}, {1, 0, 0}, {0, -1, 0}, {0, 1, 0}};
+    std::vector<glm::vec3> normals = {{0, 0, 1}, {1, 0, 0}, {-1, 0, 0}, {0, 1, 0}, {0, -1, 0}};
+
+    std::vector<Triangle> trianglesToDraw = {tr};
+
+    for (size_t i = 0; i < points.size(); ++i) {
+        std::vector<Triangle> newTriangles;
+
+        for (const auto& triangle : trianglesToDraw) {
+            auto clipped = clipTriangleAgainstPlane(triangle, points[i], normals[i]);
+
+            newTriangles.insert(newTriangles.end(), std::make_move_iterator(clipped.begin()),
+                                std::make_move_iterator(clipped.end()));
+        }
+
+        trianglesToDraw = std::move(newTriangles);
+    }
+
+    for (const auto& triangle : trianglesToDraw) {
+        // drawTriangleOvercomplicatedVersion(t, transform, shader, screen, lights);
+        drawTriangleNormalVersion(triangle, shader, screen, lights);
+    }
 }
 
 void drawTriangleOvercomplicatedVersion(const Triangle& t, Shader& shader, Screen& screen, const LightsVec& lights) {
