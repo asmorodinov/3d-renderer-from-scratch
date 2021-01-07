@@ -111,7 +111,7 @@ int main() {
     float lastTime = 0.0f;
     float fps = 0.0;
 
-    eng::RenderMode fl = eng::RenderMode::Phong;
+    eng::RenderMode fl = eng::RenderMode::Normals;
 
     auto& objects = renderer.getWorld().getObjects();
 
