@@ -21,11 +21,12 @@ struct Triangle {
     ShaderVariablesVec v0, v1, v2;
 };
 
-std::vector<Triangle> clipTriangleAgainstFrustrum(const Triangle& t);
+std::vector<Triangle> clipTriangleAgainstFrustrum(const Triangle& t, const glm::mat4& projection, float near);
 
-void drawWireframeTriangle(const Triangle& t, ColorType color, Screen& screen);
+void drawWireframeTriangle(const Triangle& t, const glm::mat4& projection, float near, ColorType color, Screen& screen);
 
-void drawTriangle(const Triangle& t, Shader& shader, Screen& screen, const LightsVec& lights);
+void drawTriangle(const Triangle& t, const glm::mat4& projection, float near, Shader& shader, Screen& screen,
+                  const LightsVec& lights);
 
 void drawTriangleNormalVersion(const Triangle& t, Shader& shader, Screen& screen, const LightsVec& lights);
 

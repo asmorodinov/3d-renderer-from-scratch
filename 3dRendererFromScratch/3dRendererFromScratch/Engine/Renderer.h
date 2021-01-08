@@ -45,7 +45,7 @@ class Renderer {
 
     World world;
     PlayerCamera camera;
-    bool playerControl = true;
+    bool playerControl = false;
 
     float mx = -1.0f, my = -1.0f;
 

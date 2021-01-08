@@ -6,10 +6,6 @@ void drawLine(glm::vec4 pos1, glm::vec4 pos2, ColorType color, Screen& screen) {
     glm::vec4 p1 = pos1;
     glm::vec4 p2 = pos2;
 
-    if ((p1.x < -1.0f && p2.x < -1.0f) || (p1.x > 1.0f && p2.x > 1.0f) || (p1.y < -1.0f && p2.y < -1.0f) ||
-        (p1.y > 1.0f && p2.y > 1.0f))
-        return;
-
     int x0 = int(screen.getWidth() * (p1.x + 1.0f) / 2.0f);
     int y0 = int(screen.getHeight() * (p1.y + 1.0f) / 2.0f);
 
@@ -166,24 +162,144 @@ std::vector<Triangle> clipTriangleAgainstPlane(const Triangle& t, glm::vec3 poin
     return {};
 }
 
-std::vector<Triangle> clipTriangleAgainstFrustrum(const Triangle& t) {
+std::vector<Triangle> clipTriangleAgainstPlaneCameraSpace(const Triangle& t, glm::vec3 point, glm::vec3 normal) {
+    normal = glm::normalize(normal);
+
+    auto distance = [&](glm::vec4 v) { return glm::dot(glm::vec3(v) - point, normal); };
+
+    using Point = std::pair<glm::vec4, ShaderVariablesVec>;
+
+    std::vector<Point> insidePoints;
+    std::vector<Point> outsidePoints;
+
+    // neeeded for the correctness of resulting triangles normals
+    bool oneInsideInvert = false;
+    bool oneOutsideInvert = false;
+
+    if (distance(t.p0) >= 0.0f) {
+        insidePoints.push_back({t.p0, t.v0});
+    } else {
+        outsidePoints.push_back({t.p0, t.v0});
+    }
+
+    if (distance(t.p1) >= 0.0f) {
+        oneInsideInvert = true;
+        insidePoints.push_back({t.p1, t.v1});
+    } else {
+        oneOutsideInvert = true;
+        outsidePoints.push_back({t.p1, t.v1});
+    }
+
+    if (distance(t.p2) >= 0.0f) {
+        insidePoints.push_back({t.p2, t.v2});
+    } else {
+        outsidePoints.push_back({t.p2, t.v2});
+    }
+
+    // triangle is full outside
+    if (insidePoints.empty()) return {};
+
+    // no clipping required, triangle is fully inside
+    if (insidePoints.size() == 3) return {t};
+
+    // need to clip, this will result with one smaller triangle
+    if (insidePoints.size() == 1) {
+        Triangle out;
+        out.p0 = insidePoints[0].first;
+        out.v0 = insidePoints[0].second;
+
+        int i1 = 0;
+        int i2 = 1;
+        if (oneInsideInvert) std::swap(i1, i2);
+
+        glm::vec4 p0_ = out.p0;
+        glm::vec4 p1_ = outsidePoints[i1].first;
+        glm::vec4 p2_ = outsidePoints[i2].first;
+
+        glm::vec3 p0 = {p0_.x, p0_.y, p0_.z};
+        glm::vec3 p1 = {p1_.x, p1_.y, p1_.z};
+        glm::vec3 p2 = {p2_.x, p2_.y, p2_.z};
+
+        float t = segmentPlaneIntersect(point, normal, p0, p1);
+
+        out.p1 = p1_ * t + p0_ * (1.0f - t);
+        out.v1 = outsidePoints[i1].second * t + out.v0 * (1.0f - t);
+
+        float t2 = segmentPlaneIntersect(point, normal, p0, p2);
+
+        out.p2 = p2_ * t2 + p0_ * (1.0f - t2);
+        out.v2 = outsidePoints[i2].second * t2 + out.v0 * (1.0f - t2);
+
+        return {out};
+    }
+    // need to clip, this will result in quad (2 triangles)
+    if (insidePoints.size() == 2) {
+        Triangle out1, out2;
+
+        int i1 = 0;
+        int i2 = 1;
+        if (oneOutsideInvert) std::swap(i1, i2);
+
+        glm::vec4 p0_ = insidePoints[i1].first;
+        glm::vec4 p1_ = insidePoints[i2].first;
+        glm::vec4 p2_ = outsidePoints[0].first;
+
+        glm::vec3 p0 = {p0_.x, p0_.y, p0_.z};
+        glm::vec3 p1 = {p1_.x, p1_.y, p1_.z};
+        glm::vec3 p2 = {p2_.x, p2_.y, p2_.z};
+
+        out1.p0 = p0_;
+        out1.v0 = insidePoints[i1].second;
+        out1.p1 = p1_;
+        out1.v1 = insidePoints[i2].second;
+
+        float t = segmentPlaneIntersect(point, normal, p0, p2);
+        out1.p2 = p2_ * t + p0_ * (1.0f - t);
+        out1.v2 = outsidePoints[0].second * t + insidePoints[i1].second * (1.0f - t);
+
+        out2.p0 = out1.p1;
+        out2.v0 = out1.v1;
+        out2.p2 = out1.p2;
+        out2.v2 = out1.v2;
+
+        float t2 = segmentPlaneIntersect(point, normal, p1, p2);
+        out2.p1 = p2_ * t2 + p1_ * (1.0f - t2);
+        out2.v1 = outsidePoints[0].second * t2 + insidePoints[i2].second * (1.0f - t2);
+
+        return {out1, out2};
+    }
+    return {};
+}
+
+std::vector<Triangle> clipTriangleAgainstFrustrum(const Triangle& t, const glm::mat4& projection, float near) {
     Triangle tr = t;
-    tr.v0 *= 1.0f / tr.p0.w;
-    tr.v1 *= 1.0f / tr.p1.w;
-    tr.v2 *= 1.0f / tr.p2.w;
 
-    tr.p0.z = 1.0f / tr.p0.z;
-    tr.p1.z = 1.0f / tr.p1.z;
-    tr.p2.z = 1.0f / tr.p2.z;
+    std::vector<Triangle> trianglesToDraw = clipTriangleAgainstPlaneCameraSpace(tr, {0, 0, -near - 0.05f}, {0, 0, -1});
 
-    tr.p0.w = 1.0f / tr.p0.w;
-    tr.p1.w = 1.0f / tr.p1.w;
-    tr.p2.w = 1.0f / tr.p2.w;
+    for (auto& triangle : trianglesToDraw) {
+        triangle.p0 = projection * glm::vec4(glm::vec3(triangle.p0), 1.0f);
+        triangle.p1 = projection * glm::vec4(glm::vec3(triangle.p1), 1.0f);
+        triangle.p2 = projection * glm::vec4(glm::vec3(triangle.p2), 1.0f);
 
-    std::vector<glm::vec3> points = {{0, 0, 0.1f}, {-1, 0, 0}, {1, 0, 0}, {0, -1, 0}, {0, 1, 0}};
-    std::vector<glm::vec3> normals = {{0, 0, 1}, {1, 0, 0}, {-1, 0, 0}, {0, 1, 0}, {0, -1, 0}};
+        triangle.p0 = glm::vec4(glm::vec3(triangle.p0 / triangle.p0.w), triangle.p0.w);
+        triangle.p1 = glm::vec4(glm::vec3(triangle.p1 / triangle.p1.w), triangle.p1.w);
+        triangle.p2 = glm::vec4(glm::vec3(triangle.p2 / triangle.p2.w), triangle.p2.w);
 
-    std::vector<Triangle> trianglesToDraw = {tr};
+        triangle.v0 *= 1.0f / triangle.p0.w;
+        triangle.v1 *= 1.0f / triangle.p1.w;
+        triangle.v2 *= 1.0f / triangle.p2.w;
+
+        triangle.p0.z = 1.0f / triangle.p0.z;
+        triangle.p1.z = 1.0f / triangle.p1.z;
+        triangle.p2.z = 1.0f / triangle.p2.z;
+
+        triangle.p0.w = 1.0f / triangle.p0.w;
+        triangle.p1.w = 1.0f / triangle.p1.w;
+        triangle.p2.w = 1.0f / triangle.p2.w;
+    }
+
+    std::vector<glm::vec3> points = {{-1, 0, 0}, {1, 0, 0}, {0, -1, 0}, {0, 1, 0}};
+    std::vector<glm::vec3> normals = {{1, 0, 0}, {-1, 0, 0}, {0, 1, 0}, {0, -1, 0}};
 
     for (size_t i = 0; i < points.size(); ++i) {
         std::vector<Triangle> newTriangles;
@@ -201,16 +317,17 @@ std::vector<Triangle> clipTriangleAgainstFrustrum(const Triangle& t) {
     return trianglesToDraw;
 }
 
-void drawWireframeTriangle(const Triangle& t, ColorType color, Screen& screen) {
-    for (const auto& triangle : clipTriangleAgainstFrustrum(t)) {
+void drawWireframeTriangle(const Triangle& t, const glm::mat4& projection, float near, ColorType color, Screen& screen) {
+    for (const auto& triangle : clipTriangleAgainstFrustrum(t, projection, near)) {
         drawLine(triangle.p0, triangle.p1, color, screen);
         drawLine(triangle.p1, triangle.p2, color, screen);
         drawLine(triangle.p2, triangle.p0, color, screen);
     }
 }
 
-void drawTriangle(const Triangle& t, Shader& shader, Screen& screen, const LightsVec& lights) {
-    for (const auto& triangle : clipTriangleAgainstFrustrum(t)) {
+void drawTriangle(const Triangle& t, const glm::mat4& projection, float near, Shader& shader, Screen& screen,
+                  const LightsVec& lights) {
+    for (const auto& triangle : clipTriangleAgainstFrustrum(t, projection, near)) {
         // drawTriangleOvercomplicatedVersion(t, transform, shader, screen, lights);
         drawTriangleNormalVersion(triangle, shader, screen, lights);
     }
@@ -220,10 +337,6 @@ void drawTriangleNormalVersion(const Triangle& t, Shader& shader, Screen& screen
     glm::vec4 p0 = t.p0;
     glm::vec4 p1 = t.p1;
     glm::vec4 p2 = t.p2;
-
-    if ((p0.x < -1.0f && p1.x < -1.0f && p2.x < -1.0f) || (p0.x > 1.0f && p1.x > 1.0f && p2.x > 1.0f) ||
-        (p0.y < -1.0f && p1.y < -1.0f && p2.y < -1.0f) || (p0.y > 1.0f && p1.y > 1.0f && p2.y > 1.0f))
-        return;
 
     int x0 = int(screen.getWidth() * (p0.x + 1.0f) / 2.0f);
     int y0 = int(screen.getHeight() * (p0.y + 1.0f) / 2.0f);
@@ -267,7 +380,7 @@ void drawTriangleNormalVersion(const Triangle& t, Shader& shader, Screen& screen
             if (z > screen.getPixelDepth(size_t(x), size_t(y))) continue;
 
             float w = 1.0f / (w0 * p0.w + w1 * p1.w + w2 * p2.w);
-            if (z < 0.0f || z > 1.0f) continue;
+            if (z < -1 || z > 1) continue;
 
             Var t = (t0 * w0 + t1 * w1 + t2 * w2) * w;
             auto lighting = shaderFunc(shader.getConst(), t, lights);
@@ -292,10 +405,6 @@ void drawTriangleOvercomplicatedVersion(const Triangle& t, Shader& shader, Scree
     glm::vec4 p0 = t.p0;
     glm::vec4 p1 = t.p1;
     glm::vec4 p2 = t.p2;
-
-    if ((p0.x < -1.0f && p1.x < -1.0f && p2.x < -1.0f) || (p0.x > 1.0f && p1.x > 1.0f && p2.x > 1.0f) ||
-        (p0.y < -1.0f && p1.y < -1.0f && p2.y < -1.0f) || (p0.y > 1.0f && p1.y > 1.0f && p2.y > 1.0f))
-        return;
 
     int x0 = int(screen.getWidth() * (p0.x + 1.0f) / 2.0f);
     int y0 = int(screen.getHeight() * (p0.y + 1.0f) / 2.0f);
@@ -384,6 +493,7 @@ void drawTriangleOvercomplicatedVersion(const Triangle& t, Shader& shader, Scree
                 float z = 1.0f / iv.z;
 
                 if (z > screen.getPixelDepth(size_t(x), size_t(y))) continue;
+                if (z < -1 || z > 1) continue;
 
                 Var it = iv.t * w;
                 auto lighting = shaderFunc(shader.getConst(), it, lights);
@@ -430,7 +540,7 @@ void drawTriangleOvercomplicatedVersion(const Triangle& t, Shader& shader, Scree
                 float z = 1.0f / iv.z;
 
                 if (z > screen.getPixelDepth(size_t(x), size_t(y))) continue;
-                if (z < 0.0f || z > 1.0f) continue;
+                if (z < -1 || z > 1) continue;
 
                 Var it = iv.t * w;
                 auto lighting = shaderFunc(shader.getConst(), it, lights);
