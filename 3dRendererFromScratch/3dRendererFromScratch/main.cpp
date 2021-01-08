@@ -127,11 +127,11 @@ int main() {
     float s = 2.6f;
     float h = -0.8;
 
-    objects.emplace_back(std::make_unique<eng::Mesh>(
-        eng::MeshData{{{-s, h, s}, {-s, h, -s}, {s, h, s}, {s, h, -s}},
-                      {{0, 0}, {0, 1}, {1, 1}, {1, 0}},
-                      {{0, 1, 2, 0, 3, 1}, {3, 2, 1, 2, 1, 3}, {0, 2, 1, 0, 1, 3}, {3, 1, 2, 2, 3, 1}}},
-        &texture, eng::ColorType(1.0f), pshader, fshader, tshader, uvshader, normalshader));
+    objects.emplace_back(std::make_unique<eng::Mesh>(eng::MeshData{{{-s, h, s}, {-s, h, -s}, {s, h, s}, {s, h, -s}},
+                                                                   {{0, 0}, {0, 1}, {1, 1}, {1, 0}},
+                                                                   {{0, 1, 2, 0, 3, 1}, {3, 2, 1, 2, 1, 3}}},
+                                                     &texture, eng::ColorType(1.0f), pshader, fshader, tshader, uvshader,
+                                                     normalshader));
 
     // cube
     float sz = 0.3f;

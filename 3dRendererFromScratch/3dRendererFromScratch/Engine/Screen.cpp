@@ -3,7 +3,7 @@
 namespace eng {
 
 Screen::Screen(size_t width, size_t height, ColorType clearColor)
-    : near(0.1f),
+    : near(0.001f),
       far(10.0f),
       width(width),
       height(height),

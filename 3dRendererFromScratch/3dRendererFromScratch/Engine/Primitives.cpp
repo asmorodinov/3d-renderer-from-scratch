@@ -275,6 +275,7 @@ std::vector<Triangle> clipTriangleAgainstFrustrum(const Triangle& t, const glm::
     Triangle tr = t;
 
     std::vector<Triangle> trianglesToDraw = clipTriangleAgainstPlaneCameraSpace(tr, {0, 0, -near - 0.05f}, {0, 0, -1});
+    // std::vector<Triangle> trianglesToDraw = {tr};
 
     for (auto& triangle : trianglesToDraw) {
         triangle.p0 = projection * glm::vec4(glm::vec3(triangle.p0), 1.0f);
