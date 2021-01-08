@@ -1,6 +1,6 @@
 # 3d-renderer-from-scratch
 Basic software 3d renderer (hopefully crossplatform) with minimum dependencies on other libraries
-For now the actual dependencies are the following:
+For now the actual dependencies are the following:  
 - SFML to render screen buffer on a window
 - glm
 - stb_image
