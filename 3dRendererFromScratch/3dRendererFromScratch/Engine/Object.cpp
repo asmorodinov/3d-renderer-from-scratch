@@ -98,9 +98,7 @@ void Mesh::draw(RenderMode r, const Camera& camera, Screen& screen, const Lights
 
             drawTriangle(tr, fl, screen, lights);
         } else if (r == RenderMode::Wireframe) {
-            drawLine(tr.p0, tr.p1, color, screen);
-            drawLine(tr.p1, tr.p2, color, screen);
-            drawLine(tr.p2, tr.p0, color, screen);
+            drawWireframeTriangle(tr, color, screen);
         } else {
             if (r == RenderMode::Phong) {
                 tr.v0 = ShaderVariablesVec({p0, mesh.textureCoords[face.ti]});

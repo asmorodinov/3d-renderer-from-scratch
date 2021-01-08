@@ -21,6 +21,14 @@ struct Triangle {
     ShaderVariablesVec v0, v1, v2;
 };
 
+std::vector<Triangle> clipTriangleAgainstFrustrum(const Triangle& t);
+
+void drawWireframeTriangle(const Triangle& t, ColorType color, Screen& screen);
+
+void drawTriangle(const Triangle& t, Shader& shader, Screen& screen, const LightsVec& lights);
+
+void drawTriangleNormalVersion(const Triangle& t, Shader& shader, Screen& screen, const LightsVec& lights);
+
 struct InterpolatedVariables {
     float z;
     float w;
@@ -30,10 +38,6 @@ struct InterpolatedVariables {
     InterpolatedVariables operator*(float f) const;
     InterpolatedVariables operator+(const InterpolatedVariables& oth) const;
 };
-
-void drawTriangleNormalVersion(const Triangle& t, Shader& shader, Screen& screen, const LightsVec& lights);
-
-void drawTriangle(const Triangle& t, Shader& shader, Screen& screen, const LightsVec& lights);
 
 // approximately 20% faster than the normal version for the flat color shader, about 20% slower for the phong shader
 void drawTriangleOvercomplicatedVersion(const Triangle& t, Shader& shader, Screen& screen, const LightsVec& lights);

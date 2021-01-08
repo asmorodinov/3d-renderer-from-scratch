@@ -27,7 +27,7 @@ void drawLine(glm::vec4 pos1, glm::vec4 pos2, ColorType color, Screen& screen) {
         float t = (x0 == x1 && y0 == y1) ? 0.0f
                                          : std::sqrt(static_cast<float>(std::pow(x - x0, 2) + std::pow(y - y0, 2)) /
                                                      (std::pow(x1 - x0, 2) + std::pow(y1 - y0, 2)));
-        float z = 1.0f / (t / p2.z + (1 - t) / p1.z);
+        float z = 1.0f / (t * p2.z + (1 - t) * p1.z);
 
         if (z >= 0.0f && z <= 1.0f && x >= 0 && y >= 0 && x < screen.getWidth() && y < screen.getHeight()) {
             screen.setPixelColor(size_t(x), size_t(y), color, z);
@@ -43,78 +43,6 @@ void drawLine(glm::vec4 pos1, glm::vec4 pos2, ColorType color, Screen& screen) {
         if (e2 <= dx) { /* e_xy+e_y < 0 */
             err += dx;
             y += sy;
-        }
-    }
-}
-
-void InterpolatedVariables::operator*=(float f) {
-    z *= f;
-    w *= f;
-    t *= f;
-}
-InterpolatedVariables InterpolatedVariables::operator*(float f) const { return {z * f, w * f, t * f}; }
-InterpolatedVariables InterpolatedVariables::operator+(const InterpolatedVariables& oth) const {
-    return {z + oth.z, w + oth.w, t + oth.t};
-}
-
-void drawTriangleNormalVersion(const Triangle& t, Shader& shader, Screen& screen, const LightsVec& lights) {
-    glm::vec4 p0 = t.p0;
-    glm::vec4 p1 = t.p1;
-    glm::vec4 p2 = t.p2;
-
-    if ((p0.x < -1.0f && p1.x < -1.0f && p2.x < -1.0f) || (p0.x > 1.0f && p1.x > 1.0f && p2.x > 1.0f) ||
-        (p0.y < -1.0f && p1.y < -1.0f && p2.y < -1.0f) || (p0.y > 1.0f && p1.y > 1.0f && p2.y > 1.0f))
-        return;
-
-    int x0 = int(screen.getWidth() * (p0.x + 1.0f) / 2.0f);
-    int y0 = int(screen.getHeight() * (p0.y + 1.0f) / 2.0f);
-
-    int x1 = int(screen.getWidth() * (p1.x + 1.0f) / 2.0f);
-    int y1 = int(screen.getHeight() * (p1.y + 1.0f) / 2.0f);
-
-    int x2 = int(screen.getWidth() * (p2.x + 1.0f) / 2.0f);
-    int y2 = int(screen.getHeight() * (p2.y + 1.0f) / 2.0f);
-
-    int minx = std::min({x0, x1, x2});
-    int miny = std::min({y0, y1, y2});
-    int maxx = std::max({x0, x1, x2});
-    int maxy = std::max({y0, y1, y2});
-
-    auto e01 = [&](int x, int y) { return (x - x0) * (y1 - y0) - (y - y0) * (x1 - x0); };
-    auto e12 = [&](int x, int y) { return (x - x1) * (y2 - y1) - (y - y1) * (x2 - x1); };
-    auto e20 = [&](int x, int y) { return (x - x2) * (y0 - y2) - (y - y2) * (x0 - x2); };
-
-    auto insideTriangle = [&](int x, int y) { return e01(x, y) >= 0 && e12(x, y) >= 0 && e20(x, y) >= 0; };
-
-    using Var = ShaderVariablesVec;
-    Var t0 = t.v0;
-    Var t1 = t.v1;
-    Var t2 = t.v2;
-
-    auto& shaderFunc = shader.getShader();
-
-    for (int x = std::max(0, minx); x <= std::min(static_cast<int>(screen.getWidth()) - 1, maxx); ++x) {
-        for (int y = std::max(0, miny); y <= std::min(static_cast<int>(screen.getHeight()) - 1, maxy); ++y) {
-            if (!insideTriangle(x, y)) continue;
-
-            float w0 = e12(x, y);
-            float w1 = e20(x, y);
-            float w2 = e01(x, y);
-            float l = w0 + w1 + w2;
-            w0 /= l;
-            w1 /= l;
-            w2 /= l;
-            float z = 1.0f / (w0 * p0.z + w1 * p1.z + w2 * p2.z);
-            if (z > screen.getPixelDepth(size_t(x), size_t(y))) continue;
-
-            float w = 1.0f / (w0 * p0.w + w1 * p1.w + w2 * p2.w);
-            if (z < 0.0f || z > 1.0f) continue;
-
-            Var t = (t0 * w0 + t1 * w1 + t2 * w2) * w;
-            auto lighting = shaderFunc(shader.getConst(), t, lights);
-            if (lighting.a == 0.0f) continue;
-
-            screen.setPixelColor(size_t(x), size_t(y), glm::vec3(lighting.r, lighting.g, lighting.b), z);
         }
     }
 }
@@ -238,7 +166,7 @@ std::vector<Triangle> clipTriangleAgainstPlane(const Triangle& t, glm::vec3 poin
     return {};
 }
 
-void drawTriangle(const Triangle& t, Shader& shader, Screen& screen, const LightsVec& lights) {
+std::vector<Triangle> clipTriangleAgainstFrustrum(const Triangle& t) {
     Triangle tr = t;
     tr.v0 *= 1.0f / tr.p0.w;
     tr.v1 *= 1.0f / tr.p1.w;
@@ -270,10 +198,94 @@ void drawTriangle(const Triangle& t, Shader& shader, Screen& screen, const Light
         trianglesToDraw = std::move(newTriangles);
     }
 
-    for (const auto& triangle : trianglesToDraw) {
+    return trianglesToDraw;
+}
+
+void drawWireframeTriangle(const Triangle& t, ColorType color, Screen& screen) {
+    for (const auto& triangle : clipTriangleAgainstFrustrum(t)) {
+        drawLine(triangle.p0, triangle.p1, color, screen);
+        drawLine(triangle.p1, triangle.p2, color, screen);
+        drawLine(triangle.p2, triangle.p0, color, screen);
+    }
+}
+
+void drawTriangle(const Triangle& t, Shader& shader, Screen& screen, const LightsVec& lights) {
+    for (const auto& triangle : clipTriangleAgainstFrustrum(t)) {
         // drawTriangleOvercomplicatedVersion(t, transform, shader, screen, lights);
         drawTriangleNormalVersion(triangle, shader, screen, lights);
     }
+}
+
+void drawTriangleNormalVersion(const Triangle& t, Shader& shader, Screen& screen, const LightsVec& lights) {
+    glm::vec4 p0 = t.p0;
+    glm::vec4 p1 = t.p1;
+    glm::vec4 p2 = t.p2;
+
+    if ((p0.x < -1.0f && p1.x < -1.0f && p2.x < -1.0f) || (p0.x > 1.0f && p1.x > 1.0f && p2.x > 1.0f) ||
+        (p0.y < -1.0f && p1.y < -1.0f && p2.y < -1.0f) || (p0.y > 1.0f && p1.y > 1.0f && p2.y > 1.0f))
+        return;
+
+    int x0 = int(screen.getWidth() * (p0.x + 1.0f) / 2.0f);
+    int y0 = int(screen.getHeight() * (p0.y + 1.0f) / 2.0f);
+
+    int x1 = int(screen.getWidth() * (p1.x + 1.0f) / 2.0f);
+    int y1 = int(screen.getHeight() * (p1.y + 1.0f) / 2.0f);
+
+    int x2 = int(screen.getWidth() * (p2.x + 1.0f) / 2.0f);
+    int y2 = int(screen.getHeight() * (p2.y + 1.0f) / 2.0f);
+
+    int minx = std::min({x0, x1, x2});
+    int miny = std::min({y0, y1, y2});
+    int maxx = std::max({x0, x1, x2});
+    int maxy = std::max({y0, y1, y2});
+
+    auto e01 = [&](int x, int y) { return (x - x0) * (y1 - y0) - (y - y0) * (x1 - x0); };
+    auto e12 = [&](int x, int y) { return (x - x1) * (y2 - y1) - (y - y1) * (x2 - x1); };
+    auto e20 = [&](int x, int y) { return (x - x2) * (y0 - y2) - (y - y2) * (x0 - x2); };
+
+    auto insideTriangle = [&](int x, int y) { return e01(x, y) >= 0 && e12(x, y) >= 0 && e20(x, y) >= 0; };
+
+    using Var = ShaderVariablesVec;
+    Var t0 = t.v0;
+    Var t1 = t.v1;
+    Var t2 = t.v2;
+
+    auto& shaderFunc = shader.getShader();
+
+    for (int x = std::max(0, minx); x <= std::min(static_cast<int>(screen.getWidth()) - 1, maxx); ++x) {
+        for (int y = std::max(0, miny); y <= std::min(static_cast<int>(screen.getHeight()) - 1, maxy); ++y) {
+            if (!insideTriangle(x, y)) continue;
+
+            float w0 = e12(x, y);
+            float w1 = e20(x, y);
+            float w2 = e01(x, y);
+            float l = w0 + w1 + w2;
+            w0 /= l;
+            w1 /= l;
+            w2 /= l;
+            float z = 1.0f / (w0 * p0.z + w1 * p1.z + w2 * p2.z);
+            if (z > screen.getPixelDepth(size_t(x), size_t(y))) continue;
+
+            float w = 1.0f / (w0 * p0.w + w1 * p1.w + w2 * p2.w);
+            if (z < 0.0f || z > 1.0f) continue;
+
+            Var t = (t0 * w0 + t1 * w1 + t2 * w2) * w;
+            auto lighting = shaderFunc(shader.getConst(), t, lights);
+            if (lighting.a == 0.0f) continue;
+
+            screen.setPixelColor(size_t(x), size_t(y), glm::vec3(lighting.r, lighting.g, lighting.b), z);
+        }
+    }
+}
+
+void InterpolatedVariables::operator*=(float f) {
+    z *= f;
+    w *= f;
+    t *= f;
+}
+InterpolatedVariables InterpolatedVariables::operator*(float f) const { return {z * f, w * f, t * f}; }
+InterpolatedVariables InterpolatedVariables::operator+(const InterpolatedVariables& oth) const {
+    return {z + oth.z, w + oth.w, t + oth.t};
 }
 
 void drawTriangleOvercomplicatedVersion(const Triangle& t, Shader& shader, Screen& screen, const LightsVec& lights) {
