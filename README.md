@@ -8,8 +8,8 @@ TODO list:
 
 Next up is: 
 - [x] Clipping triangles against frustrum planes
-- [x] There is something rotten in the state of Denmark... (fix strange projection bug)
-	Visual bug is "fixed" by setting near frustrum plane to a really small value 
+- [x] There is something rotten in the state of Denmark... (fix strange projection bug)  
+	Visual bug is "fixed" by setting near frustrum plane to a really small value  
 	(this is a workaround, and not really a solution to the original problem, but this will work for now) 
 - [ ] ...
 
