@@ -42,8 +42,10 @@ class Screen {
     void setClearColor(ColorType clr);
     ColorType getClearColor() const;
 
- private:
+ public:
     float near, far;
+
+ private:
     size_t width, height;
     float ratio = 1.0f;
     ColorType clearColor;

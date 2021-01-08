@@ -59,14 +59,20 @@ Mesh::Mesh(const MeshData& mesh, Texture* texture, ColorType color, Shader& ph, 
 
 void Mesh::draw(RenderMode r, const Camera& camera, Screen& screen, const LightsVec& lights) {
     glm::mat4 model = t.getModel();
-    glm::mat4 transform = screen.getProjectionMatrix() * camera.getViewMatrix();
+    glm::mat4 transform = camera.getViewMatrix();
+    glm::mat4 projection = screen.getProjectionMatrix();
+    float near = screen.near;
 
     if (rm.has_value()) r = *rm;
 
     for (auto& face : mesh.faces) {
-        glm::vec4 p0_ = model * glm::vec4(mesh.vertices[face.i], 1.0f);
-        glm::vec4 p1_ = model * glm::vec4(mesh.vertices[face.j], 1.0f);
-        glm::vec4 p2_ = model * glm::vec4(mesh.vertices[face.k], 1.0f);
+        glm::vec4 v0 = glm::vec4(mesh.vertices[face.i], 1.0f);
+        glm::vec4 v1 = glm::vec4(mesh.vertices[face.j], 1.0f);
+        glm::vec4 v2 = glm::vec4(mesh.vertices[face.k], 1.0f);
+
+        glm::vec4 p0_ = model * v0;
+        glm::vec4 p1_ = model * v1;
+        glm::vec4 p2_ = model * v2;
         p0_ /= p0_.w;
         p1_ /= p1_.w;
         p2_ /= p2_.w;
@@ -76,9 +82,9 @@ void Mesh::draw(RenderMode r, const Camera& camera, Screen& screen, const Lights
         glm::vec3 normal = -glm::normalize(glm::cross(p1 - p0, p2 - p0));
 
         Triangle tr;
-        p0_ = transform * p0_;
-        p1_ = transform * p1_;
-        p2_ = transform * p2_;
+        p0_ = transform * model * v0;
+        p1_ = transform * model * v1;
+        p2_ = transform * model * v2;
         tr.p0 = glm::vec4(p0_.x / p0_.w, p0_.y / p0_.w, p0_.z / p0_.w, p0_.w);
         tr.p1 = glm::vec4(p1_.x / p1_.w, p1_.y / p1_.w, p1_.z / p1_.w, p1_.w);
         tr.p2 = glm::vec4(p2_.x / p2_.w, p2_.y / p2_.w, p2_.z / p2_.w, p2_.w);
@@ -89,16 +95,16 @@ void Mesh::draw(RenderMode r, const Camera& camera, Screen& screen, const Lights
             tr.v2 = ShaderVariablesVec({mesh.textureCoords[face.tk]});
             if (r == RenderMode::Texture) {
                 td.setConst({texture});
-                drawTriangle(tr, td, screen, lights);
+                drawTriangle(tr, projection, near, td, screen, lights);
             } else {
-                drawTriangle(tr, uv, screen, lights);
+                drawTriangle(tr, projection, near, uv, screen, lights);
             }
         } else if (r == RenderMode::FlatColor) {
             fl.setConst({color});
 
-            drawTriangle(tr, fl, screen, lights);
+            drawTriangle(tr, projection, near, fl, screen, lights);
         } else if (r == RenderMode::Wireframe) {
-            drawWireframeTriangle(tr, color, screen);
+            drawWireframeTriangle(tr, projection, near, color, screen);
         } else {
             if (r == RenderMode::Phong) {
                 tr.v0 = ShaderVariablesVec({p0, mesh.textureCoords[face.ti]});
@@ -107,11 +113,11 @@ void Mesh::draw(RenderMode r, const Camera& camera, Screen& screen, const Lights
 
                 ph.setConst({texture, camera.getPosition(), normal});
 
-                drawTriangle(tr, ph, screen, lights);
+                drawTriangle(tr, projection, near, ph, screen, lights);
             } else {
                 nrm.setConst({normal});
 
-                drawTriangle(tr, nrm, screen, lights);
+                drawTriangle(tr, projection, near, nrm, screen, lights);
             }
         }
     }
