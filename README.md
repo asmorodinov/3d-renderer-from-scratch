@@ -18,6 +18,7 @@ Next up is:
 - [ ] ...
 
 Potential new features:
+- [ ] Vertex and/or Geometry shaders
 - [ ] Cubemap textures
 - [ ] Different texture sampling modes
 - [ ] Alpha blending
