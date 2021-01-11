@@ -158,6 +158,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Application.cpp" />
     <ClCompile Include="Engine\Camera.cpp" />
     <ClCompile Include="Engine\Common.cpp" />
     <ClCompile Include="Engine\Light.cpp" />
@@ -172,6 +173,7 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Application.h" />
     <ClInclude Include="Engine\Camera.h" />
     <ClInclude Include="Engine\Common.h" />
     <ClInclude Include="Engine\Light.h" />

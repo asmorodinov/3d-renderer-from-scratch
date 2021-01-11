@@ -42,11 +42,10 @@ class Renderer {
     Screen screen;
     sf::Texture screenTexture;
     sf::Sprite screenSprite;
-
     World world;
     PlayerCamera camera;
-    bool playerControl = true;
 
+    bool playerControl = true;
     float mx = -1.0f, my = -1.0f;
 
     RenderMode rm;
