@@ -15,6 +15,9 @@
 
 namespace eng {
 
+// It's hard to see whether parallel for actually gives any perfomance benefits or not
+// #define PARALLEL
+
 void drawLine(glm::vec4 pos1, glm::vec4 pos2, ColorType color, Screen& screen);
 
 struct Triangle {

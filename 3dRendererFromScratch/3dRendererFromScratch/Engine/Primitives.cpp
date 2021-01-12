@@ -369,15 +369,13 @@ void drawTriangleNormalVersion(const Triangle& t, Shader& shader, Screen& screen
     int xMin = std::max(0, minx);
     int xMax = std::min(static_cast<int>(screen.getWidth()) - 1, maxx);
 
-    // It's hard to see whether parallel for actually gives any perfomance benefits here or not
-    // #define PARALLEL
 #ifdef PARALLEL
     static std::vector<int> vec;
 
     vec.resize(xMax - xMin + 1);
     std::iota(vec.begin(), vec.end(), xMin);
 
-    std::for_each(std::execution::par, vec.begin(), vec.end(),
+    std::for_each(std::execution::par_unseq, vec.begin(), vec.end(),
                   [&](int x) {
 #else
     for (int x = xMin; x <= xMax; ++x) {
