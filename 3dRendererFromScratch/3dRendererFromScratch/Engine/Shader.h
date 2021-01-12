@@ -2,7 +2,6 @@
 
 #include <assert.h>
 #include <algorithm>
-#include <concepts>
 #include <functional>
 #include <type_traits>
 #include <utility>
@@ -16,9 +15,6 @@
 #include "Texture.h"
 
 namespace eng {
-
-template <class>
-inline constexpr bool always_false_v = false;
 
 class ShaderVariable {
  public:
