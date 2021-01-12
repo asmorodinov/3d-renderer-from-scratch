@@ -374,6 +374,9 @@ void drawTriangleNormalVersion(const Triangle& t, Shader& shader, Screen& screen
             float w1 = e20(x, y);
             float w2 = e01(x, y);
             float l = w0 + w1 + w2;
+
+            if (l <= 0.0001f) continue;
+
             w0 /= l;
             w1 /= l;
             w2 /= l;
@@ -385,9 +388,8 @@ void drawTriangleNormalVersion(const Triangle& t, Shader& shader, Screen& screen
 
             Var t = (t0 * w0 + t1 * w1 + t2 * w2) * w;
             auto lighting = shaderFunc(shader.getConst(), t, lights);
-            if (lighting.a == 0.0f) continue;
 
-            screen.setPixelColor(size_t(x), size_t(y), glm::vec3(lighting.r, lighting.g, lighting.b), z);
+            screen.setPixelColor(size_t(x), size_t(y), glm::vec3(lighting), z);
         }
     }
 }
@@ -545,7 +547,6 @@ void drawTriangleOvercomplicatedVersion(const Triangle& t, Shader& shader, Scree
 
                 Var it = iv.t * w;
                 auto lighting = shaderFunc(shader.getConst(), it, lights);
-                if (lighting.a == 0.0f) continue;
 
                 screen.setPixelColor(size_t(x), size_t(y), glm::vec3(lighting.r, lighting.g, lighting.b), z);
             }
