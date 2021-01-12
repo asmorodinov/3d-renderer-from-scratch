@@ -366,32 +366,50 @@ void drawTriangleNormalVersion(const Triangle& t, Shader& shader, Screen& screen
 
     auto& shaderFunc = shader.getShader();
 
-    for (int x = std::max(0, minx); x <= std::min(static_cast<int>(screen.getWidth()) - 1, maxx); ++x) {
-        for (int y = std::max(0, miny); y <= std::min(static_cast<int>(screen.getHeight()) - 1, maxy); ++y) {
-            if (!insideTriangle(x, y)) continue;
+    int xMin = std::max(0, minx);
+    int xMax = std::min(static_cast<int>(screen.getWidth()) - 1, maxx);
 
-            float w0 = e12(x, y);
-            float w1 = e20(x, y);
-            float w2 = e01(x, y);
-            float l = w0 + w1 + w2;
+    // It's hard to see whether parallel for actually gives any perfomance benefits here or not
+    // #define PARALLEL
+#ifdef PARALLEL
+    static std::vector<int> vec;
 
-            if (l <= 0.0001f) continue;
+    vec.resize(xMax - xMin + 1);
+    std::iota(vec.begin(), vec.end(), xMin);
 
-            w0 /= l;
-            w1 /= l;
-            w2 /= l;
-            float z = 1.0f / (w0 * p0.z + w1 * p1.z + w2 * p2.z);
-            if (z > screen.getPixelDepth(size_t(x), size_t(y))) continue;
+    std::for_each(std::execution::par, vec.begin(), vec.end(),
+                  [&](int x) {
+#else
+    for (int x = xMin; x <= xMax; ++x) {
+#endif
+                      for (int y = std::max(0, miny); y <= std::min(static_cast<int>(screen.getHeight()) - 1, maxy); ++y) {
+                          if (!insideTriangle(x, y)) continue;
 
-            float w = 1.0f / (w0 * p0.w + w1 * p1.w + w2 * p2.w);
-            if (z < -1 || z > 1) continue;
+                          float w0 = e12(x, y);
+                          float w1 = e20(x, y);
+                          float w2 = e01(x, y);
+                          float l = w0 + w1 + w2;
 
-            Var t = (t0 * w0 + t1 * w1 + t2 * w2) * w;
-            auto lighting = shaderFunc(shader.getConst(), t, lights);
+                          if (l <= 0.0001f) continue;
 
-            screen.setPixelColor(size_t(x), size_t(y), glm::vec3(lighting), z);
-        }
-    }
+                          w0 /= l;
+                          w1 /= l;
+                          w2 /= l;
+                          float z = 1.0f / (w0 * p0.z + w1 * p1.z + w2 * p2.z);
+                          if (z > screen.getPixelDepth(size_t(x), size_t(y))) continue;
+
+                          float w = 1.0f / (w0 * p0.w + w1 * p1.w + w2 * p2.w);
+                          if (z < -1 || z > 1) continue;
+
+                          Var t = (t0 * w0 + t1 * w1 + t2 * w2) * w;
+                          auto lighting = shaderFunc(shader.getConst(), t, lights);
+
+                          screen.setPixelColor(size_t(x), size_t(y), glm::vec3(lighting), z);
+                      }
+                  }
+#ifdef PARALLEL
+    );
+#endif  // PARALLEL
 }
 
 void InterpolatedVariables::operator*=(float f) {
