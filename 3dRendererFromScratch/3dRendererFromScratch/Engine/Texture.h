@@ -24,7 +24,7 @@ struct Texture {
 
 struct CubemapTexture {
     CubemapTexture();
-    CubemapTexture(const std::string& folder);
+    CubemapTexture(const std::string& folder, bool defaultFormat = true, const std::string& imageFormat = ".jpg");
 
     Texture textures[6];
 

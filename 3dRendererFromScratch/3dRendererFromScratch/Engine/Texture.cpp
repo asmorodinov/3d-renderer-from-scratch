@@ -38,13 +38,22 @@ glm::vec4 Texture::sample(float x, float y) const {
 
 CubemapTexture::CubemapTexture() {}
 
-CubemapTexture::CubemapTexture(const std::string& folder) {
-    textures[0] = Texture(folder + "/posx.jpg");
-    textures[1] = Texture(folder + "/negx.jpg");
-    textures[2] = Texture(folder + "/posy.jpg");
-    textures[3] = Texture(folder + "/negy.jpg");
-    textures[4] = Texture(folder + "/posz.jpg");
-    textures[5] = Texture(folder + "/negz.jpg");
+CubemapTexture::CubemapTexture(const std::string& folder, bool defaultFormat, const std::string& f) {
+    if (defaultFormat) {
+        textures[0] = Texture(folder + "/posx" + f);
+        textures[1] = Texture(folder + "/negx" + f);
+        textures[2] = Texture(folder + "/posy" + f);
+        textures[3] = Texture(folder + "/negy" + f);
+        textures[4] = Texture(folder + "/posz" + f);
+        textures[5] = Texture(folder + "/negz" + f);
+    } else {
+        textures[0] = Texture(folder + "/right" + f);
+        textures[1] = Texture(folder + "/left" + f);
+        textures[2] = Texture(folder + "/top" + f);
+        textures[3] = Texture(folder + "/bottom" + f);
+        textures[4] = Texture(folder + "/front" + f);
+        textures[5] = Texture(folder + "/back" + f);
+    }
 }
 
 glm::vec4 CubemapTexture::sample(glm::vec3 vec) {
