@@ -69,12 +69,32 @@ void Application::initShaders() {
         auto viewPos = consts[1].get<glm::vec3>();
         auto normal = consts[2].get<glm::vec3>();
 
+        glm::vec4 color = texture->sample(uv.s, uv.t);
+
         glm::vec3 lighting = glm::vec3(0.0f);
 
-        float ratio = 1.00 / 1.52;
         glm::vec3 I = glm::normalize(FragPos - viewPos);
-        glm::vec3 R = glm::refract(I, glm::normalize(normal), ratio);
+        glm::vec3 R = glm::reflect(I, glm::normalize(normal));
         lighting = skybox.sample(R);
+
+        for (const auto& light : lights) {
+            glm::vec3 lightPos = light.pos;
+            glm::vec3 viewDir = glm::normalize(viewPos - FragPos);
+            glm::vec3 lightDir = glm::normalize(lightPos - FragPos);
+
+            float diff = (glm::max(glm::dot(normal, lightDir), 0.0f) + 0.2f);
+            glm::vec3 diffuse = diff * glm::vec3(color) * light.color * light.diff;
+
+            glm::vec3 halfwayDir = glm::normalize(lightDir + viewDir);
+            float spec = glm::pow(glm::max(glm::dot(normal, halfwayDir), 0.0f), 32.0f);
+            glm::vec3 specular = light.color * spec * light.spec;
+
+            float d = length(lightPos - FragPos);
+            float attenuation = 1.0f / (1.0f + d * light.lin + std::pow(d, 2.0f) * light.quad + std::pow(d, 3.0f) * light.cube);
+            diffuse *= attenuation / 1.7;
+            specular *= attenuation / 1.7;
+            lighting += 0.3f * light.intensity * glm::vec3(1.0f) * (diffuse + specular);
+        }
 
         lighting = glm::pow(lighting, glm::vec3(1.0f / 2.2f));
 
@@ -104,7 +124,16 @@ void Application::addObjects() {
     auto skyboxMesh = eng::MeshData::generateCubeData(1.0f, true);
     objects.emplace_back(std::make_unique<eng::Skybox>(skyboxMesh, skyboxShader, eng::RenderMode::Texture));
 
+    // plane
+    float s = 2.6f;
     float h = -0.8;
+
+    objects.emplace_back(std::make_unique<eng::Mesh>(eng::MeshData{{{-s, h, s}, {-s, h, -s}, {s, h, s}, {s, h, -s}},
+                                                                   {{0, 0}, {0, 1}, {1, 1}, {1, 0}},
+                                                                   {{0, 1, 2, 0, 3, 1}, {3, 2, 1, 2, 1, 3}}},
+                                                     &texture, eng::ColorType(1.0f), phongShader, flatShader, textureShader,
+                                                     uvShader, normalShader));
+
     // cube
     float sz = 0.3f;
     auto cubeMesh = eng::MeshData::generateCubeData(sz);
