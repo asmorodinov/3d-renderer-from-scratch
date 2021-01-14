@@ -3,6 +3,7 @@
 #include <cassert>
 #include <string>
 #include <vector>
+#include <cmath>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -23,6 +24,9 @@ struct Texture {
 
 struct CubemapTexture {
     CubemapTexture();
+    CubemapTexture(const std::string& folder);
+
+    Texture textures[6];
 
     glm::vec4 sample(glm::vec3 v);
 };

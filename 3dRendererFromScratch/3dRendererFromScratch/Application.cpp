@@ -132,7 +132,7 @@ void Application::addObjects() {
             objects.emplace_back(std::make_unique<eng::Mesh>(eng::loadFromObj("data/lowPolySphere.obj", 0.4f, true), &texture2,
                                                              eng::ColorType(1.0f), phongShader, flatShader, textureShader,
                                                              uvShader, normalShader));
-            objects.back()->getTransform().position = glm::vec3(1.0f + 0.2f * x, h + 0.4f + 0.2f * y, -0.8f);
+            objects.back()->getTransform().position = glm::vec3(1.0f + 0.4f * x, h + 0.4f + 0.4f * y, -0.8f);
         }
 
     // sword

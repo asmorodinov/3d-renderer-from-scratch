@@ -2,7 +2,7 @@
 
 namespace eng {
 
-Texture::Texture() {}
+Texture::Texture() : w(0), h(0) {}
 
 Texture::Texture(const std::string& file) {
     int x = 0, y = 0, n = 0;
@@ -41,9 +41,99 @@ glm::vec4 Texture::sample(float x, float y, int n, int m) const {
 
 CubemapTexture::CubemapTexture() {}
 
-glm::vec4 CubemapTexture::sample(glm::vec3 v) {
-    v = glm::normalize(v);
-    return glm::vec4(0.5f * (v + 1.0f), 1.0f);
+CubemapTexture::CubemapTexture(const std::string& folder) {
+    textures[0] = Texture(folder + "/posx.jpg");
+    textures[1] = Texture(folder + "/negx.jpg");
+    textures[2] = Texture(folder + "/posy.jpg");
+    textures[3] = Texture(folder + "/negy.jpg");
+    textures[4] = Texture(folder + "/posz.jpg");
+    textures[5] = Texture(folder + "/negz.jpg");
+}
+
+glm::vec4 CubemapTexture::sample(glm::vec3 vec) {
+    vec = glm::normalize(vec);
+    if (textures[0].w == 0) {
+        return glm::vec4(0.5f * (vec + 1.0f), 1.0f);
+    } else {
+        int index = 0;
+        float u = 0.0f;
+        float v = 0.0f;
+
+        float x = vec.x;
+        float y = vec.y;
+        float z = vec.z;
+
+        float absX = std::abs(x);
+        float absY = std::abs(y);
+        float absZ = std::abs(z);
+
+        int isXPositive = x > 0 ? 1 : 0;
+        int isYPositive = y > 0 ? 1 : 0;
+        int isZPositive = z > 0 ? 1 : 0;
+
+        float maxAxis, uc, vc;
+
+        // POSITIVE X
+        if (isXPositive && absX >= absY && absX >= absZ) {
+            // u (0 to 1) goes from +z to -z
+            // v (0 to 1) goes from -y to +y
+            maxAxis = absX;
+            uc = -z;
+            vc = y;
+            index = 0;
+        }
+        // NEGATIVE X
+        if (!isXPositive && absX >= absY && absX >= absZ) {
+            // u (0 to 1) goes from -z to +z
+            // v (0 to 1) goes from -y to +y
+            maxAxis = absX;
+            uc = z;
+            vc = y;
+            index = 1;
+        }
+        // POSITIVE Y
+        if (isYPositive && absY >= absX && absY >= absZ) {
+            // u (0 to 1) goes from -x to +x
+            // v (0 to 1) goes from +z to -z
+            maxAxis = absY;
+            uc = x;
+            vc = -z;
+            index = 2;
+        }
+        // NEGATIVE Y
+        if (!isYPositive && absY >= absX && absY >= absZ) {
+            // u (0 to 1) goes from -x to +x
+            // v (0 to 1) goes from -z to +z
+            maxAxis = absY;
+            uc = x;
+            vc = z;
+            index = 3;
+        }
+        // POSITIVE Z
+        if (isZPositive && absZ >= absX && absZ >= absY) {
+            // u (0 to 1) goes from -x to +x
+            // v (0 to 1) goes from -y to +y
+            maxAxis = absZ;
+            uc = x;
+            vc = y;
+            index = 4;
+        }
+        // NEGATIVE Z
+        if (!isZPositive && absZ >= absX && absZ >= absY) {
+            // u (0 to 1) goes from +x to -x
+            // v (0 to 1) goes from -y to +y
+            maxAxis = absZ;
+            uc = -x;
+            vc = y;
+            index = 5;
+        }
+
+        // Convert range from -1 to 1 to 0 to 1
+        u = 0.5f * (uc / maxAxis + 1.0f);
+        v = 0.5f * (vc / maxAxis + 1.0f);
+
+        return textures[index].sample(u, v);
+    }
 }
 
 }  // namespace eng

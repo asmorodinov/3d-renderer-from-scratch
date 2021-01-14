@@ -42,7 +42,7 @@ class Application {
     eng::Texture texture3 = eng::Texture("data/texture3.png");
     eng::Texture swordTexture = eng::Texture("data/sword.png");
 
-    eng::CubemapTexture skybox = eng::CubemapTexture();
+    eng::CubemapTexture skybox = eng::CubemapTexture("data/PereaBeach2");
 
     sf::Font font;
     sf::Text text;
