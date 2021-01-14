@@ -58,7 +58,7 @@ class ShaderVariablesVec {
 
 class ShaderConstant {
  public:
-    using var_t = std::variant<Texture*, glm::vec4, glm::vec3, glm::vec2, float, int>;
+    using var_t = std::variant<CubemapTexture*, Texture*, glm::vec4, glm::vec3, glm::vec2, float, int>;
 
     template <typename T>
     ShaderConstant(const T& v) : variable(v) {}

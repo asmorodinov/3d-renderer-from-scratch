@@ -39,4 +39,11 @@ glm::vec4 Texture::sample(float x, float y, int n, int m) const {
     return glm::vec4(buffer[xc][h - 1 - yc], 1.0f);
 }
 
+CubemapTexture::CubemapTexture() {}
+
+glm::vec4 CubemapTexture::sample(glm::vec3 v) {
+    v = glm::normalize(v);
+    return glm::vec4(0.5f * (v + 1.0f), 1.0f);
+}
+
 }  // namespace eng

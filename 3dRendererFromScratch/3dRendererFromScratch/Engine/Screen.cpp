@@ -42,14 +42,11 @@ void Screen::checkAndSetPixelColor(size_t x, size_t y, ColorType color) {
 void Screen::depthCheckSetPixelColor(size_t x, size_t y, float z, ColorType color) {
     assert(x < width && y < height);
 
-    // std::cout << z << '\n';
     if (z < -1 || z > 1) return;
 
-    // minz = std::min(z, minz);
-    // maxz = std::max(z, maxz);
-
     if (z < getPixelDepth(x, y)) {
-        setPixelDepth(x, y, z);
+        if (setDepth) setPixelDepth(x, y, z);
+
         setPixelColor(x, y, color);
     }
 }
