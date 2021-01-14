@@ -24,17 +24,14 @@ Texture::Texture(const std::string& file) {
     stbi_image_free(data);
 }
 
-glm::vec4 Texture::sample(float x, float y, int n, int m) const {
-    static constexpr float eps = 0.01f;
-    assert(x > -eps && y > -eps && x < 1 + eps && y < 1 + eps);
+glm::vec4 Texture::sample(float x, float y) const {
+    x = std::max(0.0f, std::min(x, 1.0f));
+    y = std::max(0.0f, std::min(y, 1.0f));
 
-    x = (x * n) - int(x * n);
-    y = (y * m) - int(y * m);
-
-    size_t xc = size_t(x * (w - 1));
-    size_t yc = size_t(y * (h - 1));
-    xc = std::max(std::min(xc, w - 1), size_t(0));
-    yc = std::max(std::min(yc, h - 1), size_t(0));
+    size_t xc = size_t(x * w);
+    size_t yc = size_t(y * h);
+    xc = std::min(xc, w - 1);
+    yc = std::min(yc, h - 1);
 
     return glm::vec4(buffer[xc][h - 1 - yc], 1.0f);
 }
@@ -71,7 +68,7 @@ glm::vec4 CubemapTexture::sample(glm::vec3 vec) {
         int isYPositive = y > 0 ? 1 : 0;
         int isZPositive = z > 0 ? 1 : 0;
 
-        float maxAxis, uc, vc;
+        float maxAxis = 1.0f, uc = 0.0f, vc = 0.0f;
 
         // POSITIVE X
         if (isXPositive && absX >= absY && absX >= absZ) {
