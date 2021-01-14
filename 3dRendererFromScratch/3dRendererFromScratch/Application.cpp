@@ -71,8 +71,9 @@ void Application::initShaders() {
 
         glm::vec3 lighting = glm::vec3(0.0f);
 
+        float ratio = 1.00 / 1.52;
         glm::vec3 I = glm::normalize(FragPos - viewPos);
-        glm::vec3 R = glm::reflect(I, glm::normalize(normal));
+        glm::vec3 R = glm::refract(I, glm::normalize(normal), ratio);
         lighting = skybox.sample(R);
 
         lighting = glm::pow(lighting, glm::vec3(1.0f / 2.2f));
@@ -103,16 +104,7 @@ void Application::addObjects() {
     auto skyboxMesh = eng::MeshData::generateCubeData(1.0f, true);
     objects.emplace_back(std::make_unique<eng::Skybox>(skyboxMesh, skyboxShader, eng::RenderMode::Texture));
 
-    // plane
-    float s = 2.6f;
     float h = -0.8;
-
-    objects.emplace_back(std::make_unique<eng::Mesh>(eng::MeshData{{{-s, h, s}, {-s, h, -s}, {s, h, s}, {s, h, -s}},
-                                                                   {{0, 0}, {0, 1}, {1, 1}, {1, 0}},
-                                                                   {{0, 1, 2, 0, 3, 1}, {3, 2, 1, 2, 1, 3}}},
-                                                     &texture, eng::ColorType(1.0f), phongShader, flatShader, textureShader,
-                                                     uvShader, normalShader));
-
     // cube
     float sz = 0.3f;
     auto cubeMesh = eng::MeshData::generateCubeData(sz);
@@ -132,7 +124,7 @@ void Application::addObjects() {
             objects.emplace_back(std::make_unique<eng::Mesh>(eng::loadFromObj("data/lowPolySphere.obj", 0.4f, true), &texture2,
                                                              eng::ColorType(1.0f), phongShader, flatShader, textureShader,
                                                              uvShader, normalShader));
-            objects.back()->getTransform().position = glm::vec3(1.0f + 0.4f * x, h + 0.4f + 0.4f * y, -0.8f);
+            objects.back()->getTransform().position = glm::vec3(1.0f + 0.6f * x, h + 0.4f + 0.6f * y, -0.8f);
         }
 
     // sword
