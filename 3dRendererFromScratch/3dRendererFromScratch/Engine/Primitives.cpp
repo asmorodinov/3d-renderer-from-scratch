@@ -329,7 +329,7 @@ void drawWireframeTriangle(const Triangle& t, const glm::mat4& projection, float
 void drawTriangle(const Triangle& t, const glm::mat4& projection, float near, Shader& shader, Screen& screen,
                   const LightsVec& lights) {
     for (const auto& triangle : clipTriangleAgainstFrustrum(t, projection, near)) {
-        // drawTriangleOvercomplicatedVersion(t, transform, shader, screen, lights);
+        // drawTriangleOvercomplicatedVersion(triangle, shader, screen, lights);
         drawTriangleNormalVersion(triangle, shader, screen, lights);
     }
 }
@@ -516,7 +516,6 @@ void drawTriangleOvercomplicatedVersion(const Triangle& t, Shader& shader, Scree
 
                 Var it = iv.t * w;
                 auto lighting = shaderFunc(shader.getConst(), it, lights);
-                if (lighting.a == 0.0f) continue;
 
                 screen.setPixelColor(size_t(x), size_t(y), glm::vec3(lighting.r, lighting.g, lighting.b), z);
             }

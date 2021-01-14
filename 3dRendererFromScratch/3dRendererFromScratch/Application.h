@@ -35,11 +35,14 @@ class Application {
     eng::Shader uvShader;
     eng::Shader normalShader;
     eng::Shader phongShader;
+    eng::Shader skyboxShader;
 
     eng::Texture texture = eng::Texture("data/texture.png");
     eng::Texture texture2 = eng::Texture("data/texture2.png");
     eng::Texture texture3 = eng::Texture("data/texture3.png");
     eng::Texture swordTexture = eng::Texture("data/sword.png");
+
+    eng::CubemapTexture skybox = eng::CubemapTexture();
 
     sf::Font font;
     sf::Text text;

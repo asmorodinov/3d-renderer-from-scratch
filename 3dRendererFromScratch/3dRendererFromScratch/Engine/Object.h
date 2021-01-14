@@ -30,6 +30,9 @@ class Object {
 
     Transform& getTransform();
 
+    void setPosition(glm::vec3 pos);
+    glm::vec3 getPosition() const;
+
  protected:
     Transform t;
 };
@@ -48,6 +51,8 @@ struct MeshData {
     std::vector<glm::vec3> vertices;
     std::vector<glm::vec2> textureCoords;
     std::vector<Face> faces;
+
+    static MeshData generateCubeData(float sz = 1.0f, bool invertNormals = false);
 };
 
 MeshData loadFromObj(const std::string& filename, float scale = 1.0f, bool invertNormals = false, bool uvCoords = true);
@@ -64,9 +69,6 @@ class Mesh : public Object {
     void setColor(ColorType clr);
     ColorType getColor() const;
 
-    void setPosition(glm::vec3 pos);
-    glm::vec3 getPosition() const;
-
  private:
     MeshData mesh;
     ColorType color;
@@ -78,6 +80,21 @@ class Mesh : public Object {
     Shader& td;
     Shader& uv;
     Shader& nrm;
+};
+
+class Skybox : public Object {
+ public:
+    Skybox(const MeshData& mesh, Shader& shader, std::optional<RenderMode> rm = std::nullopt);
+
+    void draw(RenderMode r, const Camera& camera, Screen& screen, const LightsVec& lights) override;
+    void update(float dt) override;
+    size_t getTriangleCount() override;
+
+ private:
+    MeshData mesh;
+    Shader& shader;
+
+    std::optional<RenderMode> rm;
 };
 
 }  // namespace eng

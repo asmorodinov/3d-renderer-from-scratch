@@ -44,6 +44,7 @@ class Screen {
 
  public:
     float near, far;
+    bool setDepth = true;
 
  private:
     size_t width, height;
@@ -53,9 +54,6 @@ class Screen {
     DepthBuffer depthBuffer;
 
     glm::mat4 projectionMatrix;
-
-    // float minz = 1.2f;
-    // float maxz = -1.2f;
 };
 
 }  // namespace eng

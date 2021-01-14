@@ -21,4 +21,10 @@ struct Texture {
     ColorBuffer buffer;
 };
 
+struct CubemapTexture {
+    CubemapTexture();
+
+    glm::vec4 sample(glm::vec3 v);
+};
+
 }  // namespace eng
