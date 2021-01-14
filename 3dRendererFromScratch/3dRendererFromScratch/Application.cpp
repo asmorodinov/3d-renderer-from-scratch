@@ -60,8 +60,8 @@ void Application::initShaders() {
 
     phongShader.setConst({&texture, glm::vec3(), glm::vec3()});
 
-    phongShader.setShader([](const eng::ShaderConstantsVec& consts, const eng::ShaderVariablesVec& var,
-                             const eng::LightsVec& lights) -> glm::vec4 {
+    phongShader.setShader([&](const eng::ShaderConstantsVec& consts, const eng::ShaderVariablesVec& var,
+                              const eng::LightsVec& lights) -> glm::vec4 {
         auto FragPos = var[0].get<glm::vec3>();
         auto uv = var[1].get<glm::vec2>();
 
@@ -69,33 +69,15 @@ void Application::initShaders() {
         auto viewPos = consts[1].get<glm::vec3>();
         auto normal = consts[2].get<glm::vec3>();
 
-        glm::vec4 color = texture->sample(uv.s, uv.t);
-        glm::vec3 color1 = color;
+        glm::vec3 lighting = glm::vec3(0.0f);
 
-        glm::vec3 lighting = color1 * 0.00f;
-
-        for (const auto& light : lights) {
-            glm::vec3 lightPos = light.pos;
-            glm::vec3 viewDir = glm::normalize(viewPos - FragPos);
-            glm::vec3 lightDir = glm::normalize(lightPos - FragPos);
-
-            float diff = (glm::max(glm::dot(normal, lightDir), 0.0f) + 0.2f);
-            glm::vec3 diffuse = diff * color1 * light.color * light.diff;
-
-            glm::vec3 halfwayDir = glm::normalize(lightDir + viewDir);
-            float spec = glm::pow(glm::max(glm::dot(normal, halfwayDir), 0.0f), 32.0f);
-            glm::vec3 specular = light.color * spec * light.spec;
-
-            float d = length(lightPos - FragPos);
-            float attenuation = 1.0f / (1.0f + d * light.lin + std::pow(d, 2.0f) * light.quad + std::pow(d, 3.0f) * light.cube);
-            diffuse *= attenuation / 1.7;
-            specular *= attenuation / 1.7;
-            lighting += light.intensity * glm::vec3(1.0f) * (diffuse + specular);
-        }
+        glm::vec3 I = glm::normalize(FragPos - viewPos);
+        glm::vec3 R = glm::reflect(I, glm::normalize(normal));
+        lighting = skybox.sample(R);
 
         lighting = glm::pow(lighting, glm::vec3(1.0f / 2.2f));
 
-        return glm::vec4(lighting, color.a);
+        return glm::vec4(lighting, 1.0f);
     });
 
     skyboxShader.setConst({&skybox});
