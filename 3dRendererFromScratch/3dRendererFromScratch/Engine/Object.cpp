@@ -95,7 +95,7 @@ void Mesh::draw(RenderMode r, const Camera& camera, Screen& screen, const Lights
     glm::mat4 projection = screen.getProjectionMatrix();
     float near = screen.near;
 
-    if (rm.has_value()) r = *rm;
+    if (rm.has_value() && *rm != r) return;
 
     for (auto& face : mesh.faces) {
         glm::vec4 v0 = glm::vec4(mesh.vertices[face.i], 1.0f);
