@@ -5,16 +5,11 @@ For now the actual dependencies are the following:
 - glm
 - stb_image
 
-![alt text](img.png)
-
-
 TODO list:
 
 Next up is: 
 - [x] Clipping triangles against frustrum planes
-- [x] There is something rotten in the state of Denmark... (fix strange projection bug)  
-	Visual bug is "fixed" by setting near frustrum plane to a really small value  
-	(this is a workaround, and not really a solution to the original problem, but this will work for now) 
+- [x] Fix perspective-projection bug (done)
 - [ ] ...
 
 Potential new features:
@@ -32,3 +27,9 @@ In general:
 - [ ] cleaning up and refactoring code
 - [ ] fixing bugs
 - [ ] ...
+
+
+Gallery:
+![alt text](img.png)
+![alt text](img.png)
+![alt text](img.png)

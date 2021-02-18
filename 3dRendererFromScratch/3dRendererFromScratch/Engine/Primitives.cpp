@@ -2,9 +2,9 @@
 
 namespace eng {
 
-void drawLine(glm::vec4 pos1, glm::vec4 pos2, ColorType color, Screen& screen) {
-    glm::vec4 p1 = pos1;
-    glm::vec4 p2 = pos2;
+void drawLine(glm::vec3 pos1, glm::vec3 pos2, ColorType color, Screen& screen) {
+    glm::vec3 p1 = pos1;
+    glm::vec3 p2 = pos2;
 
     int x0 = int(screen.getWidth() * (p1.x + 1.0f) / 2.0f);
     int y0 = int(screen.getHeight() * (p1.y + 1.0f) / 2.0f);
@@ -23,9 +23,9 @@ void drawLine(glm::vec4 pos1, glm::vec4 pos2, ColorType color, Screen& screen) {
         float t = (x0 == x1 && y0 == y1) ? 0.0f
                                          : std::sqrt(static_cast<float>(std::pow(x - x0, 2) + std::pow(y - y0, 2)) /
                                                      (std::pow(x1 - x0, 2) + std::pow(y1 - y0, 2)));
-        float z = 1.0f / (t * p2.z + (1 - t) * p1.z);
+        float z = t * p2.z + (1 - t) * p1.z;
 
-        if (z >= 0.0f && z <= 1.0f && x >= 0 && y >= 0 && x < screen.getWidth() && y < screen.getHeight()) {
+        if (z >= -1.0f && z <= 1.0f && x >= 0 && y >= 0 && x < screen.getWidth() && y < screen.getHeight()) {
             screen.setPixelColor(size_t(x), size_t(y), color, z);
         }
 
@@ -56,7 +56,7 @@ float segmentPlaneIntersect(glm::vec3 point, glm::vec3 normal, glm::vec3 v1, glm
 std::vector<Triangle> clipTriangleAgainstPlane(const Triangle& t, glm::vec3 point, glm::vec3 normal) {
     normal = glm::normalize(normal);
 
-    auto distance = [&](glm::vec4 v) { return glm::dot(glm::vec3(v.x, v.y, 1.0f / v.z) - point, normal); };
+    auto distance = [&](glm::vec3 v) { return glm::dot(v - point, normal); };
 
     using Point = std::pair<glm::vec4, ShaderVariablesVec>;
 
@@ -103,22 +103,18 @@ std::vector<Triangle> clipTriangleAgainstPlane(const Triangle& t, glm::vec3 poin
         int i2 = 1;
         if (oneInsideInvert) std::swap(i1, i2);
 
-        glm::vec4 p0_ = out.p0;
-        glm::vec4 p1_ = outsidePoints[i1].first;
-        glm::vec4 p2_ = outsidePoints[i2].first;
-
-        glm::vec3 p0 = {p0_.x, p0_.y, 1.0f / p0_.z};
-        glm::vec3 p1 = {p1_.x, p1_.y, 1.0f / p1_.z};
-        glm::vec3 p2 = {p2_.x, p2_.y, 1.0f / p2_.z};
+        glm::vec4 p0 = out.p0;
+        glm::vec4 p1 = outsidePoints[i1].first;
+        glm::vec4 p2 = outsidePoints[i2].first;
 
         float t = segmentPlaneIntersect(point, normal, p0, p1);
 
-        out.p1 = p1_ * t + p0_ * (1.0f - t);
+        out.p1 = p1 * t + p0 * (1.0f - t);
         out.v1 = outsidePoints[i1].second * t + out.v0 * (1.0f - t);
 
         float t2 = segmentPlaneIntersect(point, normal, p0, p2);
 
-        out.p2 = p2_ * t2 + p0_ * (1.0f - t2);
+        out.p2 = p2 * t2 + p0 * (1.0f - t2);
         out.v2 = outsidePoints[i2].second * t2 + out.v0 * (1.0f - t2);
 
         return {out};
@@ -131,21 +127,17 @@ std::vector<Triangle> clipTriangleAgainstPlane(const Triangle& t, glm::vec3 poin
         int i2 = 1;
         if (oneOutsideInvert) std::swap(i1, i2);
 
-        glm::vec4 p0_ = insidePoints[i1].first;
-        glm::vec4 p1_ = insidePoints[i2].first;
-        glm::vec4 p2_ = outsidePoints[0].first;
+        glm::vec4 p0 = insidePoints[i1].first;
+        glm::vec4 p1 = insidePoints[i2].first;
+        glm::vec4 p2 = outsidePoints[0].first;
 
-        glm::vec3 p0 = {p0_.x, p0_.y, 1.0f / p0_.z};
-        glm::vec3 p1 = {p1_.x, p1_.y, 1.0f / p1_.z};
-        glm::vec3 p2 = {p2_.x, p2_.y, 1.0f / p2_.z};
-
-        out1.p0 = p0_;
+        out1.p0 = p0;
         out1.v0 = insidePoints[i1].second;
-        out1.p1 = p1_;
+        out1.p1 = p1;
         out1.v1 = insidePoints[i2].second;
 
         float t = segmentPlaneIntersect(point, normal, p0, p2);
-        out1.p2 = p2_ * t + p0_ * (1.0f - t);
+        out1.p2 = p2 * t + p0 * (1.0f - t);
         out1.v2 = outsidePoints[0].second * t + insidePoints[i1].second * (1.0f - t);
 
         out2.p0 = out1.p1;
@@ -154,116 +146,7 @@ std::vector<Triangle> clipTriangleAgainstPlane(const Triangle& t, glm::vec3 poin
         out2.v2 = out1.v2;
 
         float t2 = segmentPlaneIntersect(point, normal, p1, p2);
-        out2.p1 = p2_ * t2 + p1_ * (1.0f - t2);
-        out2.v1 = outsidePoints[0].second * t2 + insidePoints[i2].second * (1.0f - t2);
-
-        return {out1, out2};
-    }
-    return {};
-}
-
-std::vector<Triangle> clipTriangleAgainstPlaneCameraSpace(const Triangle& t, glm::vec3 point, glm::vec3 normal) {
-    normal = glm::normalize(normal);
-
-    auto distance = [&](glm::vec4 v) { return glm::dot(glm::vec3(v) - point, normal); };
-
-    using Point = std::pair<glm::vec4, ShaderVariablesVec>;
-
-    std::vector<Point> insidePoints;
-    std::vector<Point> outsidePoints;
-
-    // neeeded for the correctness of resulting triangles normals
-    bool oneInsideInvert = false;
-    bool oneOutsideInvert = false;
-
-    if (distance(t.p0) >= 0.0f) {
-        insidePoints.push_back({t.p0, t.v0});
-    } else {
-        outsidePoints.push_back({t.p0, t.v0});
-    }
-
-    if (distance(t.p1) >= 0.0f) {
-        oneInsideInvert = true;
-        insidePoints.push_back({t.p1, t.v1});
-    } else {
-        oneOutsideInvert = true;
-        outsidePoints.push_back({t.p1, t.v1});
-    }
-
-    if (distance(t.p2) >= 0.0f) {
-        insidePoints.push_back({t.p2, t.v2});
-    } else {
-        outsidePoints.push_back({t.p2, t.v2});
-    }
-
-    // triangle is full outside
-    if (insidePoints.empty()) return {};
-
-    // no clipping required, triangle is fully inside
-    if (insidePoints.size() == 3) return {t};
-
-    // need to clip, this will result with one smaller triangle
-    if (insidePoints.size() == 1) {
-        Triangle out;
-        out.p0 = insidePoints[0].first;
-        out.v0 = insidePoints[0].second;
-
-        int i1 = 0;
-        int i2 = 1;
-        if (oneInsideInvert) std::swap(i1, i2);
-
-        glm::vec4 p0_ = out.p0;
-        glm::vec4 p1_ = outsidePoints[i1].first;
-        glm::vec4 p2_ = outsidePoints[i2].first;
-
-        glm::vec3 p0 = {p0_.x, p0_.y, p0_.z};
-        glm::vec3 p1 = {p1_.x, p1_.y, p1_.z};
-        glm::vec3 p2 = {p2_.x, p2_.y, p2_.z};
-
-        float t = segmentPlaneIntersect(point, normal, p0, p1);
-
-        out.p1 = p1_ * t + p0_ * (1.0f - t);
-        out.v1 = outsidePoints[i1].second * t + out.v0 * (1.0f - t);
-
-        float t2 = segmentPlaneIntersect(point, normal, p0, p2);
-
-        out.p2 = p2_ * t2 + p0_ * (1.0f - t2);
-        out.v2 = outsidePoints[i2].second * t2 + out.v0 * (1.0f - t2);
-
-        return {out};
-    }
-    // need to clip, this will result in quad (2 triangles)
-    if (insidePoints.size() == 2) {
-        Triangle out1, out2;
-
-        int i1 = 0;
-        int i2 = 1;
-        if (oneOutsideInvert) std::swap(i1, i2);
-
-        glm::vec4 p0_ = insidePoints[i1].first;
-        glm::vec4 p1_ = insidePoints[i2].first;
-        glm::vec4 p2_ = outsidePoints[0].first;
-
-        glm::vec3 p0 = {p0_.x, p0_.y, p0_.z};
-        glm::vec3 p1 = {p1_.x, p1_.y, p1_.z};
-        glm::vec3 p2 = {p2_.x, p2_.y, p2_.z};
-
-        out1.p0 = p0_;
-        out1.v0 = insidePoints[i1].second;
-        out1.p1 = p1_;
-        out1.v1 = insidePoints[i2].second;
-
-        float t = segmentPlaneIntersect(point, normal, p0, p2);
-        out1.p2 = p2_ * t + p0_ * (1.0f - t);
-        out1.v2 = outsidePoints[0].second * t + insidePoints[i1].second * (1.0f - t);
-
-        out2.p0 = out1.p1;
-        out2.v0 = out1.v1;
-        out2.p2 = out1.p2;
-        out2.v2 = out1.v2;
-
-        float t2 = segmentPlaneIntersect(point, normal, p1, p2);
-        out2.p1 = p2_ * t2 + p1_ * (1.0f - t2);
+        out2.p1 = p2 * t2 + p1 * (1.0f - t2);
         out2.v1 = outsidePoints[0].second * t2 + insidePoints[i2].second * (1.0f - t2);
 
         return {out1, out2};
@@ -274,29 +157,25 @@ std::vector<Triangle> clipTriangleAgainstPlaneCameraSpace(const Triangle& t, glm
 std::vector<Triangle> clipTriangleAgainstFrustrum(const Triangle& t, const glm::mat4& projection, float near) {
     Triangle tr = t;
 
-    std::vector<Triangle> trianglesToDraw = clipTriangleAgainstPlaneCameraSpace(tr, {0, 0, -near - 0.05f}, {0, 0, -1});
+    // coordinates are (x, y, z, 1) in camera space
+
+    std::vector<Triangle> trianglesToDraw = clipTriangleAgainstPlane(tr, {0, 0, -near - 0.01f}, {0, 0, -1});
     // std::vector<Triangle> trianglesToDraw = {tr};
 
     for (auto& triangle : trianglesToDraw) {
-        triangle.p0 = projection * glm::vec4(glm::vec3(triangle.p0), 1.0f);
-        triangle.p1 = projection * glm::vec4(glm::vec3(triangle.p1), 1.0f);
-        triangle.p2 = projection * glm::vec4(glm::vec3(triangle.p2), 1.0f);
+        // for perspective-correct interpolation
+        triangle.v0 *= 1.0f / triangle.p0.z;
+        triangle.v1 *= 1.0f / triangle.p1.z;
+        triangle.v2 *= 1.0f / triangle.p2.z;
 
-        triangle.p0 = glm::vec4(glm::vec3(triangle.p0 / triangle.p0.w), triangle.p0.w);
-        triangle.p1 = glm::vec4(glm::vec3(triangle.p1 / triangle.p1.w), triangle.p1.w);
-        triangle.p2 = glm::vec4(glm::vec3(triangle.p2 / triangle.p2.w), triangle.p2.w);
+        glm::vec4 p0 = projection * triangle.p0;
+        glm::vec4 p1 = projection * triangle.p1;
+        glm::vec4 p2 = projection * triangle.p2;
 
-        triangle.v0 *= 1.0f / triangle.p0.w;
-        triangle.v1 *= 1.0f / triangle.p1.w;
-        triangle.v2 *= 1.0f / triangle.p2.w;
-
-        triangle.p0.z = 1.0f / triangle.p0.z;
-        triangle.p1.z = 1.0f / triangle.p1.z;
-        triangle.p2.z = 1.0f / triangle.p2.z;
-
-        triangle.p0.w = 1.0f / triangle.p0.w;
-        triangle.p1.w = 1.0f / triangle.p1.w;
-        triangle.p2.w = 1.0f / triangle.p2.w;
+        // coordinates are now (x', y', z', 1/z)
+        triangle.p0 = glm::vec4(glm::vec3(p0 / p0.w), 1.0f / -p0.w);
+        triangle.p1 = glm::vec4(glm::vec3(p1 / p1.w), 1.0f / -p1.w);
+        triangle.p2 = glm::vec4(glm::vec3(p2 / p2.w), 1.0f / -p2.w);
     }
 
     std::vector<glm::vec3> points = {{-1, 0, 0}, {1, 0, 0}, {0, -1, 0}, {0, 1, 0}};
@@ -330,11 +209,11 @@ void drawTriangle(const Triangle& t, const glm::mat4& projection, float near, Sh
                   const LightsVec& lights) {
     for (const auto& triangle : clipTriangleAgainstFrustrum(t, projection, near)) {
         // drawTriangleOvercomplicatedVersion(triangle, shader, screen, lights);
-        drawTriangleNormalVersion(triangle, shader, screen, lights);
+        rasterizeTriangle(triangle, shader, screen, lights);
     }
 }
 
-void drawTriangleNormalVersion(const Triangle& t, Shader& shader, Screen& screen, const LightsVec& lights) {
+void rasterizeTriangle(const Triangle& t, Shader& shader, Screen& screen, const LightsVec& lights) {
     glm::vec4 p0 = t.p0;
     glm::vec4 p1 = t.p1;
     glm::vec4 p2 = t.p2;
@@ -393,13 +272,15 @@ void drawTriangleNormalVersion(const Triangle& t, Shader& shader, Screen& screen
                           w0 /= l;
                           w1 /= l;
                           w2 /= l;
-                          float z = 1.0f / (w0 * p0.z + w1 * p1.z + w2 * p2.z);
-                          if (z > screen.getPixelDepth(size_t(x), size_t(y))) continue;
+                          float z = w0 * p0.z + w1 * p1.z + w2 * p2.z;
 
-                          float w = 1.0f / (w0 * p0.w + w1 * p1.w + w2 * p2.w);
+                          float w = w0 * p0.w + w1 * p1.w + w2 * p2.w;
+
                           if (z < -1 || z > 1) continue;
+                          if (z > screen.getPixelDepth(size_t(x), size_t(y))) continue;
+                          // if (z < -1 || z > 1) continue;
 
-                          Var t = (t0 * w0 + t1 * w1 + t2 * w2) * w;
+                          Var t = (t0 * w0 + t1 * w1 + t2 * w2) * (1.0f / w);
                           auto lighting = shaderFunc(shader.getConst(), t, lights);
 
                           screen.setPixelColor(size_t(x), size_t(y), glm::vec3(lighting), z);
@@ -408,165 +289,6 @@ void drawTriangleNormalVersion(const Triangle& t, Shader& shader, Screen& screen
 #ifdef PARALLEL
     );
 #endif  // PARALLEL
-}
-
-void InterpolatedVariables::operator*=(float f) {
-    z *= f;
-    w *= f;
-    t *= f;
-}
-InterpolatedVariables InterpolatedVariables::operator*(float f) const { return {z * f, w * f, t * f}; }
-InterpolatedVariables InterpolatedVariables::operator+(const InterpolatedVariables& oth) const {
-    return {z + oth.z, w + oth.w, t + oth.t};
-}
-
-void drawTriangleOvercomplicatedVersion(const Triangle& t, Shader& shader, Screen& screen, const LightsVec& lights) {
-    glm::vec4 p0 = t.p0;
-    glm::vec4 p1 = t.p1;
-    glm::vec4 p2 = t.p2;
-
-    int x0 = int(screen.getWidth() * (p0.x + 1.0f) / 2.0f);
-    int y0 = int(screen.getHeight() * (p0.y + 1.0f) / 2.0f);
-
-    int x1 = int(screen.getWidth() * (p1.x + 1.0f) / 2.0f);
-    int y1 = int(screen.getHeight() * (p1.y + 1.0f) / 2.0f);
-
-    int x2 = int(screen.getWidth() * (p2.x + 1.0f) / 2.0f);
-    int y2 = int(screen.getHeight() * (p2.y + 1.0f) / 2.0f);
-
-    auto& shaderFunc = shader.getShader();
-
-    using Var = ShaderVariablesVec;
-    Var t0 = t.v0;
-    Var t1 = t.v1;
-    Var t2 = t.v2;
-
-    if (y1 < y0) {
-        std::swap(x0, x1);
-        std::swap(y0, y1);
-        std::swap(p0, p1);
-        std::swap(t0, t1);
-    }
-    if (y2 < y0) {
-        std::swap(x0, x2);
-        std::swap(y0, y2);
-        std::swap(p0, p2);
-        std::swap(t0, t2);
-    }
-    if (y2 < y1) {
-        std::swap(x1, x2);
-        std::swap(y1, y2);
-        std::swap(p1, p2);
-        std::swap(t1, t2);
-    }
-
-    InterpolatedVariables iv0 = {p0.z, p0.w, t0};
-    InterpolatedVariables iv1 = {p1.z, p1.w, t1};
-    InterpolatedVariables iv2 = {p2.z, p2.w, t2};
-
-    int dx1 = x1 - x0;
-    int dy1 = y1 - y0;
-    int dy2 = y2 - y0;
-    int dx2 = x2 - x0;
-
-    auto div1 = iv1 + (iv0 * -1.0f);
-    auto div2 = iv2 + (iv0 * -1.0f);
-
-    auto iv = InterpolatedVariables();
-
-    float ddax = 0.0f;
-    float ddbx = 0.0f;
-    auto ddiv1 = InterpolatedVariables();
-    auto ddiv2 = InterpolatedVariables();
-
-    if (dy1) {
-        ddax = dx1 / static_cast<float>(dy1);
-        ddiv1 = div1 * (1.0f / static_cast<float>(dy1));
-    }
-    if (dy2) {
-        ddbx = dx2 / static_cast<float>(dy2);
-        ddiv2 = div2 * (1.0f / static_cast<float>(dy2));
-    }
-
-    if (dy1 && 1) {
-        for (int y = std::max(0, y0); y <= std::min(static_cast<int>(screen.getHeight()) - 1, y1); ++y) {
-            int ax = x0 + (y - y0) * ddax;
-            int bx = x0 + (y - y0) * ddbx;
-
-            if (ax == bx) continue;
-
-            auto siv = iv0 + ddiv1 * static_cast<float>(y - y0);
-            auto eiv = iv0 + ddiv2 * static_cast<float>(y - y0);
-
-            if (ax > bx) {
-                std::swap(ax, bx);
-                std::swap(siv, eiv);
-            }
-
-            for (int x = std::max(0, ax); x <= std::min(static_cast<int>(screen.getWidth()) - 1, bx); ++x) {
-                float t = static_cast<float>(x - ax) / (bx - ax);
-
-                iv = siv * (1.0f - t) + eiv * t;
-
-                float w = 1.0f / iv.w;
-                float z = 1.0f / iv.z;
-
-                if (z > screen.getPixelDepth(size_t(x), size_t(y))) continue;
-                if (z < -1 || z > 1) continue;
-
-                Var it = iv.t * w;
-                auto lighting = shaderFunc(shader.getConst(), it, lights);
-
-                screen.setPixelColor(size_t(x), size_t(y), glm::vec3(lighting.r, lighting.g, lighting.b), z);
-            }
-        }
-    }
-
-    dx1 = x2 - x1;
-    dy1 = y2 - y1;
-    div1 = iv2 + (iv1 * -1.0f);
-
-    ddax = 0.0f;
-    ddiv1 = InterpolatedVariables();
-
-    if (dy1) {
-        ddax = dx1 / static_cast<float>(dy1);
-        ddiv1 = div1 * (1.0f / static_cast<float>(dy1));
-    }
-
-    if (dy1) {
-        for (int y = std::max(0, y1); y <= std::min(static_cast<int>(screen.getHeight()) - 1, y2); ++y) {
-            int ax = x1 + (y - y1) * ddax;
-            int bx = x0 + (y - y0) * ddbx;
-
-            if (ax == bx) continue;
-
-            auto siv = iv1 + ddiv1 * static_cast<float>(y - y1);
-            auto eiv = iv0 + ddiv2 * static_cast<float>(y - y0);
-
-            if (ax > bx) {
-                std::swap(ax, bx);
-                std::swap(siv, eiv);
-            }
-
-            for (int x = std::max(0, ax); x <= std::min(static_cast<int>(screen.getWidth()) - 1, bx); ++x) {
-                float t = static_cast<float>(x - ax) / (bx - ax);
-
-                iv = siv * (1.0f - t) + eiv * t;
-
-                float w = 1.0f / iv.w;
-                float z = 1.0f / iv.z;
-
-                if (z > screen.getPixelDepth(size_t(x), size_t(y))) continue;
-                if (z < -1 || z > 1) continue;
-
-                Var it = iv.t * w;
-                auto lighting = shaderFunc(shader.getConst(), it, lights);
-
-                screen.setPixelColor(size_t(x), size_t(y), glm::vec3(lighting.r, lighting.g, lighting.b), z);
-            }
-        }
-    }
 }
 
 }  // namespace eng
