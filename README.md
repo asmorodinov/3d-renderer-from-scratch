@@ -30,6 +30,7 @@ In general:
 
 
 Gallery:
+
 ![alt text](img.png)
-![alt text](img.png)
-![alt text](img.png)
+![alt text](img1.png)
+![alt text](img2.png)
