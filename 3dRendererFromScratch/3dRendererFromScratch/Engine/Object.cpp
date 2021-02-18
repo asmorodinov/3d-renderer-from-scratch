@@ -118,9 +118,9 @@ void Mesh::draw(RenderMode r, const Camera& camera, Screen& screen, const Lights
         p0_ = transform * model * v0;
         p1_ = transform * model * v1;
         p2_ = transform * model * v2;
-        tr.p0 = glm::vec4(p0_.x / p0_.w, p0_.y / p0_.w, p0_.z / p0_.w, p0_.w);
-        tr.p1 = glm::vec4(p1_.x / p1_.w, p1_.y / p1_.w, p1_.z / p1_.w, p1_.w);
-        tr.p2 = glm::vec4(p2_.x / p2_.w, p2_.y / p2_.w, p2_.z / p2_.w, p2_.w);
+        tr.p0 = p0_ / p0_.w;
+        tr.p1 = p1_ / p1_.w;
+        tr.p2 = p2_ / p2_.w;
 
         if (r == RenderMode::Texture || r == RenderMode::UV) {
             tr.v0 = ShaderVariablesVec({mesh.textureCoords[face.ti]});
@@ -173,6 +173,8 @@ void Skybox::draw(RenderMode r, const Camera& camera, Screen& screen, const Ligh
     glm::mat4 projection = screen.getProjectionMatrix();
     float near = screen.near;
 
+    if (r != RenderMode::Texture && r != RenderMode::Phong) return;
+
     if (rm.has_value()) r = *rm;
 
     for (auto& face : mesh.faces) {
@@ -194,9 +196,9 @@ void Skybox::draw(RenderMode r, const Camera& camera, Screen& screen, const Ligh
         p0_ = transform * model * v0;
         p1_ = transform * model * v1;
         p2_ = transform * model * v2;
-        tr.p0 = glm::vec4(p0_.x / p0_.w, p0_.y / p0_.w, p0_.z / p0_.w, p0_.w);
-        tr.p1 = glm::vec4(p1_.x / p1_.w, p1_.y / p1_.w, p1_.z / p1_.w, p1_.w);
-        tr.p2 = glm::vec4(p2_.x / p2_.w, p2_.y / p2_.w, p2_.z / p2_.w, p2_.w);
+        tr.p0 = p0_ / p0_.w;
+        tr.p1 = p1_ / p1_.w;
+        tr.p2 = p2_ / p2_.w;
 
         if (r != RenderMode::Wireframe) {
             tr.v0 = ShaderVariablesVec({p0});

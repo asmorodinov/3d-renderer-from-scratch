@@ -12,12 +12,12 @@ Texture::Texture(const std::string& file) {
     w = x;
     h = y;
 
-    buffer = ColorBuffer(w, std::vector<ColorType>(h, ColorType(0.0f)));
+    buffer = ColorBuffer(w, h, ColorType(0.0f));
 
     for (size_t i = 0; i < w; ++i) {
         for (size_t j = 0; j < h; ++j) {
             unsigned char* pixel = data + (i + w * j) * 3;
-            buffer[i][j] = ColorType(pixel[0], pixel[1], pixel[2]) / float(255);
+            buffer.set(i, j, ColorType(pixel[0], pixel[1], pixel[2]) / float(255));
         }
     }
 
@@ -33,7 +33,7 @@ glm::vec4 Texture::sample(float x, float y) const {
     xc = std::min(xc, w - 1);
     yc = std::min(yc, h - 1);
 
-    return glm::vec4(buffer[xc][h - 1 - yc], 1.0f);
+    return glm::vec4(buffer.get(xc, h - 1 - yc), 1.0f);
 }
 
 CubemapTexture::CubemapTexture() {}

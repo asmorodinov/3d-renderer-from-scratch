@@ -169,6 +169,7 @@
     <ClCompile Include="Engine\Object.cpp" />
     <ClCompile Include="Engine\PlayerCamera.cpp" />
     <ClCompile Include="Engine\Primitives.cpp" />
+    <ClCompile Include="Engine\Projection.cpp" />
     <ClCompile Include="Engine\Renderer.cpp" />
     <ClCompile Include="Engine\Screen.cpp" />
     <ClCompile Include="Engine\Shader.cpp" />
@@ -184,6 +185,7 @@
     <ClInclude Include="Engine\Object.h" />
     <ClInclude Include="Engine\PlayerCamera.h" />
     <ClInclude Include="Engine\Primitives.h" />
+    <ClInclude Include="Engine\Projection.h" />
     <ClInclude Include="Engine\Renderer.h" />
     <ClInclude Include="Engine\Screen.h" />
     <ClInclude Include="Engine\Shader.h" />

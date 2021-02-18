@@ -76,6 +76,7 @@ void Application::initShaders() {
         glm::vec3 I = glm::normalize(FragPos - viewPos);
         glm::vec3 R = glm::reflect(I, glm::normalize(normal));
         lighting = skybox.sample(R);
+        lighting += 0.2f * glm::vec3(color);
 
         for (const auto& light : lights) {
             glm::vec3 lightPos = light.pos;

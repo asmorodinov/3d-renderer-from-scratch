@@ -3,28 +3,28 @@
 namespace eng {
 
 Screen::Screen(size_t width, size_t height, ColorType clearColor)
-    : near(0.001f),
+    : near(0.2f),
       far(10.0f),
       width(width),
       height(height),
       ratio(width / (float)height),
       clearColor(clearColor),
-      colorBuffer(width, std::vector<ColorType>(height, clearColor)),
-      depthBuffer(width, std::vector<float>(height, std::numeric_limits<float>::max())),
-      projectionMatrix(glm::perspectiveRH_NO(glm::radians(45.0f), ratio, near, far)) {}
+      colorBuffer(width, height, clearColor),
+      depthBuffer(width, height, std::numeric_limits<float>::max()),
+      projectionMatrix(generateProjection(glm::radians(60.0f), ratio, near, far)) {}
 
 const glm::mat4& Screen::getProjectionMatrix() const { return projectionMatrix; }
 
 ColorType Screen::getPixelColor(size_t x, size_t y) const {
     assert(x < width && y < height);
 
-    return colorBuffer[x][y];
+    return colorBuffer.get(x, y);
 }
 
 void Screen::setPixelColor(size_t x, size_t y, ColorType color) {
     assert(x < width && y < height);
 
-    colorBuffer[x][y] = color;
+    colorBuffer.set(x, y, color);
 }
 
 void Screen::setPixelColor(size_t x, size_t y, ColorType color, float z) {
@@ -36,7 +36,7 @@ void Screen::setPixelColor(size_t x, size_t y, ColorType color, float z) {
 void Screen::checkAndSetPixelColor(size_t x, size_t y, ColorType color) {
     if (x < width || y < height) return;
 
-    colorBuffer[x][y] = color;
+    colorBuffer.set(x, y, color);
 }
 
 void Screen::depthCheckSetPixelColor(size_t x, size_t y, float z, ColorType color) {
@@ -53,17 +53,17 @@ void Screen::depthCheckSetPixelColor(size_t x, size_t y, float z, ColorType colo
 
 float Screen::getPixelDepth(size_t x, size_t y) const {
     assert(x < width && y < height);
-    return depthBuffer[x][y];
+    return depthBuffer.get(x, y);
 }
 void Screen::setPixelDepth(size_t x, size_t y, float z) {
     assert(x < width && y < height);
 
-    depthBuffer[x][y] = z;
+    depthBuffer.set(x, y, z);
 }
 
 void Screen::clear() {
-    colorBuffer = ColorBuffer(width, std::vector<ColorType>(height, clearColor));
-    depthBuffer = DepthBuffer(width, std::vector<float>(height, std::numeric_limits<float>::max()));
+    colorBuffer.fill(clearColor);
+    depthBuffer.fill(std::numeric_limits<float>::max());
 
     // std::cout << "min: " << minz << " max: " << maxz << '\n';
 }

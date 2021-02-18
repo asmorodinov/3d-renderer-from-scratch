@@ -9,11 +9,34 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "Projection.h"
+
 namespace eng {
 
+template <typename T>
+class Vector2d {
+ public:
+    Vector2d(size_t width = 0, size_t height = 0, const T& elem = T())
+        : width(width), height(height), vec(width * height, elem) {}
+
+    void set(size_t x, size_t y, const T& elem) {
+        assert(x < width && y < height);
+        vec[y * width + x] = elem;
+    }
+    const T& get(size_t x, size_t y) const {
+        assert(x < width && y < height);
+        return vec[y * width + x];
+    }
+    void fill(const T& elem) { std::fill(vec.begin(), vec.end(), elem); }
+
+ private:
+    std::vector<T> vec;
+    size_t width, height;
+};
+
 using ColorType = glm::vec3;
-using ColorBuffer = std::vector<std::vector<ColorType>>;
-using DepthBuffer = std::vector<std::vector<float>>;
+using ColorBuffer = Vector2d<ColorType>;
+using DepthBuffer = Vector2d<float>;
 
 class Screen {
  public:
