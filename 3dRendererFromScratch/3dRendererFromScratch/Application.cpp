@@ -1,13 +1,12 @@
 #include "Application.h"
 
 Application::Application()
-    : width(800),
-      height(600),
-      window(sf::VideoMode(width, height), "SFML window [press SPACE to toggle rendering modes]"),
+    : width(default_width),
+      height(default_height),
+      window(sf::VideoMode(width, height), mainWindowMsg_),
       renderer(width, height),
       rm(eng::RenderMode::Normals) {
     initInterface();
-    initShaders();
     addObjects();
 }
 
@@ -32,86 +31,10 @@ void Application::initInterface() {
     text3.setOrigin({0.0f, 0.0f});
 }
 
-void Application::initShaders() {
-    flatShader.setConst({glm::vec3(1.0f)});
-
-    flatShader.setShader([](const eng::ShaderConstantsVec& consts, const eng::ShaderVariablesVec& var,
-                            const eng::LightsVec& lights) -> glm::vec4 { return glm::vec4(consts[0].get<glm::vec3>(), 1.0f); });
-
-    textureShader.setConst({&texture});
-
-    textureShader.setShader(
-        [](const eng::ShaderConstantsVec& consts, const eng::ShaderVariablesVec& var, const eng::LightsVec& lights) -> glm::vec4 {
-            auto uv = var[0].get<glm::vec2>();
-            return consts[0].get<eng::Texture*>()->sample(uv.s, uv.t);
-        });
-
-    uvShader.setShader(
-        [](const eng::ShaderConstantsVec& consts, const eng::ShaderVariablesVec& var, const eng::LightsVec& lights) -> glm::vec4 {
-            auto uv = var[0].get<glm::vec2>();
-            return glm::vec4(uv.s, uv.t, 0.5f, 1.0f);
-        });
-
-    normalShader.setShader(
-        [](const eng::ShaderConstantsVec& consts, const eng::ShaderVariablesVec& var, const eng::LightsVec& lights) -> glm::vec4 {
-            auto normal = consts[0].get<glm::vec3>();
-            return glm::vec4(0.5f * (normal + 1.0f), 1.0f);
-        });
-
-    phongShader.setConst({&texture, glm::vec3(), glm::vec3()});
-
-    phongShader.setShader([&](const eng::ShaderConstantsVec& consts, const eng::ShaderVariablesVec& var,
-                              const eng::LightsVec& lights) -> glm::vec4 {
-        auto FragPos = var[0].get<glm::vec3>();
-        auto uv = var[1].get<glm::vec2>();
-
-        auto texture = consts[0].get<eng::Texture*>();
-        auto viewPos = consts[1].get<glm::vec3>();
-        auto normal = consts[2].get<glm::vec3>();
-
-        glm::vec4 color = texture->sample(uv.s, uv.t);
-
-        glm::vec3 lighting = glm::vec3(0.0f);
-
-        glm::vec3 I = glm::normalize(FragPos - viewPos);
-        glm::vec3 R = glm::reflect(I, glm::normalize(normal));
-        lighting = skybox.sample(R);
-        lighting += 0.2f * glm::vec3(color);
-
-        for (const auto& light : lights) {
-            glm::vec3 lightPos = light.pos;
-            glm::vec3 viewDir = glm::normalize(viewPos - FragPos);
-            glm::vec3 lightDir = glm::normalize(lightPos - FragPos);
-
-            float diff = (glm::max(glm::dot(normal, lightDir), 0.0f) + 0.2f);
-            glm::vec3 diffuse = diff * glm::vec3(color) * light.color * light.diff;
-
-            glm::vec3 halfwayDir = glm::normalize(lightDir + viewDir);
-            float spec = glm::pow(glm::max(glm::dot(normal, halfwayDir), 0.0f), 32.0f);
-            glm::vec3 specular = light.color * spec * light.spec;
-
-            float d = length(lightPos - FragPos);
-            float attenuation = 1.0f / (1.0f + d * light.lin + std::pow(d, 2.0f) * light.quad + std::pow(d, 3.0f) * light.cube);
-            diffuse *= attenuation / 1.7;
-            specular *= attenuation / 1.7;
-            lighting += 0.3f * light.intensity * glm::vec3(1.0f) * (diffuse + specular);
-        }
-
-        lighting = glm::pow(lighting, glm::vec3(1.0f / 2.2f));
-
-        return glm::vec4(lighting, 1.0f);
-    });
-
-    skyboxShader.setConst({&skybox});
-    skyboxShader.setShader(
-        [](const eng::ShaderConstantsVec& consts, const eng::ShaderVariablesVec& var, const eng::LightsVec& lights) -> glm::vec4 {
-            auto cubemap = consts[0].get<eng::CubemapTexture*>();
-            auto pos = var[0].get<glm::vec3>();
-            return cubemap->sample(pos);
-        });
-}
-
 void Application::addObjects() {
+    phongShader.c.skybox = skybox;
+    skyboxShader.c = skybox;
+
     auto& objects = renderer.getWorld().getObjects();
 
     auto& lights = renderer.getWorld().getPointLights();
@@ -132,18 +55,18 @@ void Application::addObjects() {
     objects.emplace_back(std::make_unique<eng::Mesh>(eng::MeshData{{{-s, h, s}, {-s, h, -s}, {s, h, s}, {s, h, -s}},
                                                                    {{0, 0}, {0, 1}, {1, 1}, {1, 0}},
                                                                    {{0, 1, 2, 0, 3, 1}, {3, 2, 1, 2, 1, 3}}},
-                                                     &texture, eng::ColorType(1.0f), phongShader, flatShader, textureShader,
+                                                     texture, eng::ColorType(1.0f), phongShader, flatShader, textureShader,
                                                      uvShader, normalShader));
 
     // cube
     float sz = 0.3f;
     auto cubeMesh = eng::MeshData::generateCubeData(sz);
-    objects.emplace_back(std::make_unique<eng::Mesh>(cubeMesh, &texture, eng::ColorType(1.0f), phongShader, flatShader,
+    objects.emplace_back(std::make_unique<eng::Mesh>(cubeMesh, texture, eng::ColorType(1.0f), phongShader, flatShader,
                                                      textureShader, uvShader, normalShader));
     objects.back()->getTransform().position = glm::vec3(-1.0f, h + sz, 0.8f);
 
     // teapot
-    objects.emplace_back(std::make_unique<eng::Mesh>(eng::loadFromObj("data/teapot.obj", 0.4f, true, false), &texture3,
+    objects.emplace_back(std::make_unique<eng::Mesh>(eng::loadFromObj("data/teapot.obj", 0.4f, true, false), texture3,
                                                      eng::ColorType(1.0f), phongShader, flatShader, textureShader, uvShader,
                                                      normalShader));
     objects.back()->getTransform().position.y = h;
@@ -151,20 +74,20 @@ void Application::addObjects() {
     // sphere
     for (int y = 0; y < 2; ++y)
         for (int x = 0; x < 3; ++x) {
-            objects.emplace_back(std::make_unique<eng::Mesh>(eng::loadFromObj("data/lowPolySphere.obj", 0.4f, true), &texture2,
+            objects.emplace_back(std::make_unique<eng::Mesh>(eng::loadFromObj("data/lowPolySphere.obj", 0.4f, true), texture2,
                                                              eng::ColorType(1.0f), phongShader, flatShader, textureShader,
                                                              uvShader, normalShader));
             objects.back()->getTransform().position = glm::vec3(1.0f + 0.6f * x, h + 0.4f + 0.6f * y, -0.8f);
         }
 
     // sword
-    objects.emplace_back(std::make_unique<eng::Mesh>(eng::loadFromObj("data/sword.obj", 2.0f, true), &swordTexture,
+    objects.emplace_back(std::make_unique<eng::Mesh>(eng::loadFromObj("data/sword.obj", 2.0f, true), swordTexture,
                                                      eng::ColorType(1.0f), phongShader, flatShader, textureShader, uvShader,
                                                      normalShader));
     objects.back()->getTransform().position = glm::vec3(-1.0f, h, -0.8f);
 
-    eng::Mesh light(eng::loadFromObj("data/light.obj", 0.1f, true, false), &texture, eng::ColorType(1.0f), phongShader,
-                    flatShader, textureShader, uvShader, normalShader, eng::RenderMode::FlatColor);
+    eng::Mesh light(eng::loadFromObj("data/light.obj", 0.1f, true, false), texture, eng::ColorType(1.0f), phongShader, flatShader,
+                    textureShader, uvShader, normalShader, eng::RenderMode::FlatColor);
 
     for (int y = 0; y < lights.size(); ++y) {
         glm::vec3 pos = lights[y].pos;

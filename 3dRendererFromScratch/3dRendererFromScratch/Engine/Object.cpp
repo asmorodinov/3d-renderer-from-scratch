@@ -85,8 +85,8 @@ MeshData MeshData::generateCubeData(float sz, bool invertNormals) {
     return res;
 }
 
-Mesh::Mesh(const MeshData& mesh, Texture* texture, ColorType color, Shader& ph, Shader& fl, Shader& td, Shader& uv, Shader& nrm,
-           std::optional<RenderMode> rm)
+Mesh::Mesh(const MeshData& mesh, std::shared_ptr<Texture> texture, ColorType color, PhongShader& ph, FlatShader& fl,
+           TextureShader& td, UVShader& uv, NormalShader& nrm, std::optional<RenderMode> rm)
     : mesh(mesh), texture(texture), color(color), ph(ph), fl(fl), td(td), uv(uv), nrm(nrm), rm(rm) {}
 
 void Mesh::draw(RenderMode r, const Camera& camera, Screen& screen, const LightsVec& lights) {
@@ -114,43 +114,54 @@ void Mesh::draw(RenderMode r, const Camera& camera, Screen& screen, const Lights
         glm::vec3 p2 = glm::vec3(p2_);
         glm::vec3 normal = -glm::normalize(glm::cross(p1 - p0, p2 - p0));
 
-        Triangle tr;
         p0_ = transform * model * v0;
         p1_ = transform * model * v1;
         p2_ = transform * model * v2;
-        tr.p0 = p0_ / p0_.w;
-        tr.p1 = p1_ / p1_.w;
-        tr.p2 = p2_ / p2_.w;
+        glm::vec4 tp0 = p0_ / p0_.w;
+        glm::vec4 tp1 = p1_ / p1_.w;
+        glm::vec4 tp2 = p2_ / p2_.w;
 
         if (r == RenderMode::Texture || r == RenderMode::UV) {
-            tr.v0 = ShaderVariablesVec({mesh.textureCoords[face.ti]});
-            tr.v1 = ShaderVariablesVec({mesh.textureCoords[face.tj]});
-            tr.v2 = ShaderVariablesVec({mesh.textureCoords[face.tk]});
             if (r == RenderMode::Texture) {
-                td.setConst({texture});
-                drawTriangle(tr, projection, near, td, screen, lights);
+                td.c = {texture};
+                drawTriangle(Triangle<TextureShaderVar>({tp0,
+                                                         tp1,
+                                                         tp2,
+                                                         {mesh.textureCoords[face.ti]},
+                                                         {mesh.textureCoords[face.tj]},
+                                                         {mesh.textureCoords[face.tk]}}),
+                             projection, near, td, screen, lights);
             } else {
-                drawTriangle(tr, projection, near, uv, screen, lights);
+                drawTriangle(Triangle<UVShaderVar>({tp0,
+                                                    tp1,
+                                                    tp2,
+                                                    {mesh.textureCoords[face.ti]},
+                                                    {mesh.textureCoords[face.tj]},
+                                                    {mesh.textureCoords[face.tk]}}),
+                             projection, near, uv, screen, lights);
             }
         } else if (r == RenderMode::FlatColor) {
-            fl.setConst({color});
-
-            drawTriangle(tr, projection, near, fl, screen, lights);
+            fl.c = color;
+            drawTriangle(Triangle<FlatShaderVar>({tp0, tp1, tp2, {}, {}, {}}), projection, near, fl, screen, lights);
         } else if (r == RenderMode::Wireframe) {
-            drawWireframeTriangle(tr, projection, near, color, screen);
+            drawWireframeTriangle({tp0, tp1, tp2, {}, {}, {}}, projection, near, color, screen);
         } else {
             if (r == RenderMode::Phong) {
-                tr.v0 = ShaderVariablesVec({p0, mesh.textureCoords[face.ti]});
-                tr.v1 = ShaderVariablesVec({p1, mesh.textureCoords[face.tj]});
-                tr.v2 = ShaderVariablesVec({p2, mesh.textureCoords[face.tk]});
+                ph.c.texture = texture;
+                ph.c.viewPos = camera.getPosition();
+                ph.c.normal = normal;
 
-                ph.setConst({texture, camera.getPosition(), normal});
-
-                drawTriangle(tr, projection, near, ph, screen, lights);
+                drawTriangle(Triangle<PhongShaderVar>({tp0,
+                                                       tp1,
+                                                       tp2,
+                                                       {p0, mesh.textureCoords[face.ti]},
+                                                       {p1, mesh.textureCoords[face.tj]},
+                                                       {p2, mesh.textureCoords[face.tk]}}),
+                             projection, near, ph, screen, lights);
             } else {
-                nrm.setConst({normal});
+                nrm.c = normal;
 
-                drawTriangle(tr, projection, near, nrm, screen, lights);
+                drawTriangle(Triangle<NormalShaderVar>({tp0, tp1, tp2, {}, {}, {}}), projection, near, nrm, screen, lights);
             }
         }
     }
@@ -163,7 +174,7 @@ size_t Mesh::getTriangleCount() { return mesh.faces.size(); }
 ColorType Mesh::getColor() const { return color; }
 void Mesh::setColor(ColorType clr) { color = clr; }
 
-Skybox::Skybox(const MeshData& mesh, Shader& shader, std::optional<RenderMode> rm) : mesh(mesh), shader(shader), rm(rm) {}
+Skybox::Skybox(const MeshData& mesh, CubemapShader& shader, std::optional<RenderMode> rm) : mesh(mesh), shader(shader), rm(rm) {}
 
 void Skybox::draw(RenderMode r, const Camera& camera, Screen& screen, const LightsVec& lights) {
     // remove translation
@@ -192,7 +203,7 @@ void Skybox::draw(RenderMode r, const Camera& camera, Screen& screen, const Ligh
         glm::vec3 p1 = glm::vec3(p1_);
         glm::vec3 p2 = glm::vec3(p2_);
 
-        Triangle tr;
+        Triangle<CubemapShaderVar> tr;
         p0_ = transform * model * v0;
         p1_ = transform * model * v1;
         p2_ = transform * model * v2;
@@ -201,9 +212,9 @@ void Skybox::draw(RenderMode r, const Camera& camera, Screen& screen, const Ligh
         tr.p2 = p2_ / p2_.w;
 
         if (r != RenderMode::Wireframe) {
-            tr.v0 = ShaderVariablesVec({p0});
-            tr.v1 = ShaderVariablesVec({p1});
-            tr.v2 = ShaderVariablesVec({p2});
+            tr.v0 = {p0};
+            tr.v1 = {p1};
+            tr.v2 = {p2};
 
             screen.setDepth = false;
 
@@ -211,7 +222,7 @@ void Skybox::draw(RenderMode r, const Camera& camera, Screen& screen, const Ligh
 
             screen.setDepth = true;
         } else {
-            drawWireframeTriangle(tr, projection, near, glm::vec3(1.0f), screen);
+            drawWireframeTriangle({tr.p0, tr.p1, tr.p2, {}, {}, {}}, projection, near, glm::vec3(1.0f), screen);
         }
     }
 }

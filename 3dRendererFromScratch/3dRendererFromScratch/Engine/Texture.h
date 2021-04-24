@@ -2,6 +2,7 @@
 
 #include <cassert>
 #include <string>
+#include <array>
 #include <vector>
 #include <cmath>
 
@@ -26,7 +27,7 @@ struct CubemapTexture {
     CubemapTexture();
     CubemapTexture(const std::string& folder, bool defaultFormat = true, const std::string& imageFormat = ".jpg");
 
-    Texture textures[6];
+    std::array<Texture, 6> textures;
 
     glm::vec4 sample(glm::vec3 v);
 };

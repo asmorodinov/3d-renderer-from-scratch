@@ -11,7 +11,7 @@ Screen::Screen(size_t width, size_t height, ColorType clearColor)
       clearColor(clearColor),
       colorBuffer(width, height, clearColor),
       depthBuffer(width, height, std::numeric_limits<float>::max()),
-      projectionMatrix(generateProjection(glm::radians(60.0f), ratio, near, far)) {}
+      projectionMatrix(glm::perspective(glm::radians(60.0f), ratio, near, far)) {}
 
 const glm::mat4& Screen::getProjectionMatrix() const { return projectionMatrix; }
 

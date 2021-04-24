@@ -24,7 +24,7 @@ class Object {
  public:
     virtual ~Object() = default;
 
-    virtual void draw(RenderMode r, const Camera& camera, Screen& screen, const std::vector<PointLight>& lights) = 0;
+    virtual void draw(RenderMode r, const Camera& camera, Screen& screen, const LightsVec& lights) = 0;
     virtual void update(float dt) = 0;
     virtual size_t getTriangleCount() = 0;
 
@@ -59,8 +59,8 @@ MeshData loadFromObj(const std::string& filename, float scale = 1.0f, bool inver
 
 class Mesh : public Object {
  public:
-    Mesh(const MeshData& mesh, Texture* texture, ColorType color, Shader& ph, Shader& fl, Shader& td, Shader& uv, Shader& nrm,
-         std::optional<RenderMode> rm = std::nullopt);
+    Mesh(const MeshData& mesh, std::shared_ptr<Texture> texture, ColorType color, PhongShader& ph, FlatShader& fl,
+         TextureShader& td, UVShader& uv, NormalShader& nrm, std::optional<RenderMode> rm = std::nullopt);
 
     void draw(RenderMode r, const Camera& camera, Screen& screen, const LightsVec& lights) override;
     void update(float dt) override;
@@ -72,19 +72,19 @@ class Mesh : public Object {
  private:
     MeshData mesh;
     ColorType color;
-    Texture* texture;
+    std::shared_ptr<Texture> texture;
     std::optional<RenderMode> rm;
 
-    Shader& ph;
-    Shader& fl;
-    Shader& td;
-    Shader& uv;
-    Shader& nrm;
+    PhongShader& ph;
+    FlatShader& fl;
+    TextureShader& td;
+    UVShader& uv;
+    NormalShader& nrm;
 };
 
 class Skybox : public Object {
  public:
-    Skybox(const MeshData& mesh, Shader& shader, std::optional<RenderMode> rm = std::nullopt);
+    Skybox(const MeshData& mesh, CubemapShader& shader, std::optional<RenderMode> rm = std::nullopt);
 
     void draw(RenderMode r, const Camera& camera, Screen& screen, const LightsVec& lights) override;
     void update(float dt) override;
@@ -92,7 +92,7 @@ class Skybox : public Object {
 
  private:
     MeshData mesh;
-    Shader& shader;
+    CubemapShader& shader;
 
     std::optional<RenderMode> rm;
 };

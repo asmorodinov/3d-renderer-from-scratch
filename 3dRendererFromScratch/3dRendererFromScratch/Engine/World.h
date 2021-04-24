@@ -25,7 +25,7 @@ class World {
 
  private:
     Camera camera;
-    std::vector<ObjectPtr> objects;
+    ObjectsVec objects;
     LightsVec pointLights;
 };
 
