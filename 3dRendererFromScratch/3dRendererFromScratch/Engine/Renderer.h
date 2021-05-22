@@ -33,9 +33,6 @@ class Renderer {
     void renderScreenToFile(const std::string& file) const;
     void renderScreenToSFMLWindow(sf::RenderWindow& window);
 
-    void setRenderMode(RenderMode r);
-    RenderMode getRenderMode() const;
-
  private:
     Screen screen;
     sf::Texture screenTexture;
@@ -45,8 +42,6 @@ class Renderer {
 
     bool playerControl = true;
     float mx = -1.0f, my = -1.0f;
-
-    RenderMode rm;
 };
 
 }  // namespace eng

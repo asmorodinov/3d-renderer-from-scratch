@@ -3,7 +3,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "Object.h"
+#include "Mesh.h"
 #include "Camera.h"
 
 namespace eng {

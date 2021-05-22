@@ -166,7 +166,7 @@
     <ClCompile Include="Engine\Camera.cpp" />
     <ClCompile Include="Engine\Common.cpp" />
     <ClCompile Include="Engine\Light.cpp" />
-    <ClCompile Include="Engine\Object.cpp" />
+    <ClCompile Include="Engine\Mesh.cpp" />
     <ClCompile Include="Engine\PlayerCamera.cpp" />
     <ClCompile Include="Engine\Primitives.cpp" />
     <ClCompile Include="Engine\Renderer.cpp" />
@@ -182,13 +182,14 @@
     <ClInclude Include="Engine\Common.h" />
     <ClInclude Include="Engine\HelperClasses.h" />
     <ClInclude Include="Engine\Light.h" />
-    <ClInclude Include="Engine\Object.h" />
+    <ClInclude Include="Engine\Mesh.h" />
     <ClInclude Include="Engine\PlayerCamera.h" />
     <ClInclude Include="Engine\Primitives.h" />
     <ClInclude Include="Engine\Renderer.h" />
     <ClInclude Include="Engine\Screen.h" />
     <ClInclude Include="Engine\Shader.h" />
     <ClInclude Include="Engine\Texture.h" />
+    <ClInclude Include="Engine\VertexShader.h" />
     <ClInclude Include="Engine\World.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

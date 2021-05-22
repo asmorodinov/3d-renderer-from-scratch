@@ -4,8 +4,7 @@ Application::Application()
     : width(default_width),
       height(default_height),
       window(sf::VideoMode(width, height), mainWindowMsg_),
-      renderer(width, height),
-      rm(eng::RenderMode::Normals) {
+      renderer(width, height) {
     initInterface();
     addObjects();
 }
@@ -32,10 +31,6 @@ void Application::initInterface() {
 }
 
 void Application::addObjects() {
-    phongShader.c.skybox = skybox;
-    skyboxShader.c = skybox;
-    normalMapShader.c.skybox = skybox;
-
     auto& objects = renderer.getWorld().getObjects();
 
     auto& lights = renderer.getWorld().getPointLights();
@@ -46,55 +41,47 @@ void Application::addObjects() {
         lights.push_back(eng::PointLight({0, 0.1, -2}, {0.2, 1.0, 1.0}, 1.2f, 0.5f));
     }
 
-    auto skyboxMesh = eng::MeshData::generateCubeData(1.0f, true);
-    objects.emplace_back(std::make_unique<eng::Skybox>(skyboxMesh, skyboxShader, eng::RenderMode::Texture));
+    objects.cubemapMeshes.push_back(eng::CubemapMesh(std::cref(skyboxMesh), {}, {skybox}, {}, std::ref(skyboxVertexShader),
+                                                     std::ref(skyboxShader), false, false));
 
     // plane
-    float s = 2.6f;
-    float h = -0.8;
 
-    objects.emplace_back(std::make_unique<eng::Mesh>(eng::MeshData{{{-s, h, s}, {-s, h, -s}, {s, h, s}, {s, h, -s}},
-                                                                   {{0, 0}, {0, 1}, {1, 1}, {1, 0}},
-                                                                   {{0, 1, 2, 0, 3, 1}, {3, 2, 1, 2, 1, 3}}},
-                                                     textureStone, eng::ColorType(1.0f), phongShader, flatShader, textureShader,
-                                                     uvShader, normalShader, normalMapShader));
+    objects.textureMeshes.push_back(
+        eng::TextureMesh(std::cref(planeMesh), {}, {textureStone}, {}, std::ref(textureVertexShader), std::ref(textureShader)));
 
     // cube
-    float sz = 0.6f;
-    auto cubeMesh = eng::MeshData::generateCubeData(sz);
-    objects.emplace_back(std::make_unique<eng::Mesh>(cubeMesh, texture, eng::ColorType(1.0f), phongShader, flatShader,
-                                                     textureShader, uvShader, normalShader, normalMapShader));
-    objects.back()->getTransform().position = glm::vec3(-1.0f, h + sz, 0.8f);
+
+    objects.textureMeshes.push_back(
+        eng::TextureMesh(std::cref(cubeMesh), {}, {texture}, {}, std::ref(textureVertexShader), std::ref(textureShader)));
+
+    objects.textureMeshes.back().getTransform().position = glm::vec3(-1.0f, h + sz, 0.8f);
 
     // cube 2
-    objects.emplace_back(std::make_unique<eng::Mesh>(cubeMesh, brickTexture, eng::ColorType(1.0f), phongShader, flatShader,
-                                                     textureShader, uvShader, normalShader, normalMapShader, std::nullopt,
-                                                     brickNormalMap));
-    objects.back()->getTransform().position = glm::vec3(-1.0f - 2.5f * sz, h + sz, 0.8f);
+    objects.textureMeshes.push_back(
+        eng::TextureMesh(std::cref(cubeMesh), {}, {brickTexture}, {}, std::ref(textureVertexShader), std::ref(textureShader)));
+    objects.textureMeshes.back().getTransform().position = glm::vec3(-1.0f - 2.5f * sz, h + sz, 0.8f);
 
     // teapot
-    objects.emplace_back(std::make_unique<eng::Mesh>(eng::loadFromObj("data/teapot.obj", 0.4f, true, false), texture3,
-                                                     eng::ColorType(1.0f), phongShader, flatShader, textureShader, uvShader,
-                                                     normalShader, normalMapShader));
-    objects.back()->getTransform().position.y = h;
+    objects.textureMeshes.push_back(
+        eng::TextureMesh(std::cref(teapotMesh), {}, {texture3}, {}, std::ref(textureVertexShader), std::ref(textureShader)));
+    objects.textureMeshes.back().getTransform().position.y = h;
 
+    /*
     // sphere
     for (int y = 0; y < 2; ++y)
         for (int x = 0; x < 3; ++x) {
-            objects.emplace_back(std::make_unique<eng::Mesh>(eng::loadFromObj("data/lowPolySphere.obj", 0.4f, true), texture2,
-                                                             eng::ColorType(1.0f), phongShader, flatShader, textureShader,
-                                                             uvShader, normalShader, normalMapShader));
+            objects.emplace_back(std::make_unique<eng::Mesh>(sphereMesh, texture2, eng::ColorType(1.0f), phongShader, flatShader,
+                                                             textureShader, uvShader, normalShader, normalMapShader));
             objects.back()->getTransform().position = glm::vec3(1.0f + 0.6f * x, h + 0.4f + 0.6f * y, -0.8f);
         }
 
     // sword
-    objects.emplace_back(std::make_unique<eng::Mesh>(eng::loadFromObj("data/sword.obj", 2.0f, true), swordTexture,
-                                                     eng::ColorType(1.0f), phongShader, flatShader, textureShader, uvShader,
-                                                     normalShader, normalMapShader));
+    objects.emplace_back(std::make_unique<eng::Mesh>(swordMesh, swordTexture, eng::ColorType(1.0f), phongShader, flatShader,
+                                                     textureShader, uvShader, normalShader, normalMapShader));
     objects.back()->getTransform().position = glm::vec3(-1.0f, h, -0.8f);
 
-    eng::Mesh light(eng::loadFromObj("data/light.obj", 0.1f, true, false), texture, eng::ColorType(1.0f), phongShader, flatShader,
-                    textureShader, uvShader, normalShader, normalMapShader, eng::RenderMode::FlatColor);
+    eng::Mesh light(lightMesh, texture, eng::ColorType(1.0f), phongShader, flatShader, textureShader, uvShader, normalShader,
+                    normalMapShader, eng::RenderMode::FlatColor);
 
     for (int y = 0; y < lights.size(); ++y) {
         glm::vec3 pos = lights[y].pos;
@@ -106,6 +93,7 @@ void Application::addObjects() {
 
         objects.emplace_back(std::move(lightObj));
     }
+    */
 }
 
 void Application::processEvents() {
@@ -114,7 +102,6 @@ void Application::processEvents() {
         if (event.type == sf::Event::Closed) {
             window.close();
         } else if (event.type == sf::Event::KeyPressed) {
-            if (event.key.code == sf::Keyboard::Space) rm = static_cast<eng::RenderMode>((static_cast<int>(rm) + 1) % 6);
             if (event.key.code == sf::Keyboard::Escape) window.close();
 
             renderer.keyPressedOrReleased(event.key.code, true);
@@ -161,7 +148,6 @@ void Application::run() {
         cam.setDirection(-cam.getPosition());
 
         renderer.clearScreen();
-        renderer.setRenderMode(rm);
 
         renderer.update(dt);
         text3.setString("triangles: " + std::to_string(renderer.renderSceneToScreen()));

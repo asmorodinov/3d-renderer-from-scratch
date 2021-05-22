@@ -23,9 +23,6 @@ void Renderer::mouseMove(float x, float y) {
 void Renderer::keyPressedOrReleased(sf::Keyboard::Key key, bool mode) { camera.keyPressedOrReleased(key, mode); }
 
 void Renderer::update(float dt) {
-    for (auto& object : world.getObjects()) {
-        object->update(dt);
-    }
     camera.update(dt);
 
     if (playerControl) {
@@ -34,12 +31,28 @@ void Renderer::update(float dt) {
     }
 }
 
+template <typename T>
+size_t draw(const std::vector<T>& vec, const Camera& camera, Screen& screen, const LightsVec& lights) {
+    size_t trianglesDrawn = 0;
+    for (const auto& object : vec) {
+        object.draw(camera, screen, lights);
+        trianglesDrawn += object.getTriangleCount();
+    }
+    return trianglesDrawn;
+}
+
 size_t Renderer::renderSceneToScreen() {
     size_t trianglesDrawn = 0;
-    for (auto& object : world.getObjects()) {
-        object->draw(rm, world.getCamera(), screen, world.getPointLights());
-        trianglesDrawn += object->getTriangleCount();
-    }
+    const Camera& camera = world.getCamera();
+    const LightsVec& lights = world.getPointLights();
+    const ObjectsVec& objects = world.getObjects();
+    trianglesDrawn += draw(objects.cubemapMeshes, camera, screen, lights);
+    trianglesDrawn += draw(objects.flatMeshes, camera, screen, lights);
+    trianglesDrawn += draw(objects.normalMapMeshes, camera, screen, lights);
+    trianglesDrawn += draw(objects.normalMeshes, camera, screen, lights);
+    trianglesDrawn += draw(objects.phongMeshes, camera, screen, lights);
+    trianglesDrawn += draw(objects.textureMeshes, camera, screen, lights);
+    trianglesDrawn += draw(objects.uvMeshes, camera, screen, lights);
 
     return trianglesDrawn;
 }
@@ -93,9 +106,5 @@ void Renderer::renderScreenToSFMLWindow(sf::RenderWindow& window) {
     screenTexture.update(&pixels[0]);
     window.draw(screenSprite);
 }
-
-void Renderer::setRenderMode(RenderMode r) { rm = r; }
-
-RenderMode Renderer::getRenderMode() const { return rm; }
 
 }  // namespace eng

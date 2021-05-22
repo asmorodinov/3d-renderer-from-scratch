@@ -10,56 +10,74 @@
 #include "HelperClasses.h"
 
 namespace eng {
+
 // Flat shader
 struct FlatShader {
-    using Const = glm::vec3;
+    using Uniform = glm::vec3;
+    using VertexShaderOutput = EmptyStruct;
     using Var = NoVariables;
 
-    glm::vec4 computePixelColor(const Var& var, const LightsVec& lights) { return glm::vec4(c, 1.0f); }
-    Const c;
+    glm::vec4 computePixelColor(const Var& var, const LightsVec& lights) { return glm::vec4(uniform, 1.0f); }
+
+    Uniform uniform;
+    VertexShaderOutput vso;
 };
 
 // Texture shader
 struct TextureShader {
-    using Const = std::shared_ptr<Texture>;
+    using Uniform = std::shared_ptr<Texture>;
+    using VertexShaderOutput = EmptyStruct;
     using Var = OneVariable<glm::vec2>;
 
-    glm::vec4 computePixelColor(const Var& var, const LightsVec& lights) { return c->sample(var.t.x, var.t.y); }
-    Const c;
+    glm::vec4 computePixelColor(const Var& var, const LightsVec& lights) { return uniform->sample(var.t.x, var.t.y); }
+
+    Uniform uniform;
+    VertexShaderOutput vso;
 };
 
 // Cubemap shader
 struct CubemapShader {
-    using Const = std::shared_ptr<CubemapTexture>;
+    using Uniform = std::shared_ptr<CubemapTexture>;
+    using VertexShaderOutput = EmptyStruct;
     using Var = OneVariable<glm::vec3>;
 
-    glm::vec4 computePixelColor(const Var& var, const LightsVec& lights) { return c->sample(var.t); }
-    Const c;
+    glm::vec4 computePixelColor(const Var& var, const LightsVec& lights) { return uniform->sample(var.t); }
+
+    Uniform uniform;
+    VertexShaderOutput vso;
 };
 
 // UV shader
 struct UVShader {
-    using Const = EmptyStruct;
+    using Uniform = EmptyStruct;
+    using VertexShaderOutput = EmptyStruct;
     using Var = OneVariable<glm::vec2>;
 
     glm::vec4 computePixelColor(const Var& var, const LightsVec& lights) { return glm::vec4(var.t.x, var.t.y, 0.5f, 1.0f); }
-    Const c;
+
+    Uniform uniform;
+    VertexShaderOutput vso;
 };
 
 // Normal shader
 struct NormalShader {
-    using Const = glm::vec3;
+    using Uniform = EmptyStruct;
+    using VertexShaderOutput = glm::vec3;
     using Var = NoVariables;
 
-    glm::vec4 computePixelColor(const Var& var, const LightsVec& lights) { return glm::vec4(0.5f * (c + 1.0f), 1.0f); }
-    Const c;
+    glm::vec4 computePixelColor(const Var& var, const LightsVec& lights) { return glm::vec4(0.5f * (vso + 1.0f), 1.0f); }
+
+    Uniform uniform;
+    VertexShaderOutput vso;
 };
 
 // Phong shader
 struct PhongShader {
-    struct Const {
+    struct Uniform {
         std::shared_ptr<Texture> texture;
         std::shared_ptr<CubemapTexture> skybox;
+    };
+    struct VertexShaderOutput {
         glm::vec3 viewPos;
         glm::vec3 normal;
     };
@@ -69,10 +87,10 @@ struct PhongShader {
         auto FragPos = var.t1;
         auto uv = var.t2;
 
-        auto texture = c.texture;
-        auto viewPos = c.viewPos;
-        auto normal = c.normal;
-        auto skybox = c.skybox;
+        auto texture = uniform.texture;
+        auto viewPos = vso.viewPos;
+        auto normal = vso.normal;
+        auto skybox = uniform.skybox;
 
         glm::vec4 color = texture->sample(uv.s, uv.t);
 
@@ -108,26 +126,27 @@ struct PhongShader {
         return glm::vec4(lighting, 1.0f);
     }
 
-    Const c;
+    Uniform uniform;
+    VertexShaderOutput vso;
 };
 
 // Normal Map shader
 struct NormalMapShader {
-    struct Const {
+    struct Uniform {
         std::shared_ptr<Texture> diffuseMap;
         std::shared_ptr<Texture> normalMap;
         std::shared_ptr<CubemapTexture> skybox;
-        glm::vec3 viewPos;
     };
+    using VertexShaderOutput = glm::vec3;
     using Var = TwoVariables<glm::vec3, glm::vec2>;
 
     glm::vec4 computePixelColor(const Var& var, const LightsVec& lights) {
         auto FragPos = var.t1;
         auto uv = var.t2;
 
-        auto diffuseMap = c.diffuseMap;
-        auto normalMap = c.normalMap;
-        auto viewPos = c.viewPos;
+        auto diffuseMap = uniform.diffuseMap;
+        auto normalMap = uniform.normalMap;
+        auto viewPos = vso;
         auto normal = glm::normalize(glm::vec3(normalMap->sample(uv.s, uv.t)) * 2.0f - 1.0f);
 
         glm::vec4 color = diffuseMap->sample(uv.s, uv.t);
@@ -158,7 +177,8 @@ struct NormalMapShader {
         return glm::vec4(lighting, 1.0f);
     }
 
-    Const c;
+    Uniform uniform;
+    VertexShaderOutput vso;
 };
 
 }  // namespace eng
