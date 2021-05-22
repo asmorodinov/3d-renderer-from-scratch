@@ -31,9 +31,9 @@ void Application::initInterface() {
 }
 
 void Application::addObjects() {
-    auto& objects = renderer.getWorld().getObjects();
+    auto& objects = renderer.getScene().getObjects();
 
-    auto& lights = renderer.getWorld().getPointLights();
+    auto& lights = renderer.getScene().getPointLights();
     if (lights.empty()) {
         lights.push_back(eng::PointLight({2, 0.1, 0}, {0.2, 1, 0.2}, 1.2f, 0.5f));
         lights.push_back(eng::PointLight({-2, 0.1, 0}, {1, 0.2, 0.2}, 1.2f, 0.5f));
@@ -41,47 +41,43 @@ void Application::addObjects() {
         lights.push_back(eng::PointLight({0, 0.1, -2}, {0.2, 1.0, 1.0}, 1.2f, 0.5f));
     }
 
-    objects.cubemapMeshes.push_back(eng::CubemapMesh(std::cref(skyboxMesh), {}, {skybox}, {}, std::ref(skyboxVertexShader),
-                                                     std::ref(skyboxShader), false, false));
+    objects.cubemapMeshes.push_back(
+        eng::CubemapMesh(std::cref(skyboxMesh), {}, eng::Assets::getCubemapTexture("LancellottiChapel"), {}, false, false));
 
     // plane
-
-    objects.textureMeshes.push_back(
-        eng::TextureMesh(std::cref(planeMesh), {}, {textureStone}, {}, std::ref(textureVertexShader), std::ref(textureShader)));
+    objects.textureMeshes.push_back(eng::TextureMesh(std::cref(planeMesh), {}, eng::Assets::getTexture("textureStone.png"), {}));
 
     // cube
 
-    objects.textureMeshes.push_back(
-        eng::TextureMesh(std::cref(cubeMesh), {}, {texture}, {}, std::ref(textureVertexShader), std::ref(textureShader)));
+    objects.textureMeshes.push_back(eng::TextureMesh(std::cref(cubeMesh), {}, eng::Assets::getTexture("crate.jpg"), {}));
 
     objects.textureMeshes.back().getTransform().position = glm::vec3(-1.0f, h + sz, 0.8f);
 
     // cube 2
-    objects.textureMeshes.push_back(
-        eng::TextureMesh(std::cref(cubeMesh), {}, {brickTexture}, {}, std::ref(textureVertexShader), std::ref(textureShader)));
+    objects.textureMeshes.push_back(eng::TextureMesh(std::cref(cubeMesh), {}, eng::Assets::getTexture("brickwall.jpg"), {}));
     objects.textureMeshes.back().getTransform().position = glm::vec3(-1.0f - 2.5f * sz, h + sz, 0.8f);
 
     // teapot
-    objects.textureMeshes.push_back(
-        eng::TextureMesh(std::cref(teapotMesh), {}, {texture3}, {}, std::ref(textureVertexShader), std::ref(textureShader)));
-    objects.textureMeshes.back().getTransform().position.y = h;
+    objects.flatMeshes.push_back(
+        eng::FlatMesh(eng::Assets::getMeshData("teapot", 0.4f, true, true), {}, glm::vec3(1.0f, 1.0f, 1.0f), {}));
+    objects.flatMeshes.back().getTransform().position.y = h;
 
     /*
     // sphere
     for (int y = 0; y < 2; ++y)
         for (int x = 0; x < 3; ++x) {
-            objects.emplace_back(std::make_unique<eng::Mesh>(sphereMesh, texture2, eng::ColorType(1.0f), phongShader, flatShader,
-                                                             textureShader, uvShader, normalShader, normalMapShader));
+            objects.emplace_back(std::make_unique<eng::Mesh>(eng::loadFromObj("data/lowPolySphere.obj", 0.4f, true), texture2,
+    eng::ColorType(1.0f), phongShader, flatShader, textureShader, uvShader, normalShader, normalMapShader));
             objects.back()->getTransform().position = glm::vec3(1.0f + 0.6f * x, h + 0.4f + 0.6f * y, -0.8f);
         }
 
     // sword
-    objects.emplace_back(std::make_unique<eng::Mesh>(swordMesh, swordTexture, eng::ColorType(1.0f), phongShader, flatShader,
-                                                     textureShader, uvShader, normalShader, normalMapShader));
+    objects.emplace_back(std::make_unique<eng::Mesh>(eng::loadFromObj("data/sword.obj", 2.0f, true), swordTexture,
+    eng::ColorType(1.0f), phongShader, flatShader, textureShader, uvShader, normalShader, normalMapShader));
     objects.back()->getTransform().position = glm::vec3(-1.0f, h, -0.8f);
 
-    eng::Mesh light(lightMesh, texture, eng::ColorType(1.0f), phongShader, flatShader, textureShader, uvShader, normalShader,
-                    normalMapShader, eng::RenderMode::FlatColor);
+    eng::Mesh light(eng::loadFromObj("data/light.obj", 0.1f, true, true), texture, eng::ColorType(1.0f), phongShader, flatShader,
+    textureShader, uvShader, normalShader, normalMapShader, eng::RenderMode::FlatColor);
 
     for (int y = 0; y < lights.size(); ++y) {
         glm::vec3 pos = lights[y].pos;
@@ -142,7 +138,7 @@ void Application::run() {
         float t = 0.2f * 360.0f / 20.0f * time;
         float t2 = t * 5.0f;
 
-        auto& cam = renderer.getWorld().getCamera();
+        auto& cam = renderer.getScene().getCamera();
         cam.setPosition(4.5f * glm::vec3(std::sin(glm::radians(t2 / 3.0f)), 0.0f, std::cos(glm::radians(t2 / 3.0f))) +
                         glm::vec3(0.0f, 0.8f + 0.8f * std::cos(glm::radians(t2 / 1.0f)), 0.0f));
         cam.setDirection(-cam.getPosition());

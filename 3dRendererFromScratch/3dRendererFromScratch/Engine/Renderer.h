@@ -9,7 +9,7 @@
 #include <stb_image.h>
 #include <stb_image_write.h>
 
-#include "World.h"
+#include "Scene.h"
 #include "Screen.h"
 #include "PlayerCamera.h"
 
@@ -20,7 +20,7 @@ class Renderer {
     Renderer(size_t width, size_t height);
 
     Screen& getScreen();
-    World& getWorld();
+    Scene& getScene();
 
     void clearScreen();
 
@@ -37,7 +37,7 @@ class Renderer {
     Screen screen;
     sf::Texture screenTexture;
     sf::Sprite screenSprite;
-    World world;
+    Scene world;
     PlayerCamera camera;
 
     bool playerControl = true;

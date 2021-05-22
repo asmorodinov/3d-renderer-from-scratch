@@ -9,7 +9,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/quaternion.hpp>
 
-#include "Primitives.h"
 #include "Texture.h"
 #include "Light.h"
 #include "Camera.h"

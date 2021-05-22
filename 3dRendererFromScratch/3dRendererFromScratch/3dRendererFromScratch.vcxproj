@@ -163,6 +163,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
+    <ClCompile Include="Engine\Assets.cpp" />
     <ClCompile Include="Engine\Camera.cpp" />
     <ClCompile Include="Engine\Common.cpp" />
     <ClCompile Include="Engine\Light.cpp" />
@@ -173,11 +174,12 @@
     <ClCompile Include="Engine\Screen.cpp" />
     <ClCompile Include="Engine\Shader.cpp" />
     <ClCompile Include="Engine\Texture.cpp" />
-    <ClCompile Include="Engine\World.cpp" />
+    <ClCompile Include="Engine\Scene.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
+    <ClInclude Include="Engine\Assets.h" />
     <ClInclude Include="Engine\Camera.h" />
     <ClInclude Include="Engine\Common.h" />
     <ClInclude Include="Engine\HelperClasses.h" />
@@ -190,7 +192,7 @@
     <ClInclude Include="Engine\Shader.h" />
     <ClInclude Include="Engine\Texture.h" />
     <ClInclude Include="Engine\VertexShader.h" />
-    <ClInclude Include="Engine\World.h" />
+    <ClInclude Include="Engine\Scene.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -21,9 +21,6 @@
     <ClCompile Include="Engine\Camera.cpp">
       <Filter>Header Files</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\World.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Engine\Screen.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -54,12 +51,15 @@
     <ClCompile Include="Engine\Mesh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\Scene.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Assets.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Camera.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\World.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Screen.h">
@@ -96,6 +96,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Engine\VertexShader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Scene.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Assets.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -5,6 +5,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "Assets.h"
 #include "Light.h"
 #include "Texture.h"
 #include "HelperClasses.h"
@@ -25,25 +26,25 @@ struct FlatShader {
 
 // Texture shader
 struct TextureShader {
-    using Uniform = std::shared_ptr<Texture>;
+    using Uniform = std::reference_wrapper<const Texture>;
     using VertexShaderOutput = EmptyStruct;
     using Var = OneVariable<glm::vec2>;
 
-    glm::vec4 computePixelColor(const Var& var, const LightsVec& lights) { return uniform->sample(var.t.x, var.t.y); }
+    glm::vec4 computePixelColor(const Var& var, const LightsVec& lights) { return uniform.get().sample(var.t.x, var.t.y); }
 
-    Uniform uniform;
+    Uniform uniform = Assets::getTexture();
     VertexShaderOutput vso;
 };
 
 // Cubemap shader
 struct CubemapShader {
-    using Uniform = std::shared_ptr<CubemapTexture>;
+    using Uniform = std::reference_wrapper<const CubemapTexture>;
     using VertexShaderOutput = EmptyStruct;
     using Var = OneVariable<glm::vec3>;
 
-    glm::vec4 computePixelColor(const Var& var, const LightsVec& lights) { return uniform->sample(var.t); }
+    glm::vec4 computePixelColor(const Var& var, const LightsVec& lights) { return uniform.get().sample(var.t); }
 
-    Uniform uniform;
+    Uniform uniform = Assets::getCubemapTexture();
     VertexShaderOutput vso;
 };
 
@@ -74,8 +75,8 @@ struct NormalShader {
 // Phong shader
 struct PhongShader {
     struct Uniform {
-        std::shared_ptr<Texture> texture;
-        std::shared_ptr<CubemapTexture> skybox;
+        std::reference_wrapper<const Texture> texture = Assets::getTexture();
+        std::reference_wrapper<const CubemapTexture> skybox = Assets::getCubemapTexture();
     };
     struct VertexShaderOutput {
         glm::vec3 viewPos;
@@ -92,14 +93,14 @@ struct PhongShader {
         auto normal = vso.normal;
         auto skybox = uniform.skybox;
 
-        glm::vec4 color = texture->sample(uv.s, uv.t);
+        glm::vec4 color = texture.get().sample(uv.s, uv.t);
 
         glm::vec3 lighting = glm::vec3(0.0f);
 
         glm::vec3 I = glm::normalize(FragPos - viewPos);
         glm::vec3 R = glm::reflect(I, glm::normalize(normal));
 
-        lighting = skybox->sample(R);
+        lighting = skybox.get().sample(R);
         lighting += 0.2f * glm::vec3(color);
 
         for (const auto& light : lights) {
@@ -133,9 +134,8 @@ struct PhongShader {
 // Normal Map shader
 struct NormalMapShader {
     struct Uniform {
-        std::shared_ptr<Texture> diffuseMap;
-        std::shared_ptr<Texture> normalMap;
-        std::shared_ptr<CubemapTexture> skybox;
+        std::reference_wrapper<const Texture> diffuseMap = Assets::getTexture();
+        std::reference_wrapper<const Texture> normalMap = Assets::getTexture();
     };
     using VertexShaderOutput = glm::vec3;
     using Var = TwoVariables<glm::vec3, glm::vec2>;
@@ -147,9 +147,9 @@ struct NormalMapShader {
         auto diffuseMap = uniform.diffuseMap;
         auto normalMap = uniform.normalMap;
         auto viewPos = vso;
-        auto normal = glm::normalize(glm::vec3(normalMap->sample(uv.s, uv.t)) * 2.0f - 1.0f);
+        auto normal = glm::normalize(glm::vec3(normalMap.get().sample(uv.s, uv.t)) * 2.0f - 1.0f);
 
-        glm::vec4 color = diffuseMap->sample(uv.s, uv.t);
+        glm::vec4 color = diffuseMap.get().sample(uv.s, uv.t);
 
         glm::vec3 lighting = glm::vec3(0.0f);
 

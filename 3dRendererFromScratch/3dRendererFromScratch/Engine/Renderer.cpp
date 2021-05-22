@@ -8,7 +8,7 @@ Renderer::Renderer(size_t width, size_t height) : screen(width, height, 0.2f * g
 }
 
 Screen& Renderer::getScreen() { return screen; }
-World& Renderer::getWorld() { return world; }
+Scene& Renderer::getScene() { return world; }
 
 void Renderer::clearScreen() { screen.clear(); }
 
@@ -32,9 +32,9 @@ void Renderer::update(float dt) {
 }
 
 template <typename T>
-size_t draw(const std::vector<T>& vec, const Camera& camera, Screen& screen, const LightsVec& lights) {
+size_t draw(std::vector<T>& vec, const Camera& camera, Screen& screen, const LightsVec& lights) {
     size_t trianglesDrawn = 0;
-    for (const auto& object : vec) {
+    for (auto& object : vec) {
         object.draw(camera, screen, lights);
         trianglesDrawn += object.getTriangleCount();
     }
@@ -45,7 +45,7 @@ size_t Renderer::renderSceneToScreen() {
     size_t trianglesDrawn = 0;
     const Camera& camera = world.getCamera();
     const LightsVec& lights = world.getPointLights();
-    const ObjectsVec& objects = world.getObjects();
+    ObjectsVec& objects = world.getObjects();
     trianglesDrawn += draw(objects.cubemapMeshes, camera, screen, lights);
     trianglesDrawn += draw(objects.flatMeshes, camera, screen, lights);
     trianglesDrawn += draw(objects.normalMapMeshes, camera, screen, lights);

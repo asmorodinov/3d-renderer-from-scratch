@@ -7,6 +7,7 @@
 #include <chrono>
 #include <cstddef>
 
+#include "Engine/Assets.h"
 #include "Engine/Renderer.h"
 
 class Application {
@@ -34,22 +35,6 @@ class Application {
     float lastTime = 0.0f;
     float fps = 0.0;
 
-    eng::FlatShader flatShader;
-    eng::TextureShader textureShader;
-    eng::UVShader uvShader;
-    eng::NormalShader normalShader;
-    eng::PhongShader phongShader;
-    eng::CubemapShader skyboxShader;
-    eng::NormalMapShader normalMapShader;
-
-    eng::FlatVertexShader flatVertexShader;
-    eng::TextureVertexShader textureVertexShader;
-    eng::UVVertexShader uvVertexShader;
-    eng::NormalVertexShader normalVertexShader;
-    eng::PhongVertexShader phongVertexShader;
-    eng::CubemapVertexShader skyboxVertexShader;
-    eng::NormalMapVertexShader normalMapVertexShader;
-
     eng::MeshData skyboxMesh = eng::MeshData::generateCubeData(1.0f, false);
 
     float s = 2.6f;
@@ -62,21 +47,10 @@ class Application {
     float sz = 0.6f;
     eng::MeshData cubeMesh = eng::MeshData::generateCubeData(sz, true);
 
-    eng::MeshData teapotMesh = eng::loadFromObj("data/teapot.obj", 0.4f, true, true);
-    eng::MeshData sphereMesh = eng::loadFromObj("data/lowPolySphere.obj", 0.4f, true);
-    eng::MeshData swordMesh = eng::loadFromObj("data/sword.obj", 2.0f, true);
-    eng::MeshData lightMesh = eng::loadFromObj("data/light.obj", 0.1f, true, true);
+    eng::Texture swordTexture = eng::Texture("data/sword.png");
+    eng::Texture brickNormalMap = eng::Texture("data/brickwall_normal.jpg");
 
-    std::shared_ptr<eng::Texture> texture = std::make_shared<eng::Texture>("data/crate.jpg");
-    std::shared_ptr<eng::Texture> texture2 = std::make_shared<eng::Texture>("data/texture2.png");
-    std::shared_ptr<eng::Texture> texture3 = std::make_shared<eng::Texture>("data/texture3.png");
-    std::shared_ptr<eng::Texture> textureStone = std::make_shared<eng::Texture>("data/textureStone.png");
-    std::shared_ptr<eng::Texture> swordTexture = std::make_shared<eng::Texture>("data/sword.png");
-
-    std::shared_ptr<eng::Texture> brickTexture = std::make_shared<eng::Texture>("data/brickwall.jpg");
-    std::shared_ptr<eng::Texture> brickNormalMap = std::make_shared<eng::Texture>("data/brickwall_normal.jpg");
-
-    std::shared_ptr<eng::CubemapTexture> skybox = std::make_shared<eng::CubemapTexture>("data/LancellottiChapel");
+    eng::CubemapTexture skybox = eng::CubemapTexture("data/LancellottiChapel");
 
     sf::Font font;
     sf::Text text;

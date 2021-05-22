@@ -53,7 +53,7 @@ CubemapTexture::CubemapTexture(const std::string& folder, bool defaultFormat, co
     }
 }
 
-glm::vec4 CubemapTexture::sample(glm::vec3 vec) {
+glm::vec4 CubemapTexture::sample(glm::vec3 vec) const {
     vec = glm::normalize(vec);
     if (textures[0].w == 0) {
         return glm::vec4(0.5f * (vec + 1.0f), 1.0f);

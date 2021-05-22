@@ -11,6 +11,7 @@
 #include "HelperClasses.h"
 
 #include "Shader.h"
+#include "Primitives.h"
 
 namespace eng {
 

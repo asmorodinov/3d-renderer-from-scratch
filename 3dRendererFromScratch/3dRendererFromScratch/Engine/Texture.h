@@ -31,7 +31,7 @@ struct CubemapTexture {
 
     FacesTextures textures;
 
-    glm::vec4 sample(glm::vec3 v);
+    glm::vec4 sample(glm::vec3 v) const;
 };
 
 }  // namespace eng
