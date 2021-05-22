@@ -24,10 +24,12 @@ struct Texture {
 };
 
 struct CubemapTexture {
+    using FacesTextures = std::array<Texture, 6>;
+
     CubemapTexture();
     CubemapTexture(const std::string& folder, bool defaultFormat = true, const std::string& imageFormat = ".jpg");
 
-    std::array<Texture, 6> textures;
+    FacesTextures textures;
 
     glm::vec4 sample(glm::vec3 v);
 };

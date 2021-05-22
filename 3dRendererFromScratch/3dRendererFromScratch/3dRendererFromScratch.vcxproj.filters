@@ -74,9 +74,6 @@
     <ClInclude Include="Engine\Common.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="profile.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Engine\Shader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -93,6 +90,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Application.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\HelperClasses.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

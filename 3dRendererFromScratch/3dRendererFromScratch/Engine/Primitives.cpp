@@ -53,8 +53,8 @@ float segmentPlaneIntersect(glm::vec3 point, glm::vec3 normal, glm::vec3 v1, glm
     return (dot - dot1) / (dot2 - dot1);
 }
 
-void drawWireframeTriangle(const Triangle<NoVariables>& t, const glm::mat4& projection, float near, ColorType color,
-                           Screen& screen) {
+void drawWireframeTriangle(const Triangle<NoVariables>& t, const glm::mat4& projection, ColorType color, Screen& screen) {
+    float near = screen.getNearPlaneDistance();
     for (const auto& triangle : clipTriangleAgainstFrustrum(t, projection, near)) {
         drawLine(triangle.p0, triangle.p1, color, screen);
         drawLine(triangle.p1, triangle.p2, color, screen);

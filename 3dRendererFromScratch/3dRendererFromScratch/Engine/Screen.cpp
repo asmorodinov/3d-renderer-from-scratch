@@ -27,17 +27,7 @@ void Screen::setPixelColor(size_t x, size_t y, ColorType color) {
     colorBuffer.set(x, y, color);
 }
 
-void Screen::setPixelColor(size_t x, size_t y, ColorType color, float z) {
-    // setPixelColor(x, y, color);
-    // return;
-    depthCheckSetPixelColor(x, y, z, color);
-}
-
-void Screen::checkAndSetPixelColor(size_t x, size_t y, ColorType color) {
-    if (x < width || y < height) return;
-
-    colorBuffer.set(x, y, color);
-}
+void Screen::setPixelColor(size_t x, size_t y, ColorType color, float z) { depthCheckSetPixelColor(x, y, z, color); }
 
 void Screen::depthCheckSetPixelColor(size_t x, size_t y, float z, ColorType color) {
     assert(x < width && y < height);
@@ -45,7 +35,7 @@ void Screen::depthCheckSetPixelColor(size_t x, size_t y, float z, ColorType colo
     if (z < -1 || z > 1) return;
 
     if (z < getPixelDepth(x, y)) {
-        if (setDepth) setPixelDepth(x, y, z);
+        if (writeToDepthBiffer) setPixelDepth(x, y, z);
 
         setPixelColor(x, y, color);
     }
@@ -64,21 +54,14 @@ void Screen::setPixelDepth(size_t x, size_t y, float z) {
 void Screen::clear() {
     colorBuffer.fill(clearColor);
     depthBuffer.fill(std::numeric_limits<float>::max());
-
-    // std::cout << "min: " << minz << " max: " << maxz << '\n';
-}
-
-glm::vec4 Screen::localSpaceToScreenSpace(const glm::mat4& viewMatrix, const glm::mat4& objectModel,
-                                          glm::vec3 localCoords) const {
-    glm::vec4 worldCoords = objectModel * glm::vec4(localCoords, 1.0f);
-
-    glm::vec4 position = projectionMatrix * viewMatrix * worldCoords;
-
-    return glm::vec4(position.x / position.w, position.y / position.w, position.z / position.w, position.w);
 }
 
 size_t Screen::getWidth() const { return width; }
 size_t Screen::getHeight() const { return height; }
+
+float Screen::getNearPlaneDistance() const { return near; }
+
+void Screen::setWriteToDepthBuffer(bool b) { writeToDepthBiffer = b; }
 
 void Screen::setClearColor(ColorType clr) { clearColor = clr; }
 ColorType Screen::getClearColor() const { return clearColor; }

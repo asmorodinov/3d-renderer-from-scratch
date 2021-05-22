@@ -134,7 +134,6 @@ std::vector<Triangle<Var>> clipTriangleAgainstFrustrum(const Triangle<Var>& t, c
     // coordinates are (x, y, z, 1) in camera space
 
     std::vector<Triangle<Var>> trianglesToDraw = clipTriangleAgainstPlane(tr, {0, 0, -near - 0.01f}, {0, 0, -1});
-    // std::vector<Triangle> trianglesToDraw = {tr};
 
     for (auto& triangle : trianglesToDraw) {
         // for perspective-correct interpolation
@@ -171,14 +170,12 @@ std::vector<Triangle<Var>> clipTriangleAgainstFrustrum(const Triangle<Var>& t, c
     return trianglesToDraw;
 }
 
-void drawWireframeTriangle(const Triangle<NoVariables>& t, const glm::mat4& projection, float near, ColorType color,
-                           Screen& screen);
+void drawWireframeTriangle(const Triangle<NoVariables>& t, const glm::mat4& projection, ColorType color, Screen& screen);
 
 template <typename Var, typename Shader>
-void drawTriangle(const Triangle<Var>& t, const glm::mat4& projection, float near, Shader& shader, Screen& screen,
-                  const LightsVec& lights) {
+void drawTriangle(const Triangle<Var>& t, const glm::mat4& projection, Shader& shader, Screen& screen, const LightsVec& lights) {
+    float near = screen.getNearPlaneDistance();
     for (const auto& triangle : clipTriangleAgainstFrustrum(t, projection, near)) {
-        // drawTriangleOvercomplicatedVersion(triangle, shader, screen, lights);
         rasterizeTriangle(triangle, shader, screen, lights);
     }
 }
@@ -239,7 +236,6 @@ void rasterizeTriangle(const Triangle<Var>& t, Shader& shader, Screen& screen, c
 
             if (z < -1 || z > 1) continue;
             if (z > screen.getPixelDepth(size_t(x), size_t(y))) continue;
-            // if (z < -1 || z > 1) continue;
 
             Var t = (t0 * w0 + t1 * w1 + t2 * w2) * (1.0f / w);
             auto lighting = shader.computePixelColor(t, lights);
@@ -247,9 +243,6 @@ void rasterizeTriangle(const Triangle<Var>& t, Shader& shader, Screen& screen, c
             screen.setPixelColor(size_t(x), size_t(y), glm::vec3(lighting), z);
         }
     }
-#ifdef PARALLEL
-    );
-#endif  // PARALLEL
 }
 
 }  // namespace eng

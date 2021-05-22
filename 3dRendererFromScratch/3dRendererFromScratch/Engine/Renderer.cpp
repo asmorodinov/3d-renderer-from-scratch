@@ -45,8 +45,6 @@ size_t Renderer::renderSceneToScreen() {
 }
 
 void Renderer::renderScreenToFile(const std::string& file) const {
-    LOG_DURATION("render scene to file");
-
     size_t width = screen.getWidth();
     size_t height = screen.getHeight();
 
@@ -61,8 +59,6 @@ void Renderer::renderScreenToFile(const std::string& file) const {
             pixels[3 * (y * width + x) + 2] = uint8_t(255.99f * color.b);
         }
     }
-
-    LOG_DURATION("stbi write image");
 
     assert(file.size() >= 4);
     auto extension = file.substr(file.size() - 4);
@@ -86,9 +82,6 @@ void Renderer::renderScreenToSFMLWindow(sf::RenderWindow& window) {
         for (size_t y = 0; y < height; ++y) {
             ColorType color = screen.getPixelColor(x, height - 1 - y);
             color = glm::min(color, 1.0f);
-
-            // color = ColorType(screen.getPixelDepth(x, y));
-            // color = (color - 1.0f) * 20.0f;
 
             pixels[4 * (y * width + x) + 0] = sf::Uint8(255.99f * color.r);
             pixels[4 * (y * width + x) + 1] = sf::Uint8(255.99f * color.g);

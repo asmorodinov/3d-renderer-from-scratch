@@ -13,8 +13,6 @@
 #include "Screen.h"
 #include "PlayerCamera.h"
 
-#include "../profile.h"
-
 namespace eng {
 
 class Renderer {

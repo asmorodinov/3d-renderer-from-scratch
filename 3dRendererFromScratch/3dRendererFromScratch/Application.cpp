@@ -34,6 +34,7 @@ void Application::initInterface() {
 void Application::addObjects() {
     phongShader.c.skybox = skybox;
     skyboxShader.c = skybox;
+    normalMapShader.c.skybox = skybox;
 
     auto& objects = renderer.getWorld().getObjects();
 
@@ -55,20 +56,26 @@ void Application::addObjects() {
     objects.emplace_back(std::make_unique<eng::Mesh>(eng::MeshData{{{-s, h, s}, {-s, h, -s}, {s, h, s}, {s, h, -s}},
                                                                    {{0, 0}, {0, 1}, {1, 1}, {1, 0}},
                                                                    {{0, 1, 2, 0, 3, 1}, {3, 2, 1, 2, 1, 3}}},
-                                                     texture, eng::ColorType(1.0f), phongShader, flatShader, textureShader,
-                                                     uvShader, normalShader));
+                                                     textureStone, eng::ColorType(1.0f), phongShader, flatShader, textureShader,
+                                                     uvShader, normalShader, normalMapShader));
 
     // cube
-    float sz = 0.3f;
+    float sz = 0.6f;
     auto cubeMesh = eng::MeshData::generateCubeData(sz);
     objects.emplace_back(std::make_unique<eng::Mesh>(cubeMesh, texture, eng::ColorType(1.0f), phongShader, flatShader,
-                                                     textureShader, uvShader, normalShader));
+                                                     textureShader, uvShader, normalShader, normalMapShader));
     objects.back()->getTransform().position = glm::vec3(-1.0f, h + sz, 0.8f);
+
+    // cube 2
+    objects.emplace_back(std::make_unique<eng::Mesh>(cubeMesh, brickTexture, eng::ColorType(1.0f), phongShader, flatShader,
+                                                     textureShader, uvShader, normalShader, normalMapShader, std::nullopt,
+                                                     brickNormalMap));
+    objects.back()->getTransform().position = glm::vec3(-1.0f - 2.5f * sz, h + sz, 0.8f);
 
     // teapot
     objects.emplace_back(std::make_unique<eng::Mesh>(eng::loadFromObj("data/teapot.obj", 0.4f, true, false), texture3,
                                                      eng::ColorType(1.0f), phongShader, flatShader, textureShader, uvShader,
-                                                     normalShader));
+                                                     normalShader, normalMapShader));
     objects.back()->getTransform().position.y = h;
 
     // sphere
@@ -76,18 +83,18 @@ void Application::addObjects() {
         for (int x = 0; x < 3; ++x) {
             objects.emplace_back(std::make_unique<eng::Mesh>(eng::loadFromObj("data/lowPolySphere.obj", 0.4f, true), texture2,
                                                              eng::ColorType(1.0f), phongShader, flatShader, textureShader,
-                                                             uvShader, normalShader));
+                                                             uvShader, normalShader, normalMapShader));
             objects.back()->getTransform().position = glm::vec3(1.0f + 0.6f * x, h + 0.4f + 0.6f * y, -0.8f);
         }
 
     // sword
     objects.emplace_back(std::make_unique<eng::Mesh>(eng::loadFromObj("data/sword.obj", 2.0f, true), swordTexture,
                                                      eng::ColorType(1.0f), phongShader, flatShader, textureShader, uvShader,
-                                                     normalShader));
+                                                     normalShader, normalMapShader));
     objects.back()->getTransform().position = glm::vec3(-1.0f, h, -0.8f);
 
     eng::Mesh light(eng::loadFromObj("data/light.obj", 0.1f, true, false), texture, eng::ColorType(1.0f), phongShader, flatShader,
-                    textureShader, uvShader, normalShader, eng::RenderMode::FlatColor);
+                    textureShader, uvShader, normalShader, normalMapShader, eng::RenderMode::FlatColor);
 
     for (int y = 0; y < lights.size(); ++y) {
         glm::vec3 pos = lights[y].pos;

@@ -25,11 +25,8 @@ Texture::Texture(const std::string& file) {
 }
 
 glm::vec4 Texture::sample(float x, float y) const {
-    x = std::max(0.0f, std::min(x, 1.0f));
-    y = std::max(0.0f, std::min(y, 1.0f));
-
-    size_t xc = size_t(x * w);
-    size_t yc = size_t(y * h);
+    size_t xc = x * w;
+    size_t yc = y * h;
     xc = std::min(xc, w - 1);
     yc = std::min(yc, h - 1);
 

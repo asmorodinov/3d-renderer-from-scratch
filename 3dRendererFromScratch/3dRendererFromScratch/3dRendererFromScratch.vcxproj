@@ -180,6 +180,7 @@
     <ClInclude Include="Application.h" />
     <ClInclude Include="Engine\Camera.h" />
     <ClInclude Include="Engine\Common.h" />
+    <ClInclude Include="Engine\HelperClasses.h" />
     <ClInclude Include="Engine\Light.h" />
     <ClInclude Include="Engine\Object.h" />
     <ClInclude Include="Engine\PlayerCamera.h" />
@@ -189,7 +190,6 @@
     <ClInclude Include="Engine\Shader.h" />
     <ClInclude Include="Engine\Texture.h" />
     <ClInclude Include="Engine\World.h" />
-    <ClInclude Include="profile.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
