@@ -59,7 +59,7 @@ void Application::addObjects() {
 
     // teapot
     objects.flatMeshes.push_back(
-        eng::FlatMesh(eng::Assets::getMeshData("teapot", 0.4f, true, true), {}, glm::vec3(1.0f, 1.0f, 1.0f), {}));
+        eng::FlatMesh(eng::Assets::getMeshData("teapot", 0.4f, false, true), {}, glm::vec3(1.0f, 1.0f, 1.0f), {}));
     objects.flatMeshes.back().getTransform().position.y = h;
 
     /*

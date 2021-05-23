@@ -200,9 +200,9 @@ void rasterizeTriangle(const Triangle<Var>& t, Shader& shader, Screen& screen, c
     int maxx = std::max({x0, x1, x2});
     int maxy = std::max({y0, y1, y2});
 
-    auto e01 = [&](int x, int y) { return (x - x0) * (y1 - y0) - (y - y0) * (x1 - x0); };
-    auto e12 = [&](int x, int y) { return (x - x1) * (y2 - y1) - (y - y1) * (x2 - x1); };
-    auto e20 = [&](int x, int y) { return (x - x2) * (y0 - y2) - (y - y2) * (x0 - x2); };
+    auto e01 = [&](int x, int y) { return (y - y0) * (x1 - x0) - (x - x0) * (y1 - y0); };
+    auto e12 = [&](int x, int y) { return (y - y1) * (x2 - x1) - (x - x1) * (y2 - y1); };
+    auto e20 = [&](int x, int y) { return (y - y2) * (x0 - x2) - (x - x2) * (y0 - y2); };
 
     auto insideTriangle = [&](int x, int y) { return e01(x, y) >= 0 && e12(x, y) >= 0 && e20(x, y) >= 0; };
 

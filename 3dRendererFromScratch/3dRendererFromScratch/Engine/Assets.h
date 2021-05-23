@@ -1,8 +1,10 @@
 #pragma once
 
+#include <array>
 #include <iostream>
 #include <string>
 #include <map>
+#include <memory_resource>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -41,9 +43,12 @@ class Assets {
     CubemapTexture cubemapTexture = CubemapTexture();
 
  private:
-    std::map<std::string, Texture> textures;
-    std::map<std::string, CubemapTexture> cubemapTextures;
-    std::map<std::string, MeshData> meshDatas;
+    std::array<char, 300 * 1024 * 1024> buffer = {};
+    std::pmr::monotonic_buffer_resource pool{std::data(buffer), std::size(buffer)};
+
+    std::pmr::map<std::string, Texture> textures{&pool};
+    std::pmr::map<std::string, CubemapTexture> cubemapTextures{&pool};
+    std::pmr::map<std::string, MeshData> meshDatas{&pool};
     Assets() = default;
 };
 

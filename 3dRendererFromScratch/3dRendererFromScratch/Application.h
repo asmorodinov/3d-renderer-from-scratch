@@ -35,22 +35,20 @@ class Application {
     float lastTime = 0.0f;
     float fps = 0.0;
 
-    eng::MeshData skyboxMesh = eng::MeshData::generateCubeData(1.0f, false);
+    eng::MeshData skyboxMesh = eng::MeshData::generateCubeData(1.0f, true);
 
     float s = 2.6f;
     float h = -0.8;
     eng::MeshData planeMesh = eng::MeshData{{{-s, h, s}, {-s, h, -s}, {s, h, s}, {s, h, -s}},
                                             {{0.0f, 1.0f, 0.0f}},
                                             {{0, 0}, {0, 1}, {1, 1}, {1, 0}},
-                                            {{0, 1, 2, 0, 3, 1, 0, 0, 0}, {3, 2, 1, 2, 1, 3, 0, 0, 0}}};
+                                            {{0, 2, 1, 0, 1, 3, 0, 0, 0}, {3, 1, 2, 2, 3, 1, 0, 0, 0}}};
 
     float sz = 0.6f;
-    eng::MeshData cubeMesh = eng::MeshData::generateCubeData(sz, true);
+    eng::MeshData cubeMesh = eng::MeshData::generateCubeData(sz);
 
     eng::Texture swordTexture = eng::Texture("data/sword.png");
     eng::Texture brickNormalMap = eng::Texture("data/brickwall_normal.jpg");
-
-    eng::CubemapTexture skybox = eng::CubemapTexture("data/LancellottiChapel");
 
     sf::Font font;
     sf::Text text;
