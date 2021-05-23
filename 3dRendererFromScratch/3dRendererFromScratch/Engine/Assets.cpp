@@ -34,7 +34,7 @@ MeshDataRef Assets::getMeshData(std::string filename, float scale, bool in, bool
     std::string name = filename + std::to_string(scale) + "_"s + std::to_string(in);
 
     if (meshDatas.find(name) == meshDatas.end()) {
-        meshDatas[name] = eng::loadFromObj("data/"s + filename + ".obj"s, in, ov);
+        meshDatas[name] = eng::loadFromObj("data/"s + filename + ".obj"s, scale, in, ov);
     }
 
     return std::cref(meshDatas[name]);

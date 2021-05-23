@@ -79,6 +79,7 @@ MeshData loadFromObj(const std::string& filename, float scale, bool invertNormal
             std::getline(file, line);
         }
     }
+    file.close();
 
     return mesh;
 }

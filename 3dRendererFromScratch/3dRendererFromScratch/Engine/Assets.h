@@ -1,13 +1,14 @@
 #pragma once
 
+#include <iostream>
 #include <string>
-#include <unordered_map>
+#include <map>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "Texture.h"
-#include "Mesh.h"
+#include "Common.h"
 
 namespace eng {
 
@@ -40,9 +41,9 @@ class Assets {
     CubemapTexture cubemapTexture = CubemapTexture();
 
  private:
-    std::unordered_map<std::string, Texture> textures;
-    std::unordered_map<std::string, CubemapTexture> cubemapTextures;
-    std::unordered_map<std::string, MeshData> meshDatas;
+    std::map<std::string, Texture> textures;
+    std::map<std::string, CubemapTexture> cubemapTextures;
+    std::map<std::string, MeshData> meshDatas;
     Assets() = default;
 };
 

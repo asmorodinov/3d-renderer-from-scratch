@@ -41,8 +41,8 @@ void Application::addObjects() {
         lights.push_back(eng::PointLight({0, 0.1, -2}, {0.2, 1.0, 1.0}, 1.2f, 0.5f));
     }
 
-    objects.cubemapMeshes.push_back(
-        eng::CubemapMesh(std::cref(skyboxMesh), {}, eng::Assets::getCubemapTexture("LancellottiChapel"), {}, false, false));
+    // objects.cubemapMeshes.push_back(
+    //    eng::CubemapMesh(std::cref(skyboxMesh), {}, eng::Assets::getCubemapTexture("LancellottiChapel"), {}, false, false));
 
     // plane
     objects.textureMeshes.push_back(eng::TextureMesh(std::cref(planeMesh), {}, eng::Assets::getTexture("textureStone.png"), {}));
