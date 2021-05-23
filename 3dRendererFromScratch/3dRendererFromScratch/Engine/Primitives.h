@@ -12,7 +12,6 @@
 
 #include "Light.h"
 #include "Screen.h"
-#include "Shader.h"
 
 namespace eng {
 
@@ -163,8 +162,7 @@ std::vector<Triangle<Var>> clipTriangleAgainstFrustrum(const Triangle<Var>& t, c
         for (const auto& triangle : trianglesToDraw) {
             auto clipped = clipTriangleAgainstPlane(triangle, points[i], normals[i]);
 
-            newTriangles.insert(newTriangles.end(), std::make_move_iterator(clipped.begin()),
-                                std::make_move_iterator(clipped.end()));
+            newTriangles.insert(newTriangles.end(), std::make_move_iterator(clipped.begin()), std::make_move_iterator(clipped.end()));
         }
 
         trianglesToDraw = std::move(newTriangles);

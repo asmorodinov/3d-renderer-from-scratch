@@ -1,40 +1,28 @@
-#include "Application.h"
+#include "SampleScenes.h"
 
-Application::Application() : width(default_width), height(default_height), window(sf::VideoMode(width, height), mainWindowMsg_), renderer(width, height) {
-    initInterface();
-    addObjects();
-}
+namespace eng {
 
-void Application::initInterface() {
-    window.setMouseCursorVisible(false);
+Scene eng::makeScene1() {
+    auto scene = Scene();
 
-    if (!font.loadFromFile("data/arial.ttf")) {
-        std::cout << "Failed to load font\n";
-        return;
-    }
+    static eng::MeshData skyboxMesh = eng::MeshData::generateCubeData(1.0f, true);
 
-    text.setFont(font);
-    text.setCharacterSize(18);
-    text.setOrigin({0.0f, -22.0f});
+    float s = 2.6f;
+    float h = -0.8;
+    static eng::MeshData planeMesh = eng::MeshData{{{-s, h, s}, {-s, h, -s}, {s, h, s}, {s, h, -s}},
+                                                   {{0.0f, 1.0f, 0.0f}},
+                                                   {{0, 0}, {0, 1}, {1, 1}, {1, 0}},
+                                                   {{0, 2, 1, 0, 1, 3, 0, 0, 0}, {3, 1, 2, 2, 3, 1, 0, 0, 0}}};
 
-    text2.setFont(font);
-    text2.setCharacterSize(18);
-    text2.setOrigin({0.0f, -44.0f});
+    float sz = 0.6f;
+    static eng::MeshData cubeMesh = eng::MeshData::generateCubeData(sz);
 
-    text3.setFont(font);
-    text3.setCharacterSize(18);
-    text3.setOrigin({0.0f, 0.0f});
-}
+    auto& lights = scene.getPointLights();
 
-void Application::addObjects() {
-    auto& scene = renderer.getScene();
-    auto& lights = renderer.getScene().getPointLights();
-    if (lights.empty()) {
-        lights.push_back(eng::PointLight({2, 0.1, 0}, {0.2, 1, 0.2}, 1.2f, 0.5f));
-        lights.push_back(eng::PointLight({-2, 0.1, 0}, {1, 0.2, 0.2}, 1.2f, 0.5f));
-        lights.push_back(eng::PointLight({0, 0.1, 2}, {0.2, 0.2, 1.0}, 1.2f, 0.5f));
-        lights.push_back(eng::PointLight({0, 0.1, -2}, {0.2, 1.0, 1.0}, 1.2f, 0.5f));
-    }
+    lights.push_back(eng::PointLight({2, 0.1, 0}, {0.2, 1, 0.2}, 1.2f, 0.5f));
+    lights.push_back(eng::PointLight({-2, 0.1, 0}, {1, 0.2, 0.2}, 1.2f, 0.5f));
+    lights.push_back(eng::PointLight({0, 0.1, 2}, {0.2, 0.2, 1.0}, 1.2f, 0.5f));
+    lights.push_back(eng::PointLight({0, 0.1, -2}, {0.2, 1.0, 1.0}, 1.2f, 0.5f));
 
     // objects.cubemapMeshes.push_back(
     //    eng::CubemapMesh(std::cref(skyboxMesh), {}, eng::Assets::getCubemapTexture("LancellottiChapel"), {}, false, false));
@@ -80,70 +68,8 @@ void Application::addObjects() {
         objects.emplace_back(std::move(lightObj));
     }
     */
+
+    return scene;
 }
 
-void Application::processEvents() {
-    sf::Event event;
-    while (window.pollEvent(event)) {
-        if (event.type == sf::Event::Closed) {
-            window.close();
-        } else if (event.type == sf::Event::KeyPressed) {
-            if (event.key.code == sf::Keyboard::Escape) window.close();
-
-            renderer.keyPressedOrReleased(event.key.code, true);
-        } else if (event.type == sf::Event::KeyReleased) {
-            renderer.keyPressedOrReleased(event.key.code, false);
-        } else if (event.type == sf::Event::MouseMoved) {
-            renderer.mouseMove(event.mouseMove.x, event.mouseMove.y);
-            int x = width / 2;
-            int y = height / 2;
-            sf::Mouse::setPosition(sf::Vector2i(x, y), window);
-            renderer.mouseMove(-1.0f, -1.0f);
-            renderer.mouseMove(x, y);
-
-        } else if (event.type == sf::Event::MouseEntered) {
-            renderer.mouseMove(-1.0f, -1.0f);
-        }
-    }
-}
-
-void Application::run() {
-    float time = 0.0f;
-    sf::Clock deltaClock;
-    while (window.isOpen()) {
-        processEvents();
-
-        float dt = deltaClock.restart().asSeconds();
-        time += dt;
-        ++frames;
-
-        if (time - lastTime >= 1.5f) {
-            fps = frames / (time - lastTime);
-            text.setString("FPS: " + std::to_string(static_cast<int>(fps)));
-            text2.setString("ms per frame: " + std::to_string(static_cast<int>(1000.0f / fps)));
-            frames = 0;
-            lastTime = time;
-        }
-
-        float t = 0.2f * 360.0f / 20.0f * time;
-        float t2 = t * 5.0f;
-
-        auto& cam = renderer.getScene().getCamera();
-        cam.setPosition(4.5f * glm::vec3(std::sin(glm::radians(t2 / 3.0f)), 0.0f, std::cos(glm::radians(t2 / 3.0f))) +
-                        glm::vec3(0.0f, 0.8f + 0.8f * std::cos(glm::radians(t2 / 1.0f)), 0.0f));
-        cam.setDirection(-cam.getPosition());
-
-        renderer.clearScreen();
-
-        renderer.update(dt);
-        text3.setString("triangles: " + std::to_string(renderer.renderSceneToScreen()));
-
-        window.clear();
-        renderer.renderScreenToSFMLWindow(window);
-        window.draw(text);
-        window.draw(text2);
-        window.draw(text3);
-
-        window.display();
-    }
-}
+}  // namespace eng

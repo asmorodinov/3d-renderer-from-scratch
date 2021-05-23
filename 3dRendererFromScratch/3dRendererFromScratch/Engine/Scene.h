@@ -5,7 +5,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "VertexShader.h"
+#include "Shaders.h"
 #include "MeshTypes.h"
 #include "Camera.h"
 

@@ -2,7 +2,7 @@
 
 #include <tuple>
 
-#include "VertexShader.h"
+#include "Shaders.h"
 #include "Mesh.h"
 #include "Camera.h"
 
