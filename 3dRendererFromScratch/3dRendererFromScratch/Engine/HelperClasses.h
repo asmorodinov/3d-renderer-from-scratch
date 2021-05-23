@@ -1,5 +1,7 @@
 #pragma once
 
+#include <tuple>
+#include <utility>
 #include <vector>
 
 #include "Pool.h"
@@ -9,8 +11,7 @@ namespace eng {
 template <typename T>
 class Vector2d {
  public:
-    Vector2d(size_t width = 0, size_t height = 0, const T& elem = T())
-        : width(width), height(height), vec(width * height, elem, Pool::getPool()) {}
+    Vector2d(size_t width = 0, size_t height = 0, const T& elem = T()) : width(width), height(height), vec(width * height, elem, Pool::getPool()) {}
 
     void set(size_t x, size_t y, const T& elem) {
         assert(x < width && y < height);

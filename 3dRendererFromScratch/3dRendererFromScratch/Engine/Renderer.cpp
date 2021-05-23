@@ -8,7 +8,7 @@ Renderer::Renderer(size_t width, size_t height) : screen(width, height, 0.2f * g
 }
 
 Screen& Renderer::getScreen() { return screen; }
-Scene& Renderer::getScene() { return world; }
+Scene& Renderer::getScene() { return scene; }
 
 void Renderer::clearScreen() { screen.clear(); }
 
@@ -26,35 +26,32 @@ void Renderer::update(float dt) {
     camera.update(dt);
 
     if (playerControl) {
-        world.getCamera().setPosition(camera.position);
-        world.getCamera().setDirection(camera.direction);
+        scene.getCamera().setPosition(camera.position);
+        scene.getCamera().setDirection(camera.direction);
     }
 }
 
-template <typename T>
-size_t draw(std::pmr::vector<T>& vec, const Camera& camera, Screen& screen, const LightsVec& lights) {
+template <std::size_t I = 0, typename... Tp>
+inline typename std::enable_if<I == sizeof...(Tp), size_t>::type draw(std::tuple<Tp...>& t, const Camera& camera, Screen& screen, const LightsVec& lights) {
+    return 0;
+}
+template <std::size_t I = 0, typename... Tp>
+    inline typename std::enable_if < I<sizeof...(Tp), size_t>::type draw(std::tuple<Tp...>& t, const Camera& camera, Screen& screen, const LightsVec& lights) {
     size_t trianglesDrawn = 0;
-    for (auto& object : vec) {
+    for (auto& object : std::get<I>(t)) {
         object.draw(camera, screen, lights);
         trianglesDrawn += object.getTriangleCount();
     }
+    trianglesDrawn += draw<I + 1, Tp...>(t, camera, screen, lights);
+
     return trianglesDrawn;
 }
 
 size_t Renderer::renderSceneToScreen() {
-    size_t trianglesDrawn = 0;
-    const Camera& camera = world.getCamera();
-    const LightsVec& lights = world.getPointLights();
-    ObjectsVec& objects = world.getObjects();
-    trianglesDrawn += draw(objects.cubemapMeshes, camera, screen, lights);
-    trianglesDrawn += draw(objects.flatMeshes, camera, screen, lights);
-    trianglesDrawn += draw(objects.normalMapMeshes, camera, screen, lights);
-    trianglesDrawn += draw(objects.normalMeshes, camera, screen, lights);
-    trianglesDrawn += draw(objects.phongMeshes, camera, screen, lights);
-    trianglesDrawn += draw(objects.textureMeshes, camera, screen, lights);
-    trianglesDrawn += draw(objects.uvMeshes, camera, screen, lights);
+    const Camera& camera = scene.getCamera();
+    const LightsVec& lights = scene.getPointLights();
 
-    return trianglesDrawn;
+    return draw(scene.getAllObjects(), camera, screen, lights);
 }
 
 void Renderer::renderScreenToFile(const std::string& file) const {

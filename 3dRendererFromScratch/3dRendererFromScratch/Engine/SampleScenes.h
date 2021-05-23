@@ -47,6 +47,9 @@ class Application {
     float sz = 0.6f;
     eng::MeshData cubeMesh = eng::MeshData::generateCubeData(sz);
 
+    eng::Texture swordTexture = eng::Texture("data/sword.png");
+    eng::Texture brickNormalMap = eng::Texture("data/brickwall_normal.jpg");
+
     sf::Font font;
     sf::Text text;
     sf::Text text2;

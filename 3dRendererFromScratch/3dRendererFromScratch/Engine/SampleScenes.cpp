@@ -8,7 +8,7 @@ Application::Application() : width(default_width), height(default_height), windo
 void Application::initInterface() {
     window.setMouseCursorVisible(false);
 
-    if (!font.loadFromFile("data/fonts/arial.ttf")) {
+    if (!font.loadFromFile("data/arial.ttf")) {
         std::cout << "Failed to load font\n";
         return;
     }

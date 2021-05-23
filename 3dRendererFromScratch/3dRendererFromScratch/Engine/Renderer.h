@@ -37,7 +37,7 @@ class Renderer {
     Screen screen;
     sf::Texture screenTexture;
     sf::Sprite screenSprite;
-    Scene world;
+    Scene scene;
     PlayerCamera camera;
 
     bool playerControl = true;

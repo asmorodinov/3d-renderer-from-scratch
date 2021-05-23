@@ -186,6 +186,7 @@
     <ClInclude Include="Engine\HelperClasses.h" />
     <ClInclude Include="Engine\Light.h" />
     <ClInclude Include="Engine\Mesh.h" />
+    <ClInclude Include="Engine\MeshTypes.h" />
     <ClInclude Include="Engine\PlayerCamera.h" />
     <ClInclude Include="Engine\Pool.h" />
     <ClInclude Include="Engine\Primitives.h" />

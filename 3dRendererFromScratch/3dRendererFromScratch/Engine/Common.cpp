@@ -2,17 +2,6 @@
 
 namespace eng {
 
-glm::mat4 Transform::getModel() const {
-    glm::mat4 model = glm::mat4(1.0f);
-    glm::mat4 rotationMatrix = glm::mat4_cast(orientation);
-
-    model = glm::translate(model, position);
-    model = model * rotationMatrix;
-    model = glm::scale(model, scale);
-
-    return model;
-}
-
 MeshData loadFromObj(const std::string& filename, float scale, bool invertNormals, bool onlyVertices) {
     std::ifstream file(filename);
     assert(file);
@@ -85,20 +74,8 @@ MeshData loadFromObj(const std::string& filename, float scale, bool invertNormal
 }
 
 MeshData MeshData::generateCubeData(float sz, bool invertNormals) {
-    auto res = MeshData{{{-sz, -sz, -sz},
-                         {-sz, -sz, sz},
-                         {-sz, sz, -sz},
-                         {-sz, sz, sz},
-                         {sz, -sz, -sz},
-                         {sz, -sz, sz},
-                         {sz, sz, -sz},
-                         {sz, sz, sz}},
-                        {{0.0f, 0.0f, 1.0f},
-                         {0.0f, 0.0f, -1.0f},
-                         {0.0f, 1.0f, 0.0f},
-                         {0.0f, -1.0f, 0.0f},
-                         {1.0f, 0.0f, 0.0f},
-                         {-1.0f, 0.0f, 0.0f}},
+    auto res = MeshData{{{-sz, -sz, -sz}, {-sz, -sz, sz}, {-sz, sz, -sz}, {-sz, sz, sz}, {sz, -sz, -sz}, {sz, -sz, sz}, {sz, sz, -sz}, {sz, sz, sz}},
+                        {{0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, -1.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, -1.0f, 0.0f}, {1.0f, 0.0f, 0.0f}, {-1.0f, 0.0f, 0.0f}},
                         {{0, 0}, {0, 1}, {1, 1}, {1, 0}},
                         {{1, 7, 3, 0, 2, 1, 0, 0, 0},
                          {1, 5, 7, 0, 3, 2, 0, 0, 0},
@@ -122,6 +99,39 @@ MeshData MeshData::generateCubeData(float sz, bool invertNormals) {
         for (auto& normal : res.normals) normal *= -1.0f;
     }
     return res;
+}
+
+Transform::Transform(glm::vec3 pos) : position(pos) {}
+glm::mat4 Transform::getModel() {
+    if (modelInvalid) {
+        glm::mat4 model_ = glm::mat4(1.0f);
+        glm::mat4 rotationMatrix = glm::mat4_cast(orientation);
+
+        model_ = glm::translate(model_, position);
+        model_ = model_ * rotationMatrix;
+        model_ = glm::scale(model_, scale);
+
+        model = model_;
+        modelInvalid = false;
+    }
+
+    return model;
+}
+glm::vec3 Transform::getPosition() const { return position; }
+glm::quat Transform::getOrientatio() const { return orientation; }
+glm::vec3 Transform::getScale() const { return scale; }
+
+void Transform::setPosition(const glm::vec3 pos) {
+    position = pos;
+    modelInvalid = true;
+}
+void Transform::setOrientation(const glm::quat orient) {
+    orientation = orient;
+    modelInvalid = true;
+}
+void Transform::setScale(const glm::vec3 sc) {
+    scale = sc;
+    modelInvalid = true;
 }
 
 }  // namespace eng
