@@ -32,7 +32,7 @@ void Renderer::update(float dt) {
 }
 
 template <typename T>
-size_t draw(std::vector<T>& vec, const Camera& camera, Screen& screen, const LightsVec& lights) {
+size_t draw(std::pmr::vector<T>& vec, const Camera& camera, Screen& screen, const LightsVec& lights) {
     size_t trianglesDrawn = 0;
     for (auto& object : vec) {
         object.draw(camera, screen, lights);

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <algorithm>
 #include <execution>
 #include <iterator>
@@ -33,41 +34,43 @@ std::vector<Triangle<Var>> clipTriangleAgainstPlane(const Triangle<Var>& t, glm:
 
     using Point = std::pair<glm::vec4, Var>;
 
-    std::vector<Point> insidePoints;
-    std::vector<Point> outsidePoints;
+    int ip = 0;
+    std::array<Point, 3> insidePoints = {};
+    int op = 0;
+    std::array<Point, 3> outsidePoints = {};
 
     // neeeded for the correctness of resulting triangles normals
     bool oneInsideInvert = false;
     bool oneOutsideInvert = false;
 
     if (distance(t.p0) >= 0.0f) {
-        insidePoints.push_back({t.p0, t.v0});
+        insidePoints[ip++] = {t.p0, t.v0};
     } else {
-        outsidePoints.push_back({t.p0, t.v0});
+        outsidePoints[op++] = {t.p0, t.v0};
     }
 
     if (distance(t.p1) >= 0.0f) {
         oneInsideInvert = true;
-        insidePoints.push_back({t.p1, t.v1});
+        insidePoints[ip++] = {t.p1, t.v1};
     } else {
         oneOutsideInvert = true;
-        outsidePoints.push_back({t.p1, t.v1});
+        outsidePoints[op++] = {t.p1, t.v1};
     }
 
     if (distance(t.p2) >= 0.0f) {
-        insidePoints.push_back({t.p2, t.v2});
+        insidePoints[ip++] = {t.p2, t.v2};
     } else {
-        outsidePoints.push_back({t.p2, t.v2});
+        outsidePoints[op++] = {t.p2, t.v2};
     }
 
     // triangle is full outside
-    if (insidePoints.empty()) return {};
+    if (ip == 0) return {};
 
     // no clipping required, triangle is fully inside
-    if (insidePoints.size() == 3) return {t};
+    if (ip == 3) return {t};
 
     // need to clip, this will result with one smaller triangle
-    if (insidePoints.size() == 1) {
+    if (ip == 1) {
         Triangle<Var> out;
         out.p0 = insidePoints[0].first;
         out.v0 = insidePoints[0].second;
@@ -93,7 +96,7 @@ std::vector<Triangle<Var>> clipTriangleAgainstPlane(const Triangle<Var>& t, glm:
         return {out};
     }
     // need to clip, this will result in quad (2 triangles)
-    if (insidePoints.size() == 2) {
+    if (ip == 2) {
         Triangle<Var> out1, out2;
 
         int i1 = 0;
@@ -155,7 +158,7 @@ std::vector<Triangle<Var>> clipTriangleAgainstFrustrum(const Triangle<Var>& t, c
     std::vector<glm::vec3> normals = {{1, 0, 0}, {-1, 0, 0}, {0, 1, 0}, {0, -1, 0}};
 
     for (size_t i = 0; i < points.size(); ++i) {
-        std::vector<Triangle<Var>> newTriangles;
+        std::vector<Triangle<Var>> newTriangles = {};
 
         for (const auto& triangle : trianglesToDraw) {
             auto clipped = clipTriangleAgainstPlane(triangle, points[i], normals[i]);

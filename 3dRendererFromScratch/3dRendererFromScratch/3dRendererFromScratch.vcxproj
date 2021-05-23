@@ -169,6 +169,7 @@
     <ClCompile Include="Engine\Light.cpp" />
     <ClCompile Include="Engine\Mesh.cpp" />
     <ClCompile Include="Engine\PlayerCamera.cpp" />
+    <ClCompile Include="Engine\Pool.cpp" />
     <ClCompile Include="Engine\Primitives.cpp" />
     <ClCompile Include="Engine\Renderer.cpp" />
     <ClCompile Include="Engine\Screen.cpp" />
@@ -186,6 +187,7 @@
     <ClInclude Include="Engine\Light.h" />
     <ClInclude Include="Engine\Mesh.h" />
     <ClInclude Include="Engine\PlayerCamera.h" />
+    <ClInclude Include="Engine\Pool.h" />
     <ClInclude Include="Engine\Primitives.h" />
     <ClInclude Include="Engine\Renderer.h" />
     <ClInclude Include="Engine\Screen.h" />

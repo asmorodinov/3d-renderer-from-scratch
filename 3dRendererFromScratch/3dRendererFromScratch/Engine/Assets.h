@@ -12,6 +12,8 @@
 #include "Texture.h"
 #include "Common.h"
 
+#include "Pool.h"
+
 namespace eng {
 
 using namespace std::string_literals;
@@ -43,12 +45,9 @@ class Assets {
     CubemapTexture cubemapTexture = CubemapTexture();
 
  private:
-    std::array<char, 300 * 1024 * 1024> buffer = {};
-    std::pmr::monotonic_buffer_resource pool{std::data(buffer), std::size(buffer)};
-
-    std::pmr::map<std::string, Texture> textures{&pool};
-    std::pmr::map<std::string, CubemapTexture> cubemapTextures{&pool};
-    std::pmr::map<std::string, MeshData> meshDatas{&pool};
+    std::pmr::map<std::string, Texture> textures{Pool::getPool()};
+    std::pmr::map<std::string, CubemapTexture> cubemapTextures{Pool::getPool()};
+    std::pmr::map<std::string, MeshData> meshDatas{Pool::getPool()};
     Assets() = default;
 };
 

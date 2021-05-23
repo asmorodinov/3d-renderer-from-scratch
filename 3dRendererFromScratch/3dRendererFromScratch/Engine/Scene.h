@@ -27,13 +27,13 @@ using NormalMapMesh = Mesh<NormalMapVertexShader::Uniform, NormalMapShader::Unif
                            NormalMapVertexShader, NormalMapShader>;
 
 struct ObjectsVec {
-    std::vector<FlatMesh> flatMeshes;
-    std::vector<TextureMesh> textureMeshes;
-    std::vector<CubemapMesh> cubemapMeshes;
-    std::vector<UVMesh> uvMeshes;
-    std::vector<NormalMesh> normalMeshes;
-    std::vector<PhongMesh> phongMeshes;
-    std::vector<NormalMapMesh> normalMapMeshes;
+    std::pmr::vector<FlatMesh> flatMeshes{Pool::getPool()};
+    std::pmr::vector<TextureMesh> textureMeshes{Pool::getPool()};
+    std::pmr::vector<CubemapMesh> cubemapMeshes{Pool::getPool()};
+    std::pmr::vector<UVMesh> uvMeshes{Pool::getPool()};
+    std::pmr::vector<NormalMesh> normalMeshes{Pool::getPool()};
+    std::pmr::vector<PhongMesh> phongMeshes{Pool::getPool()};
+    std::pmr::vector<NormalMapMesh> normalMapMeshes{Pool::getPool()};
 };
 
 class Scene {
