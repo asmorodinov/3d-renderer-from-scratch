@@ -16,7 +16,7 @@ using NormalMesh = Mesh<NormalVertexShader::Uniform, NormalShader::Uniform, Norm
 using PhongMesh = Mesh<PhongVertexShader::Uniform, PhongShader::Uniform, PhongVertexShader::Output, PhongVertexShader, PhongShader>;
 using NormalMapMesh = Mesh<NormalMapVertexShader::Uniform, NormalMapShader::Uniform, NormalMapVertexShader::Output, NormalMapVertexShader, NormalMapShader>;
 
-using ObjectsVec = std::tuple<std::pmr::vector<FlatMesh>, std::pmr::vector<TextureMesh>, std::pmr::vector<CubemapMesh>, std::pmr::vector<UVMesh>,
+using ObjectsVec = std::tuple<std::pmr::vector<CubemapMesh>, std::pmr::vector<TextureMesh>, std::pmr::vector<FlatMesh>, std::pmr::vector<UVMesh>,
                               std::pmr::vector<NormalMesh>, std::pmr::vector<PhongMesh>, std::pmr::vector<NormalMapMesh>>;
 
 }  // namespace eng

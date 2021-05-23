@@ -21,15 +21,14 @@
 #include "Common.h"
 namespace eng {
 
-template <typename VertexShaderUniform, typename FragmentShaderUniform, typename VertexShaderOutput, typename VertexShader,
-          typename FragmentShader>
+template <typename VertexShaderUniform, typename FragmentShaderUniform, typename VertexShaderOutput, typename VertexShader, typename FragmentShader>
 class Mesh {
  public:
     using MeshDataRef = std::reference_wrapper<const MeshData>;
 
-    Mesh(MeshDataRef mesh_, const VertexShaderUniform& vu_, const FragmentShaderUniform& fu_, const Transform& t_,
-         bool wf = false, bool write = true)
-        : mesh(mesh_), vu(vu_), fu(fu_), t(t_), vshader(), fshader(), wireframeMode(wf), writeToDepthBuffer(write) {}
+    Mesh(MeshDataRef mesh_, const VertexShaderUniform& vu_, const FragmentShaderUniform& fu_, const Transform& t_, bool wf = false, bool write = true,
+         glm::vec3 wfc = glm::vec3(1.0f))
+        : mesh(mesh_), vu(vu_), fu(fu_), t(t_), vshader(), fshader(), wireframeMode(wf), writeToDepthBuffer(write), wireframeColor(wfc) {}
 
     void draw(const Camera& camera, Screen& screen, const LightsVec& lights) {
         if (!drawingEnabled) return;
@@ -47,9 +46,9 @@ class Mesh {
         const auto& m = mesh.get();
 
         for (const auto& face : m.faces) {
-            VertexShaderOutput out = vshader.run({m.vertices[face.i], m.vertices[face.j], m.vertices[face.k],
-                                                  m.textureCoords[face.ti], m.textureCoords[face.tj], m.textureCoords[face.tk],
-                                                  m.normals[face.ni], m.normals[face.nj], m.normals[face.nk]});
+            VertexShaderOutput out =
+                vshader.run({m.vertices[face.i], m.vertices[face.j], m.vertices[face.k], m.textureCoords[face.ti], m.textureCoords[face.tj],
+                             m.textureCoords[face.tk], m.normals[face.ni], m.normals[face.nj], m.normals[face.nk]});
             auto tr = out.triangle;
             fshader.vso = out.uniformOutput;
 
@@ -77,10 +76,11 @@ class Mesh {
     const Transform& getTransform() const { return t; }
     Transform& getTransform() { return t; }
 
-    bool setDrawingMode(bool wf = false, bool en = true, bool write = true) {
+    void setDrawingMode(bool wf = false, bool en = true, bool write = true, glm::vec3 wfc = glm::vec3(1.0f)) {
         wireframeMode = wf;
         drawingEnabled = en;
         writeToDepthBuffer = write;
+        wireframeColor = wfc;
     }
 
     size_t getTriangleCount() const { return mesh.get().faces.size(); }

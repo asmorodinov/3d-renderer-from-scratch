@@ -5,32 +5,15 @@ For now the actual dependencies are the following:
 - glm
 - stb_image
 
-TODO list:
+Build:
 
-Next up is: 
-- [x] Clipping triangles against frustrum planes
-- [x] Fix perspective-projection bug (done)
-- [ ] ...
-
-Potential new features:
-- [ ] Vertex and/or Geometry shaders
-- [x] Cubemap textures (work in progress)
-- [ ] Different texture sampling modes
-- [ ] Alpha blending
-- [ ] Shadow mapping
-- [ ] Different post-processing effects (e.g. FXAA)
-- [ ] Mipmapping for textures
-- [ ] ...
-
-In general:
-- [ ] improving perfomance
-- [ ] cleaning up and refactoring code
-- [ ] fixing bugs
-- [ ] ...
-
+This repository is a copy of visual studio 2019 project. 
+One way to build the application on windows is to just use Microsoft Visual Studio 2019.
+Alternatively, you can install the dependencies (SFML, glm, stb_image) yourself, and then link them to the source files.
 
 Gallery:
 
 ![alt text](img.png)
 ![alt text](img1.png)
 ![alt text](img2.png)
+![alt text](img3.png)
