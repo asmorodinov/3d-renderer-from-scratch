@@ -2,41 +2,18 @@
 
 namespace eng {
 
-Renderer::Renderer(size_t width, size_t height) : screen(width, height, 0.2f * glm::vec3(0.2f, 0.25f, 0.25f)) {
-    screenTexture.create(width, height);
-    screenSprite = sf::Sprite(screenTexture);
-}
+Renderer::Renderer(size_t width, size_t height) : screen(width, height, 0.2f * glm::vec3(0.2f, 0.25f, 0.25f)) {}
 
 Screen& Renderer::getScreen() { return screen; }
-Scene& Renderer::getScene() { return scene; }
 
 void Renderer::clearScreen() { screen.clear(); }
 
-void Renderer::mouseMove(float x, float y) {
-    if (mx >= 0.0f && my >= 0.0f && x >= 0.0f && y >= 0.0f) {
-        camera.mouseMove(x - mx, y - my);
-    }
-    mx = x;
-    my = y;
-}
-
-void Renderer::keyPressedOrReleased(sf::Keyboard::Key key, bool mode) { camera.keyPressedOrReleased(key, mode); }
-
-void Renderer::update(float dt) {
-    camera.update(dt);
-
-    if (playerControl) {
-        scene.getCamera().setPosition(camera.position);
-        scene.getCamera().setDirection(camera.direction);
-    }
-}
-
 template <std::size_t I = 0, typename... Tp>
-inline typename std::enable_if<I == sizeof...(Tp), size_t>::type draw(std::tuple<Tp...>& t, const Camera& camera, Screen& screen, const LightsVec& lights) {
+typename std::enable_if<I == sizeof...(Tp), size_t>::type draw(std::tuple<Tp...>& t, const Camera& camera, Screen& screen, const LightsVec& lights) {
     return 0;
 }
 template <std::size_t I = 0, typename... Tp>
-    inline typename std::enable_if < I<sizeof...(Tp), size_t>::type draw(std::tuple<Tp...>& t, const Camera& camera, Screen& screen, const LightsVec& lights) {
+    typename std::enable_if < I<sizeof...(Tp), size_t>::type draw(std::tuple<Tp...>& t, const Camera& camera, Screen& screen, const LightsVec& lights) {
     size_t trianglesDrawn = 0;
     for (auto& object : std::get<I>(t)) {
         object.draw(camera, screen, lights);
@@ -47,7 +24,7 @@ template <std::size_t I = 0, typename... Tp>
     return trianglesDrawn;
 }
 
-size_t Renderer::renderSceneToScreen() {
+size_t Renderer::renderSceneToScreen(Scene& scene) {
     const Camera& camera = scene.getCamera();
     const LightsVec& lights = scene.getPointLights();
 
@@ -80,28 +57,6 @@ void Renderer::renderScreenToFile(const std::string& file) const {
     } else {
         assert(0);
     }
-}
-
-void Renderer::renderScreenToSFMLWindow(sf::RenderWindow& window) {
-    size_t width = screen.getWidth();
-    size_t height = screen.getHeight();
-
-    std::vector<sf::Uint8> pixels(width * height * 4, 0);
-
-    for (size_t x = 0; x < width; ++x) {
-        for (size_t y = 0; y < height; ++y) {
-            ColorType color = screen.getPixelColor(x, height - 1 - y);
-            color = glm::min(color, 1.0f);
-
-            pixels[4 * (y * width + x) + 0] = sf::Uint8(255.99f * color.r);
-            pixels[4 * (y * width + x) + 1] = sf::Uint8(255.99f * color.g);
-            pixels[4 * (y * width + x) + 2] = sf::Uint8(255.99f * color.b);
-            pixels[4 * (y * width + x) + 3] = sf::Uint8(255);
-        }
-    }
-
-    screenTexture.update(&pixels[0]);
-    window.draw(screenSprite);
 }
 
 }  // namespace eng

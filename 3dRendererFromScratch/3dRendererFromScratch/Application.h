@@ -7,9 +7,10 @@
 #include <chrono>
 #include <cstddef>
 
-#include "Engine/Assets.h"
-#include "Engine/Renderer.h"
+#include "Engine/CameraControl.h"
 #include "Engine/SampleScenes.h"
+#include "UI.h"
+#include "SFMLRenderer.h"
 
 class Application {
  private:
@@ -20,24 +21,25 @@ class Application {
 
  public:
     Application();
-    void initInterface();
-    void addObjects();
 
-    void processEvents();
     void run();
 
  private:
+    void processEvents();
+    void mouseMove(float x, float y);
+    void keyPressedOrReleased(sf::Keyboard::Key key, bool mode);
+
+    void update(float dt);
+
     size_t width;
     size_t height;
+
     sf::RenderWindow window;
-    eng::Renderer renderer;
+    UI ui;
 
-    int frames = 0;
-    float lastTime = 0.0f;
-    float fps = 0.0;
+    SFMLRenderer renderer;
+    eng::Scene scene;
 
-    sf::Font font;
-    sf::Text text;
-    sf::Text text2;
-    sf::Text text3;
+    eng::CameraControl cameraControl;
+    float mx = -1.0f, my = -1.0f;
 };

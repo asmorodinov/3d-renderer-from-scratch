@@ -10,9 +10,9 @@ namespace eng {
 
 enum struct MovementDirection { Forward, Backward, Left, Right, Up, Down };
 
-class PlayerCamera {
+class CameraControl {
  public:
-    PlayerCamera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 6.0f), glm::vec3 direction = glm::vec3(0, 0, -1))
+    CameraControl(glm::vec3 position = glm::vec3(0.0f, 0.0f, 6.0f), glm::vec3 direction = glm::vec3(0, 0, -1))
         : position(position), direction(direction), keys() {}
     void mouseMove(float dx, float dy);
     void keyPressedOrReleased(sf::Keyboard::Key key, bool mode);

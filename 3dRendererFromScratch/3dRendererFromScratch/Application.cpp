@@ -1,36 +1,12 @@
 #include "Application.h"
 
-Application::Application() : width(default_width), height(default_height), window(sf::VideoMode(width, height), mainWindowMsg_), renderer(width, height) {
-    initInterface();
-    addObjects();
-}
-
-void Application::initInterface() {
-    window.setMouseCursorVisible(false);
-
-    if (!font.loadFromFile("data/fonts/arial.ttf")) {
-        std::cout << "Failed to load font\n";
-        return;
-    }
-
-    text.setFont(font);
-    text.setCharacterSize(18);
-    text.setOrigin({0.0f, -22.0f});
-
-    text2.setFont(font);
-    text2.setCharacterSize(18);
-    text2.setOrigin({0.0f, -44.0f});
-
-    text3.setFont(font);
-    text3.setCharacterSize(18);
-    text3.setOrigin({0.0f, 0.0f});
-}
-
-void Application::addObjects() {
-    auto& scene = renderer.getScene();
-
-    scene = eng::makeScene1();
-}
+Application::Application()
+    : width(default_width),
+      height(default_height),
+      window(sf::VideoMode(width, height), mainWindowMsg_),
+      ui(window),
+      renderer(width, height, window),
+      scene(eng::makeScene1()) {}
 
 void Application::processEvents() {
     sf::Event event;
@@ -40,60 +16,54 @@ void Application::processEvents() {
         } else if (event.type == sf::Event::KeyPressed) {
             if (event.key.code == sf::Keyboard::Escape) window.close();
 
-            renderer.keyPressedOrReleased(event.key.code, true);
+            keyPressedOrReleased(event.key.code, true);
         } else if (event.type == sf::Event::KeyReleased) {
-            renderer.keyPressedOrReleased(event.key.code, false);
+            keyPressedOrReleased(event.key.code, false);
         } else if (event.type == sf::Event::MouseMoved) {
-            renderer.mouseMove(event.mouseMove.x, event.mouseMove.y);
+            mouseMove(event.mouseMove.x, event.mouseMove.y);
             int x = width / 2;
             int y = height / 2;
             sf::Mouse::setPosition(sf::Vector2i(x, y), window);
-            renderer.mouseMove(-1.0f, -1.0f);
-            renderer.mouseMove(x, y);
+            mouseMove(-1.0f, -1.0f);
+            mouseMove(x, y);
 
         } else if (event.type == sf::Event::MouseEntered) {
-            renderer.mouseMove(-1.0f, -1.0f);
+            mouseMove(-1.0f, -1.0f);
         }
     }
 }
 
 void Application::run() {
-    float time = 0.0f;
     sf::Clock deltaClock;
     while (window.isOpen()) {
         processEvents();
 
         float dt = deltaClock.restart().asSeconds();
-        time += dt;
-        ++frames;
 
-        if (time - lastTime >= 1.5f) {
-            fps = frames / (time - lastTime);
-            text.setString("FPS: " + std::to_string(static_cast<int>(fps)));
-            text2.setString("ms per frame: " + std::to_string(static_cast<int>(1000.0f / fps)));
-            frames = 0;
-            lastTime = time;
-        }
-
-        float t = 0.2f * 360.0f / 20.0f * time;
-        float t2 = t * 5.0f;
-
-        auto& cam = renderer.getScene().getCamera();
-        cam.setPosition(4.5f * glm::vec3(std::sin(glm::radians(t2 / 3.0f)), 0.0f, std::cos(glm::radians(t2 / 3.0f))) +
-                        glm::vec3(0.0f, 0.8f + 0.8f * std::cos(glm::radians(t2 / 1.0f)), 0.0f));
-        cam.setDirection(-cam.getPosition());
-
-        renderer.clearScreen();
-
-        renderer.update(dt);
-        text3.setString("triangles: " + std::to_string(renderer.renderSceneToScreen()));
+        update(dt);
 
         window.clear();
-        renderer.renderScreenToSFMLWindow(window);
-        window.draw(text);
-        window.draw(text2);
-        window.draw(text3);
+
+        size_t trianglesDrawn = renderer.render(scene);
+        ui.updateAndDraw(dt, trianglesDrawn);
 
         window.display();
     }
+}
+
+void Application::mouseMove(float x, float y) {
+    if (mx >= 0.0f && my >= 0.0f && x >= 0.0f && y >= 0.0f) {
+        cameraControl.mouseMove(x - mx, y - my);
+    }
+    mx = x;
+    my = y;
+}
+
+void Application::keyPressedOrReleased(sf::Keyboard::Key key, bool mode) { cameraControl.keyPressedOrReleased(key, mode); }
+
+void Application::update(float dt) {
+    cameraControl.update(dt);
+
+    scene.getCamera().setPosition(cameraControl.position);
+    scene.getCamera().setDirection(cameraControl.direction);
 }

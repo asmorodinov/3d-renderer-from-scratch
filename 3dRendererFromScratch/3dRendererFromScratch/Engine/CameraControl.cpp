@@ -1,7 +1,7 @@
-#include "PLayerCamera.h"
+#include "CameraControl.h"
 
 namespace eng {
-void PlayerCamera::mouseMove(float dx, float dy) {
+void CameraControl::mouseMove(float dx, float dy) {
     constexpr static float sensitivity = 0.2f;
     float xoffset = sensitivity * dx;
     float yoffset = -sensitivity * dy;
@@ -16,7 +16,7 @@ void PlayerCamera::mouseMove(float dx, float dy) {
     direction.z = std::sin(yaw) * std::cos(pitch);
     direction = glm::normalize(direction);
 }
-void PlayerCamera::keyPressedOrReleased(sf::Keyboard::Key key, bool mode) {
+void CameraControl::keyPressedOrReleased(sf::Keyboard::Key key, bool mode) {
     switch (key) {
         case sf::Keyboard::A:
             keys[static_cast<int>(MovementDirection::Left)] = mode;
@@ -40,7 +40,7 @@ void PlayerCamera::keyPressedOrReleased(sf::Keyboard::Key key, bool mode) {
             break;
     }
 }
-void PlayerCamera::update(float dt) {
+void CameraControl::update(float dt) {
     float speed = 1.0f;
 
     glm::vec3 front = glm::normalize(glm::vec3(direction.x, 0, direction.z));
