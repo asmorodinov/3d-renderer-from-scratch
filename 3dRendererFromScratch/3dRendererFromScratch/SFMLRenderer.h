@@ -11,17 +11,19 @@
 
 class SFMLRenderer {
  public:
-    SFMLRenderer(size_t width, size_t height, sf::RenderWindow& window);
+    using Color = eng::Renderer::Color;
+
+    SFMLRenderer(size_t width, size_t height, sf::RenderWindow& mainAppWindow);
 
     size_t render(eng::Scene& scene);
 
  private:
-    size_t width;
-    size_t height;
+    size_t windowWidth_;
+    size_t windowHeight_;
 
-    std::reference_wrapper<sf::RenderWindow> window;
-    eng::Renderer renderer;
+    std::reference_wrapper<sf::RenderWindow> mainAppWindow_;
+    eng::Renderer renderer_;
 
-    sf::Texture screenTexture;
-    sf::Sprite screenSprite;
+    sf::Texture screenTexture_;
+    sf::Sprite screenSprite_;
 };

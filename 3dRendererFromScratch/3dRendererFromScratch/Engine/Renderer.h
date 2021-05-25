@@ -16,6 +16,8 @@ namespace eng {
 
 class Renderer {
  public:
+    using Color = Screen::Color;
+
     Renderer(size_t width, size_t height);
 
     Screen& getScreen();
@@ -27,7 +29,7 @@ class Renderer {
     void renderScreenToFile(const std::string& file) const;
 
  private:
-    Screen screen;
+    Screen screen_;
 };
 
 }  // namespace eng

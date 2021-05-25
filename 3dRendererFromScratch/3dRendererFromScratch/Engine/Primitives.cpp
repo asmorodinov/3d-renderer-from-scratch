@@ -2,7 +2,7 @@
 
 namespace eng {
 
-void drawLine(glm::vec3 pos1, glm::vec3 pos2, ColorType color, Screen& screen) {
+void drawLine(glm::vec3 pos1, glm::vec3 pos2, Screen::Color color, Screen& screen) {
     glm::vec3 p1 = pos1;
     glm::vec3 p2 = pos2;
 
@@ -53,7 +53,7 @@ float segmentPlaneIntersect(glm::vec3 point, glm::vec3 normal, glm::vec3 v1, glm
     return (dot - dot1) / (dot2 - dot1);
 }
 
-void drawWireframeTriangle(const Triangle<NoVariables>& t, const glm::mat4& projection, ColorType color, Screen& screen) {
+void drawWireframeTriangle(const Triangle<NoVariables>& t, const glm::mat4& projection, Screen::Color color, Screen& screen) {
     float near = screen.getNearPlaneDistance();
     for (const auto& triangle : clipTriangleAgainstFrustrum(t, projection, near)) {
         drawLine(triangle.p0, triangle.p1, color, screen);

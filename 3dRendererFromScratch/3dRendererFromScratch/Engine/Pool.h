@@ -18,8 +18,8 @@ class Pool {
     static std::pmr::monotonic_buffer_resource* getPool();
 
  private:
-    std::array<char, 100 * 1024 * 1024> buffer = {};
-    std::pmr::monotonic_buffer_resource pool{std::data(buffer), std::size(buffer)};
+    std::array<char, 100 * 1024 * 1024> buffer_ = {};
+    std::pmr::monotonic_buffer_resource pool_{std::data(buffer_), std::size(buffer_)};
 
     Pool() = default;
 };

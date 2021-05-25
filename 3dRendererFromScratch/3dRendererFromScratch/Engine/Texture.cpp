@@ -2,35 +2,35 @@
 
 namespace eng {
 
-Texture::Texture() : w(0), h(0) {}
+Texture::Texture() : textureWidth(0), textureHeight(0) {}
 
 Texture::Texture(const std::string& file) {
     int x = 0, y = 0, n = 0;
     unsigned char* data = stbi_load(file.c_str(), &x, &y, &n, 3);
 
     assert(x > 0 && y > 0 && n >= 3 && data);
-    w = x;
-    h = y;
+    textureWidth = x;
+    textureHeight = y;
 
-    buffer = ColorBuffer(w, h, ColorType(0.0f));
+    colorBuffer = ColorBuffer(textureWidth, textureHeight, Color(0.0f));
 
-    for (size_t i = 0; i < w; ++i) {
-        for (size_t j = 0; j < h; ++j) {
-            unsigned char* pixel = data + (i + w * j) * 3;
-            buffer.set(i, j, ColorType(pixel[0], pixel[1], pixel[2]) / float(255));
+    for (size_t i = 0; i < textureWidth; ++i) {
+        for (size_t j = 0; j < textureHeight; ++j) {
+            unsigned char* pixel = data + (i + textureWidth * j) * 3;
+            colorBuffer.set(i, j, Color(pixel[0], pixel[1], pixel[2]) / float(255));
         }
     }
 
     stbi_image_free(data);
 }
 
-glm::vec4 Texture::sample(float x, float y) const {
-    size_t xc = x * w;
-    size_t yc = y * h;
-    xc = std::min(xc, w - 1);
-    yc = std::min(yc, h - 1);
+glm::vec4 Texture::sample(glm::vec2 uv) const {
+    Pixels xc = uv.s * textureWidth;
+    Pixels yc = uv.t * textureHeight;
+    xc = std::min(xc, textureWidth - 1);
+    yc = std::min(yc, textureHeight - 1);
 
-    return glm::vec4(buffer.get(xc, h - 1 - yc), 1.0f);
+    return glm::vec4(colorBuffer.get(xc, textureHeight - 1 - yc), 1.0f);
 }
 
 CubemapTexture::CubemapTexture() {}
@@ -55,7 +55,7 @@ CubemapTexture::CubemapTexture(const std::string& folder, bool defaultFormat, co
 
 glm::vec4 CubemapTexture::sample(glm::vec3 vec) const {
     vec = glm::normalize(vec);
-    if (textures[0].w == 0) {
+    if (textures[0].textureWidth == 0) {
         return glm::vec4(0.5f * (vec + 1.0f), 1.0f);
     } else {
         int index = 0;
@@ -135,7 +135,7 @@ glm::vec4 CubemapTexture::sample(glm::vec3 vec) const {
         u = 0.5f * (uc / maxAxis + 1.0f);
         v = 0.5f * (vc / maxAxis + 1.0f);
 
-        return textures[index].sample(u, v);
+        return textures[index].sample({u, v});
     }
 }
 

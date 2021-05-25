@@ -10,7 +10,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "Texture.h"
-#include "Common.h"
+#include "MeshData.h"
 
 #include "Pool.h"
 
@@ -36,8 +36,7 @@ class Assets {
     static TextureRef getTexture(std::string filename);
 
     static CubemapTextureRef getCubemapTexture();
-    static CubemapTextureRef getCubemapTexture(std::string filename, bool defaultFormat = true,
-                                               const std::string& imageFormat = ".jpg"s);
+    static CubemapTextureRef getCubemapTexture(std::string filename, bool defaultFormat = true, const std::string& imageFormat = ".jpg"s);
 
     static MeshDataRef getMeshData(std::string filename, float scale = 1.0f, bool in = false, bool ov = false);
 
@@ -45,9 +44,10 @@ class Assets {
     CubemapTexture cubemapTexture = CubemapTexture();
 
  private:
-    std::pmr::map<std::string, Texture> textures{Pool::getPool()};
-    std::pmr::map<std::string, CubemapTexture> cubemapTextures{Pool::getPool()};
-    std::pmr::map<std::string, MeshData> meshDatas{Pool::getPool()};
+    std::pmr::map<std::string, Texture> textures_{Pool::getPool()};
+    std::pmr::map<std::string, CubemapTexture> cubemapTextures_{Pool::getPool()};
+    std::pmr::map<std::string, MeshData> meshDatas_{Pool::getPool()};
+
     Assets() = default;
 };
 

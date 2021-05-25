@@ -2,42 +2,42 @@
 
 #include <cstdlib>
 
-UI::UI(sf::RenderWindow& window_) : window(window_) {
-    if (!font.loadFromFile("data/fonts/arial.ttf")) {
+UserInterface::UserInterface(sf::RenderWindow& window_) : mainAppWindow_(window_) {
+    if (!font_.loadFromFile("data/fonts/arial.ttf")) {
         std::cout << "Failed to load font\n";
         exit(1);
     }
 
-    window.get().setMouseCursorVisible(false);
+    mainAppWindow_.get().setMouseCursorVisible(false);
 
-    text.setFont(font);
-    text.setCharacterSize(18);
-    text.setOrigin({0.0f, -22.0f});
+    text_.setFont(font_);
+    text_.setCharacterSize(18);
+    text_.setOrigin({0.0f, -22.0f});
 
-    text2.setFont(font);
-    text2.setCharacterSize(18);
-    text2.setOrigin({0.0f, -44.0f});
+    text2_.setFont(font_);
+    text2_.setCharacterSize(18);
+    text2_.setOrigin({0.0f, -44.0f});
 
-    text3.setFont(font);
-    text3.setCharacterSize(18);
-    text3.setOrigin({0.0f, 0.0f});
+    text3_.setFont(font_);
+    text3_.setCharacterSize(18);
+    text3_.setOrigin({0.0f, 0.0f});
 }
 
-void UI::updateAndDraw(float dt, size_t trianglesCount) {
-    time += dt;
-    ++frames;
+void UserInterface::updateAndDraw(Seconds dt, size_t trianglesCount) {
+    currentTime_ += dt;
+    ++frames_;
 
-    if (time - lastTime >= 1.5f) {
-        fps = frames / (time - lastTime);
-        text.setString("FPS: " + std::to_string(static_cast<int>(fps)));
-        text2.setString("ms per frame: " + std::to_string(static_cast<int>(1000.0f / fps)));
-        frames = 0;
-        lastTime = time;
+    if (currentTime_ - lastTime_ >= 1.5f) {
+        framesPerSecond_ = frames_ / (currentTime_ - lastTime_);
+        text_.setString("FPS: " + std::to_string(static_cast<int>(framesPerSecond_)));
+        text2_.setString("ms per frame: " + std::to_string(static_cast<int>(1000.0f / framesPerSecond_)));
+        frames_ = 0;
+        lastTime_ = currentTime_;
     }
 
-    text3.setString("triangles: " + std::to_string(trianglesCount));
+    text3_.setString("triangles: " + std::to_string(trianglesCount));
 
-    window.get().draw(text);
-    window.get().draw(text2);
-    window.get().draw(text3);
+    mainAppWindow_.get().draw(text_);
+    mainAppWindow_.get().draw(text2_);
+    mainAppWindow_.get().draw(text3_);
 }

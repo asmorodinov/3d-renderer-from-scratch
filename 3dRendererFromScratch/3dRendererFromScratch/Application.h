@@ -14,10 +14,12 @@
 
 class Application {
  private:
-    using Pixels = std::size_t;
-    static constexpr const Pixels default_width = 1200;
-    static constexpr const Pixels default_height = 800;
-    static constexpr const char* mainWindowMsg_ = "SFML window [press SPACE to toggle rendering modes]";
+    using Pixels = eng::Screen::Pixels;
+    using Seconds = float;
+
+    static constexpr const Pixels defaultWidth_ = 1200;
+    static constexpr const Pixels defaultHeight_ = 800;
+    static constexpr const char* mainWindowMsg_ = "3d renderer";
 
  public:
     Application();
@@ -26,20 +28,17 @@ class Application {
 
  private:
     void processEvents();
-    void mouseMove(float x, float y);
+    void mouseMove(glm::vec2 newPosition);
     void keyPressedOrReleased(sf::Keyboard::Key key, bool mode);
 
-    void update(float dt);
+    void update(Seconds dt);
 
-    size_t width;
-    size_t height;
+    sf::RenderWindow mainAppWindow_;
+    UserInterface userInterface_;
 
-    sf::RenderWindow window;
-    UI ui;
+    SFMLRenderer renderer_;
+    eng::Scene scene_;
 
-    SFMLRenderer renderer;
-    eng::Scene scene;
-
-    eng::CameraControl cameraControl;
-    float mx = -1.0f, my = -1.0f;
+    eng::CameraControl cameraControl_;
+    glm::vec2 mouseCoords_ = {-1.0f, -1.0f};
 };

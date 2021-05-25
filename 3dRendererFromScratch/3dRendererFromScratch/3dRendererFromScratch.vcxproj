@@ -151,6 +151,8 @@
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <MinimalRebuild>true</MinimalRebuild>
       <FloatingPointModel>Fast</FloatingPointModel>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -165,10 +167,11 @@
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="Engine\Assets.cpp" />
     <ClCompile Include="Engine\Camera.cpp" />
-    <ClCompile Include="Engine\Common.cpp" />
+    <ClCompile Include="Engine\MeshData.cpp" />
     <ClCompile Include="Engine\Light.cpp" />
     <ClCompile Include="Engine\Mesh.cpp" />
     <ClCompile Include="Engine\CameraControl.cpp" />
+    <ClCompile Include="Engine\ObjectTransform.cpp" />
     <ClCompile Include="Engine\Pool.cpp" />
     <ClCompile Include="Engine\Primitives.cpp" />
     <ClCompile Include="Engine\Renderer.cpp" />
@@ -192,12 +195,13 @@
     <ClInclude Include="Application.h" />
     <ClInclude Include="Engine\Assets.h" />
     <ClInclude Include="Engine\Camera.h" />
-    <ClInclude Include="Engine\Common.h" />
-    <ClInclude Include="Engine\HelperClasses.h" />
+    <ClInclude Include="Engine\MeshData.h" />
+    <ClInclude Include="Engine\InterpolatableTuple.h" />
     <ClInclude Include="Engine\Light.h" />
     <ClInclude Include="Engine\Mesh.h" />
     <ClInclude Include="Engine\MeshTypes.h" />
     <ClInclude Include="Engine\CameraControl.h" />
+    <ClInclude Include="Engine\ObjectTransform.h" />
     <ClInclude Include="Engine\Pool.h" />
     <ClInclude Include="Engine\Primitives.h" />
     <ClInclude Include="Engine\Renderer.h" />
@@ -214,6 +218,7 @@
     <ClInclude Include="Engine\Shaders\UVShader.h" />
     <ClInclude Include="Engine\Texture.h" />
     <ClInclude Include="Engine\Scene.h" />
+    <ClInclude Include="Engine\Vector2d.h" />
     <ClInclude Include="SFMLRenderer.h" />
     <ClInclude Include="UI.h" />
   </ItemGroup>

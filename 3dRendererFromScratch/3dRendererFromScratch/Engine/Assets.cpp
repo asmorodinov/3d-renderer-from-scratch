@@ -5,7 +5,7 @@ namespace eng {
 TextureRef Assets::getTexture() { return std::cref(Assets::get().texture); }
 
 TextureRef Assets::getTexture(std::string filename) {
-    auto& textures = Assets::get().textures;
+    auto& textures = Assets::get().textures_;
 
     if (textures.find(filename) == textures.end()) {
         textures[filename] = Texture("data/textures/"s + filename);
@@ -17,7 +17,7 @@ TextureRef Assets::getTexture(std::string filename) {
 CubemapTextureRef Assets::getCubemapTexture() { return std::cref(Assets::get().cubemapTexture); }
 
 CubemapTextureRef Assets::getCubemapTexture(std::string filename, bool df, const std::string& f) {
-    auto& cubemapTextures = Assets::get().cubemapTextures;
+    auto& cubemapTextures = Assets::get().cubemapTextures_;
 
     std::string name = filename + std::to_string(df) + "_"s + f;
 
@@ -29,7 +29,7 @@ CubemapTextureRef Assets::getCubemapTexture(std::string filename, bool df, const
 }
 
 MeshDataRef Assets::getMeshData(std::string filename, float scale, bool in, bool ov) {
-    auto& meshDatas = Assets::get().meshDatas;
+    auto& meshDatas = Assets::get().meshDatas_;
 
     std::string name = filename + std::to_string(scale) + "_"s + std::to_string(in);
 

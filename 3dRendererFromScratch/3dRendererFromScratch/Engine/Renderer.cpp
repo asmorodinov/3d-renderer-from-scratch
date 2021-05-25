@@ -2,11 +2,11 @@
 
 namespace eng {
 
-Renderer::Renderer(size_t width, size_t height) : screen(width, height, 0.2f * glm::vec3(0.2f, 0.25f, 0.25f)) {}
+Renderer::Renderer(size_t width, size_t height) : screen_(width, height, 0.2f * glm::vec3(0.2f, 0.25f, 0.25f)) {}
 
-Screen& Renderer::getScreen() { return screen; }
+Screen& Renderer::getScreen() { return screen_; }
 
-void Renderer::clearScreen() { screen.clear(); }
+void Renderer::clearScreen() { screen_.clear(); }
 
 template <std::size_t I = 0, typename... Tp>
 typename std::enable_if<I == sizeof...(Tp), size_t>::type draw(std::tuple<Tp...>& t, const Camera& camera, Screen& screen, const LightsVec& lights) {
@@ -28,18 +28,18 @@ size_t Renderer::renderSceneToScreen(Scene& scene) {
     const Camera& camera = scene.getCamera();
     const LightsVec& lights = scene.getPointLights();
 
-    return draw(scene.getAllObjects(), camera, screen, lights);
+    return draw(scene.getAllObjects(), camera, screen_, lights);
 }
 
 void Renderer::renderScreenToFile(const std::string& file) const {
-    size_t width = screen.getWidth();
-    size_t height = screen.getHeight();
+    size_t width = screen_.getWidth();
+    size_t height = screen_.getHeight();
 
     std::vector<uint8_t> pixels(width * height * 3, 0);
 
     for (size_t x = 0; x < width; ++x) {
         for (size_t y = 0; y < height; ++y) {
-            ColorType color = screen.getPixelColor(x, y);
+            Color color = screen_.getPixelColor(x, y);
 
             pixels[3 * (y * width + x) + 0] = uint8_t(255.99f * color.r);
             pixels[3 * (y * width + x) + 1] = uint8_t(255.99f * color.g);

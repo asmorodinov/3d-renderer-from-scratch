@@ -23,11 +23,11 @@ class Scene {
 
     template <typename T>
     const std::pmr::vector<T>& getObjects() const {
-        return std::get<std::pmr::vector<T>>(objects);
+        return std::get<std::pmr::vector<T>>(objects_);
     }
     template <typename T>
     std::pmr::vector<T>& getObjects() {
-        return std::get<std::pmr::vector<T>>(objects);
+        return std::get<std::pmr::vector<T>>(objects_);
     }
 
     const LightsVec& getPointLights() const;
@@ -35,13 +35,13 @@ class Scene {
 
     template <typename T>
     void addObject(const T& t) {
-        std::get<std::pmr::vector<T>>(objects).push_back(t);
+        std::get<std::pmr::vector<T>>(objects_).push_back(t);
     }
 
  private:
-    Camera camera;
-    ObjectsVec objects;
-    LightsVec pointLights;
+    Camera camera_;
+    ObjectsVec objects_;
+    LightsVec pointLights_;
 };
 
 }  // namespace eng

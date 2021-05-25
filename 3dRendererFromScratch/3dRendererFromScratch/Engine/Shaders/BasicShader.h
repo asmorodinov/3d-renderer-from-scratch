@@ -6,10 +6,9 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "../Assets.h"
-#include "../Common.h"
 #include "../Light.h"
 #include "../Texture.h"
-#include "../HelperClasses.h"
+#include "../InterpolatableTuple.h"
 #include "../Primitives.h"
 
 namespace eng {

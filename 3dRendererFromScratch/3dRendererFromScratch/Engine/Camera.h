@@ -17,8 +17,8 @@ class Camera {
     void setDirection(glm::vec3 dir);
 
  private:
-    glm::vec3 position;
-    glm::vec3 direction;
+    glm::vec3 position_;
+    glm::vec3 direction_;
 };
 
 }  // namespace eng

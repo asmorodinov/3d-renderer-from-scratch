@@ -11,30 +11,6 @@
 
 namespace eng {
 
-class Transform {
- public:
-    Transform() = default;
-    Transform(glm::vec3 pos);
-
-    glm::mat4 getModel();
-
-    glm::vec3 getPosition() const;
-    glm::quat getOrientatio() const;
-    glm::vec3 getScale() const;
-
-    void setPosition(const glm::vec3 pos);
-    void setOrientation(const glm::quat orient);
-    void setScale(const glm::vec3 sc);
-
- private:
-    glm::vec3 position = glm::vec3(0.0f);
-    glm::quat orientation = glm::quat();
-    glm::vec3 scale = glm::vec3(1.0f);
-
-    bool modelInvalid = true;
-    glm::mat4 model = glm::mat4(1.0f);
-};
-
 struct Face {
     // vertex indices
     int i, j, k;

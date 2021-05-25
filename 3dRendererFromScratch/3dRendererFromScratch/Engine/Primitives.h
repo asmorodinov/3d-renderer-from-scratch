@@ -10,12 +10,13 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "InterpolatableTuple.h"
 #include "Light.h"
 #include "Screen.h"
 
 namespace eng {
 
-void drawLine(glm::vec3 pos1, glm::vec3 pos2, ColorType color, Screen& screen);
+void drawLine(glm::vec3 pos1, glm::vec3 pos2, Screen::Color color, Screen& screen);
 
 template <typename Var>
 struct Triangle {
@@ -94,7 +95,7 @@ std::vector<Triangle<Var>> clipTriangleAgainstPlane(const Triangle<Var>& t, glm:
 
         return {out};
     }
-    // need to clip, this will result in quad (2 triangles)
+    // need to clip, this will result in quadraticAttenuationCoefficient (2 triangles)
     if (ip == 2) {
         Triangle<Var> out1, out2;
 
@@ -171,7 +172,7 @@ std::vector<Triangle<Var>> clipTriangleAgainstFrustrum(const Triangle<Var>& t, c
     return trianglesToDraw;
 }
 
-void drawWireframeTriangle(const Triangle<NoVariables>& t, const glm::mat4& projection, ColorType color, Screen& screen);
+void drawWireframeTriangle(const Triangle<NoVariables>& t, const glm::mat4& projection, Screen::Color color, Screen& screen);
 
 template <typename Var, typename Shader>
 void drawTriangle(const Triangle<Var>& t, const glm::mat4& projection, Shader& shader, Screen& screen, const LightsVec& lights) {

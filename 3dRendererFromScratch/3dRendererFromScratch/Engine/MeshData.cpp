@@ -1,4 +1,4 @@
-#include "Common.h"
+#include "MeshData.h"
 
 namespace eng {
 
@@ -99,39 +99,6 @@ MeshData MeshData::generateCubeData(float sz, bool invertNormals) {
         for (auto& normal : res.normals) normal *= -1.0f;
     }
     return res;
-}
-
-Transform::Transform(glm::vec3 pos) : position(pos) {}
-glm::mat4 Transform::getModel() {
-    if (modelInvalid) {
-        glm::mat4 model_ = glm::mat4(1.0f);
-        glm::mat4 rotationMatrix = glm::mat4_cast(orientation);
-
-        model_ = glm::translate(model_, position);
-        model_ = model_ * rotationMatrix;
-        model_ = glm::scale(model_, scale);
-
-        model = model_;
-        modelInvalid = false;
-    }
-
-    return model;
-}
-glm::vec3 Transform::getPosition() const { return position; }
-glm::quat Transform::getOrientatio() const { return orientation; }
-glm::vec3 Transform::getScale() const { return scale; }
-
-void Transform::setPosition(const glm::vec3 pos) {
-    position = pos;
-    modelInvalid = true;
-}
-void Transform::setOrientation(const glm::quat orient) {
-    orientation = orient;
-    modelInvalid = true;
-}
-void Transform::setScale(const glm::vec3 sc) {
-    scale = sc;
-    modelInvalid = true;
 }
 
 }  // namespace eng

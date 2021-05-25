@@ -2,68 +2,68 @@
 
 namespace eng {
 
-Screen::Screen(size_t width, size_t height, ColorType clearColor)
-    : near(0.2f),
-      far(10.0f),
-      width(width),
-      height(height),
-      ratio(width / (float)height),
-      clearColor(clearColor),
-      colorBuffer(width, height, clearColor),
-      depthBuffer(width, height, std::numeric_limits<float>::max()),
-      projectionMatrix(glm::perspective(glm::radians(60.0f), ratio, near, far)) {}
+Screen::Screen(Pixels width, Pixels height, Color clearColor)
+    : nearPlaneDistance_(0.2f),
+      farPlaneDistance_(10.0f),
+      screenWidth_(width),
+      screenHeight_(height),
+      aspectRatio_(width / (float)height),
+      clearColor_(clearColor),
+      colorBuffer_(width, height, clearColor),
+      depthBuffer_(width, height, std::numeric_limits<float>::max()),
+      projectionMatrix_(glm::perspective(glm::radians(60.0f), aspectRatio_, nearPlaneDistance_, farPlaneDistance_)) {}
 
-const glm::mat4& Screen::getProjectionMatrix() const { return projectionMatrix; }
+const glm::mat4& Screen::getProjectionMatrix() const { return projectionMatrix_; }
 
-ColorType Screen::getPixelColor(size_t x, size_t y) const {
-    assert(x < width && y < height);
+Screen::Color Screen::getPixelColor(Pixels x, Pixels y) const {
+    assert(x < screenWidth_ && y < screenHeight_);
 
-    return colorBuffer.get(x, y);
+    return colorBuffer_.get(x, y);
 }
 
-void Screen::setPixelColor(size_t x, size_t y, ColorType color) {
-    assert(x < width && y < height);
+void Screen::setPixelColor(Pixels x, Pixels y, Color color) {
+    assert(x < screenWidth_ && y < screenHeight_);
 
-    colorBuffer.set(x, y, color);
+    colorBuffer_.set(x, y, color);
 }
 
-void Screen::setPixelColor(size_t x, size_t y, ColorType color, float z) { depthCheckSetPixelColor(x, y, z, color); }
+void Screen::setPixelColor(Pixels x, Pixels y, Color color, Depth z) { depthCheckSetPixelColor(x, y, z, color); }
 
-void Screen::depthCheckSetPixelColor(size_t x, size_t y, float z, ColorType color) {
-    assert(x < width && y < height);
+void Screen::depthCheckSetPixelColor(Pixels x, Pixels y, Depth z, Color color) {
+    assert(x < screenWidth_ && y < screenHeight_);
 
     if (z < -1 || z > 1) return;
 
     if (z < getPixelDepth(x, y)) {
-        if (writeToDepthBiffer) setPixelDepth(x, y, z);
+        if (writeToDepthBiffer_) setPixelDepth(x, y, z);
 
         setPixelColor(x, y, color);
     }
 }
 
-float Screen::getPixelDepth(size_t x, size_t y) const {
-    assert(x < width && y < height);
-    return depthBuffer.get(x, y);
+Screen::Depth Screen::getPixelDepth(Pixels x, Pixels y) const {
+    assert(x < screenWidth_ && y < screenHeight_);
+    return depthBuffer_.get(x, y);
 }
-void Screen::setPixelDepth(size_t x, size_t y, float z) {
-    assert(x < width && y < height);
+void Screen::setPixelDepth(Pixels x, Pixels y, Depth z) {
+    assert(x < screenWidth_ && y < screenHeight_);
 
-    depthBuffer.set(x, y, z);
+    depthBuffer_.set(x, y, z);
 }
 
 void Screen::clear() {
-    colorBuffer.fill(clearColor);
-    depthBuffer.fill(std::numeric_limits<float>::max());
+    colorBuffer_.fill(clearColor_);
+    depthBuffer_.fill(std::numeric_limits<float>::max());
 }
 
-size_t Screen::getWidth() const { return width; }
-size_t Screen::getHeight() const { return height; }
+Screen::Pixels Screen::getWidth() const { return screenWidth_; }
+Screen::Pixels Screen::getHeight() const { return screenHeight_; }
 
-float Screen::getNearPlaneDistance() const { return near; }
+float Screen::getNearPlaneDistance() const { return nearPlaneDistance_; }
 
-void Screen::setWriteToDepthBuffer(bool b) { writeToDepthBiffer = b; }
+void Screen::setWriteToDepthBuffer(bool b) { writeToDepthBiffer_ = b; }
 
-void Screen::setClearColor(ColorType clr) { clearColor = clr; }
-ColorType Screen::getClearColor() const { return clearColor; }
+void Screen::setClearColor(Color clr) { clearColor_ = clr; }
+Screen::Color Screen::getClearColor() const { return clearColor_; }
 
 }  // namespace eng

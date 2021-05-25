@@ -3,56 +3,62 @@
 #include <algorithm>
 #include <iostream>
 #include <limits>
+#include <cstddef>
 #include <cassert>
 #include <vector>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "HelperClasses.h"
+#include "Vector2d.h"
 
 namespace eng {
 
-using ColorType = glm::vec3;
-using ColorBuffer = Vector2d<ColorType>;
-using DepthBuffer = Vector2d<float>;
-
 class Screen {
  public:
-    Screen(size_t width, size_t height, ColorType clearColor);
+    using Pixels = std::size_t;
+    using Color = glm::vec3;
+    using Depth = float;
+    using AspectRatio = float;
+
+    using ColorBuffer = Vector2d<Color>;
+    using DepthBuffer = Vector2d<Depth>;
+
+    Screen(Pixels width, Pixels height, Color clearColor);
 
     const glm::mat4& getProjectionMatrix() const;
 
-    ColorType getPixelColor(size_t x, size_t y) const;
-    void setPixelColor(size_t x, size_t y, ColorType color, float z);
+    Color getPixelColor(Pixels x, Pixels y) const;
+    void setPixelColor(Pixels x, Pixels y, Color color, Depth z);
 
-    float getPixelDepth(size_t x, size_t y) const;
+    float getPixelDepth(Pixels x, Pixels y) const;
     void clear();
 
-    size_t getWidth() const;
-    size_t getHeight() const;
+    Pixels getWidth() const;
+    Pixels getHeight() const;
 
-    float getNearPlaneDistance() const;
+    Depth getNearPlaneDistance() const;
     void setWriteToDepthBuffer(bool b);
 
-    void setClearColor(ColorType clr);
-    ColorType getClearColor() const;
+    void setClearColor(Color clr);
+    Color getClearColor() const;
 
  private:
-    void setPixelColor(size_t x, size_t y, ColorType color);
-    void depthCheckSetPixelColor(size_t x, size_t y, float z, ColorType color);
-    void setPixelDepth(size_t x, size_t y, float z);
+    void setPixelColor(Pixels x, Pixels y, Color color);
+    void depthCheckSetPixelColor(Pixels x, Pixels y, Depth z, Color color);
+    void setPixelDepth(Pixels x, Pixels y, Depth z);
 
-    float near, far;
-    bool writeToDepthBiffer = true;
+    Depth nearPlaneDistance_, farPlaneDistance_;
+    bool writeToDepthBiffer_ = true;
 
-    size_t width, height;
-    float ratio = 1.0f;
-    ColorType clearColor;
-    ColorBuffer colorBuffer;
-    DepthBuffer depthBuffer;
+    Pixels screenWidth_, screenHeight_;
+    AspectRatio aspectRatio_ = 1.0f;
 
-    glm::mat4 projectionMatrix;
+    Color clearColor_;
+    ColorBuffer colorBuffer_;
+    DepthBuffer depthBuffer_;
+
+    glm::mat4 projectionMatrix_;
 };
 
 }  // namespace eng

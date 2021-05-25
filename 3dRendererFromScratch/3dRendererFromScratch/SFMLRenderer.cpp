@@ -1,15 +1,16 @@
 #include "SFMLRenderer.h"
 
-SFMLRenderer::SFMLRenderer(size_t width, size_t height, sf::RenderWindow& window) : width(width), height(height), window(window), renderer(width, height) {
-    screenTexture.create(width, height);
-    screenSprite = sf::Sprite(screenTexture);
+SFMLRenderer::SFMLRenderer(size_t width, size_t height, sf::RenderWindow& mainAppWindow)
+    : windowWidth_(width), windowHeight_(height), mainAppWindow_(mainAppWindow), renderer_(width, height) {
+    screenTexture_.create(width, height);
+    screenSprite_ = sf::Sprite(screenTexture_);
 }
 
 size_t SFMLRenderer::render(eng::Scene& scene) {
-    renderer.clearScreen();
-    size_t trianglesDrawn = renderer.renderSceneToScreen(scene);
+    renderer_.clearScreen();
+    size_t trianglesDrawn = renderer_.renderSceneToScreen(scene);
 
-    eng::Screen& screen = renderer.getScreen();
+    eng::Screen& screen = renderer_.getScreen();
 
     size_t width = screen.getWidth();
     size_t height = screen.getHeight();
@@ -18,7 +19,7 @@ size_t SFMLRenderer::render(eng::Scene& scene) {
 
     for (size_t x = 0; x < width; ++x) {
         for (size_t y = 0; y < height; ++y) {
-            eng::ColorType color = screen.getPixelColor(x, height - 1 - y);
+            Color color = screen.getPixelColor(x, height - 1 - y);
             color = glm::min(color, 1.0f);
 
             pixels[4 * (y * width + x) + 0] = sf::Uint8(255.99f * color.r);
@@ -28,8 +29,8 @@ size_t SFMLRenderer::render(eng::Scene& scene) {
         }
     }
 
-    screenTexture.update(&pixels[0]);
-    window.get().draw(screenSprite);
+    screenTexture_.update(&pixels[0]);
+    mainAppWindow_.get().draw(screenSprite_);
 
     return trianglesDrawn;
 }

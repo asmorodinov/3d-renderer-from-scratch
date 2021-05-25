@@ -11,24 +11,28 @@
 #include "Engine/Renderer.h"
 #include "Engine/SampleScenes.h"
 
-class UI {
+class UserInterface {
  public:
-    UI(sf::RenderWindow& window_);
+    using Frames = std::size_t;
+    using Seconds = float;
+    using FramesPerSecond = float;
 
-    void updateAndDraw(float dt, size_t trianglesCount = 0);
+    UserInterface(sf::RenderWindow& window_);
+
+    void updateAndDraw(Seconds dt, size_t trianglesCount = 0);
 
  private:
-    std::reference_wrapper<sf::RenderWindow> window;
+    std::reference_wrapper<sf::RenderWindow> mainAppWindow_;
 
-    int frames = 0;
+    Frames frames_ = 0;
+    Seconds currentTime_ = 0.0f;
+    Seconds lastTime_ = 0.0f;
 
-    float time = 0.0f;
-    float lastTime = 0.0f;
-    float fps = 0.0f;
+    FramesPerSecond framesPerSecond_ = 0.0f;
 
-    sf::Font font;
+    sf::Font font_;
 
-    sf::Text text;
-    sf::Text text2;
-    sf::Text text3;
+    sf::Text text_;
+    sf::Text text2_;
+    sf::Text text3_;
 };
