@@ -26,7 +26,7 @@ struct MeshData {
     std::vector<glm::vec2> textureCoords;
     std::vector<Face> faces;
 
-    static MeshData generateCubeData(float sz = 1.0f, bool invertNormals = false);
+    static MeshData generateCubeData(float size = 1.0f, bool invertNormals = false);
 };
 
 MeshData loadFromObj(const std::string& filename, float scale = 1.0f, bool invertNormals = false, bool onlyVertices = false);

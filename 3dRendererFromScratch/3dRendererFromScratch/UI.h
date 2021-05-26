@@ -19,7 +19,7 @@ class UserInterface {
 
     UserInterface(sf::RenderWindow& window_);
 
-    void updateAndDraw(Seconds dt, size_t trianglesCount = 0);
+    void updateAndDraw(Seconds deltaTime, size_t trianglesCount = 0);
 
  private:
     std::reference_wrapper<sf::RenderWindow> mainAppWindow_;

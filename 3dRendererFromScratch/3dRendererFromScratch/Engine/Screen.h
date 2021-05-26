@@ -20,10 +20,17 @@ class Screen {
     using Color = glm::vec3;
     using Depth = float;
     using AspectRatio = float;
+    using Degrees = float;
 
     using ColorBuffer = Vector2d<Color>;
     using DepthBuffer = Vector2d<Depth>;
 
+ private:
+    static constexpr const Depth defaultNearPlaneDistance_ = 0.2f;
+    static constexpr const Depth defaultFarPlaneDistance_ = 10.0f;
+    static constexpr const Degrees defaultFieldOfViewAngle_ = 60.0f;
+
+ public:
     Screen(Pixels width, Pixels height, Color clearColor);
 
     const glm::mat4& getProjectionMatrix() const;
@@ -31,7 +38,7 @@ class Screen {
     Color getPixelColor(Pixels x, Pixels y) const;
     void setPixelColor(Pixels x, Pixels y, Color color, Depth z);
 
-    float getPixelDepth(Pixels x, Pixels y) const;
+    Depth getPixelDepth(Pixels x, Pixels y) const;
     void clear();
 
     Pixels getWidth() const;

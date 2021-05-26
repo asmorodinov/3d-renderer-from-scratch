@@ -7,10 +7,7 @@ namespace eng {
 
 class Pool {
  public:
-    static Pool& get() {
-        static Pool me;
-        return me;
-    }
+    static Pool& get();
 
     Pool(Pool const&) = delete;
     void operator=(Pool const&) = delete;

@@ -2,7 +2,14 @@
 
 namespace eng {
 
-TextureRef Assets::getTexture() { return std::cref(Assets::get().texture); }
+Assets& Assets::get() {
+    static Assets me;
+    return me;
+}
+
+TextureRef Assets::getTexture() {
+    return std::cref(Assets::get().texture);
+}
 
 TextureRef Assets::getTexture(std::string filename) {
     auto& textures = Assets::get().textures_;
@@ -14,7 +21,9 @@ TextureRef Assets::getTexture(std::string filename) {
     return std::cref(textures[filename]);
 }
 
-CubemapTextureRef Assets::getCubemapTexture() { return std::cref(Assets::get().cubemapTexture); }
+CubemapTextureRef Assets::getCubemapTexture() {
+    return std::cref(Assets::get().cubemapTexture);
+}
 
 CubemapTextureRef Assets::getCubemapTexture(std::string filename, bool df, const std::string& f) {
     auto& cubemapTextures = Assets::get().cubemapTextures_;

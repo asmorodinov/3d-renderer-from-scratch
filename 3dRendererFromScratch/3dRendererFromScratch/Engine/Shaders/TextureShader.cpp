@@ -2,11 +2,13 @@
 
 namespace eng {
 
+glm::vec4 TextureShader::computePixelColor(const Var& var, const LightsVec& lights) {
+    return uniform.get().sample(var.t);
+}
+
 void TextureVertexShader::setMVP(glm::mat4 model_, glm::mat4 view_, glm::mat4 projection_, glm::vec3 viewPos_) {
     bvs.setMVP(model_, view_, projection_, viewPos_);
 }
-
-glm::vec4 TextureShader::computePixelColor(const Var& var, const LightsVec& lights) { return uniform.get().sample(var.t); }
 
 TextureVertexShader::Output TextureVertexShader::run(const WorldSpaceTriangle& tr) {
     auto bvso = bvs.run(tr);

@@ -17,8 +17,9 @@ namespace eng {
 class Renderer {
  public:
     using Color = Screen::Color;
+    using Pixels = Screen::Pixels;
 
-    Renderer(size_t width, size_t height);
+    Renderer(Pixels width, Pixels height);
 
     Screen& getScreen();
 

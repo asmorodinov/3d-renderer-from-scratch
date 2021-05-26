@@ -24,10 +24,7 @@ using MeshDataRef = std::reference_wrapper<const MeshData>;
 
 class Assets {
  public:
-    static Assets& get() {
-        static Assets me;
-        return me;
-    }
+    static Assets& get();
 
     Assets(Assets const&) = delete;
     void operator=(Assets const&) = delete;
@@ -40,10 +37,10 @@ class Assets {
 
     static MeshDataRef getMeshData(std::string filename, float scale = 1.0f, bool in = false, bool ov = false);
 
+ private:
     Texture texture = Texture();
     CubemapTexture cubemapTexture = CubemapTexture();
 
- private:
     std::pmr::map<std::string, Texture> textures_{Pool::getPool()};
     std::pmr::map<std::string, CubemapTexture> cubemapTextures_{Pool::getPool()};
     std::pmr::map<std::string, MeshData> meshDatas_{Pool::getPool()};

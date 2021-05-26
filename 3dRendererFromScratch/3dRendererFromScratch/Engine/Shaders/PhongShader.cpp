@@ -2,10 +2,6 @@
 
 namespace eng {
 
-void PhongVertexShader::setMVP(glm::mat4 model_, glm::mat4 view_, glm::mat4 projection_, glm::vec3 viewPos_) {
-    bvs.setMVP(model_, view_, projection_, viewPos_);
-}
-
 glm::vec4 PhongShader::computePixelColor(const Var& var, const LightsVec& lights) {
     auto FragPos = var.t1;
     auto uv = var.t2;
@@ -38,7 +34,8 @@ glm::vec4 PhongShader::computePixelColor(const Var& var, const LightsVec& lights
         glm::vec3 specular = light.color * spec * light.specularCoefficient;
 
         float d = length(lightPos - FragPos);
-        float attenuation = 1.0f / (1.0f + d * light.linearAttenuationCoefficient + std::pow(d, 2.0f) * light.quadraticAttenuationCoefficient + std::pow(d, 3.0f) * light.cubicAttenuationCoefficient);
+        float attenuation = 1.0f / (1.0f + d * light.linearAttenuationCoefficient + std::pow(d, 2.0f) * light.quadraticAttenuationCoefficient +
+                                    std::pow(d, 3.0f) * light.cubicAttenuationCoefficient);
         diffuse *= attenuation / 1.7;
         specular *= attenuation / 1.7;
         lighting += 0.3f * light.intensity * glm::vec3(1.0f) * (diffuse + specular);
@@ -47,6 +44,10 @@ glm::vec4 PhongShader::computePixelColor(const Var& var, const LightsVec& lights
     lighting = glm::pow(lighting, glm::vec3(1.0f / 2.2f));
 
     return glm::vec4(lighting, 1.0f);
+}
+
+void PhongVertexShader::setMVP(glm::mat4 model_, glm::mat4 view_, glm::mat4 projection_, glm::vec3 viewPos_) {
+    bvs.setMVP(model_, view_, projection_, viewPos_);
 }
 
 PhongVertexShader::Output PhongVertexShader::run(const WorldSpaceTriangle& tr) {

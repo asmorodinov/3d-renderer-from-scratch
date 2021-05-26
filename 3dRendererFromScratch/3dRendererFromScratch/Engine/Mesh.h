@@ -28,17 +28,18 @@ class Mesh {
  public:
     using MeshDataRef = std::reference_wrapper<const MeshData>;
 
-    Mesh(MeshDataRef mesh_, const VertexShaderUniform& vu_, const FragmentShaderUniform& fu_, const ObjectTransform& t_, bool wf = false, bool write = true,
-         glm::vec3 wfc = glm::vec3(1.0f))
-        : mesh_(mesh_),
-          vertexShaderUniform_(vu_),
-          fragmentShaderUniform_(fu_),
-          objectTransform_(t_),
+    Mesh(MeshDataRef mesh, const VertexShaderUniform& vertexShaderUniform, const FragmentShaderUniform& fragmentShaderUniform,
+         const ObjectTransform& objectTransform, bool wireframeMode = false, bool writeToDepthBuffer = true, glm::vec3 wireframeColor = glm::vec3(1.0f))
+        : mesh_(mesh),
+          vertexShaderUniform_(vertexShaderUniform),
+          fragmentShaderUniform_(fragmentShaderUniform),
+          objectTransform_(objectTransform),
           vertexShader_(),
           fragmentShader_(),
-          wireframeMode_(wf),
-          writeToDepthBuffer_(write),
-          wireframeColor_(wfc) {}
+          wireframeMode_(wireframeMode),
+          writeToDepthBuffer_(writeToDepthBuffer),
+          wireframeColor_(wireframeColor) {
+    }
 
     void draw(const Camera& camera, Screen& screen, const LightsVec& lights) {
         if (!drawingEnabled_) return;
@@ -53,47 +54,67 @@ class Mesh {
 
         vertexShader_.setMVP(model, view, projection, viewPos);
 
-        const auto& m = mesh_.get();
+        const auto& mesh = mesh_.get();
 
-        for (const auto& face : m.faces) {
-            VertexShaderOutput out =
-                vertexShader_.run({m.vertices[face.i], m.vertices[face.j], m.vertices[face.k], m.textureCoords[face.ti], m.textureCoords[face.tj],
-                                   m.textureCoords[face.tk], m.normals[face.ni], m.normals[face.nj], m.normals[face.nk]});
-            auto tr = out.triangle;
+        for (const auto& face : mesh.faces) {
+            VertexShaderOutput out = vertexShader_.run({mesh.vertices[face.i], mesh.vertices[face.j], mesh.vertices[face.k], mesh.textureCoords[face.ti],
+                                                        mesh.textureCoords[face.tj], mesh.textureCoords[face.tk], mesh.normals[face.ni], mesh.normals[face.nj],
+                                                        mesh.normals[face.nk]});
+            auto triangle = out.triangle;
             fragmentShader_.vso = out.uniformOutput;
 
             if (wireframeMode_) {
-                drawWireframeTriangle({tr.p0, tr.p1, tr.p2, {}, {}, {}}, projection, wireframeColor_, screen);
+                drawWireframeTriangle({triangle.p0, triangle.p1, triangle.p2, {}, {}, {}}, projection, wireframeColor_, screen);
             } else {
                 if (!writeToDepthBuffer_) screen.setWriteToDepthBuffer(false);
 
-                drawTriangle(tr, projection, fragmentShader_, screen, lights);
+                drawTriangle(triangle, projection, fragmentShader_, screen, lights);
 
                 if (!writeToDepthBuffer_) screen.setWriteToDepthBuffer(true);
             }
         }
     }
 
-    void setVertexShaderUniform(const VertexShaderUniform& vu_) { vertexShaderUniform_ = vu_; }
-    const VertexShaderUniform& getVertexShaderUniform() const { return vertexShaderUniform_; }
-    VertexShaderUniform& getVertexShaderUniform() { return vertexShaderUniform_; }
-
-    void setFragmentShaderUniform(const FragmentShaderUniform& fu_) { fragmentShaderUniform_ = fu_; }
-    const FragmentShaderUniform& getFragmentShaderUniform() const { return fragmentShaderUniform_; }
-    FragmentShaderUniform& getFragmentShaderUniform() { return fragmentShaderUniform_; }
-
-    void setTransform(const ObjectTransform& t_) { objectTransform_ = t_; }
-    const ObjectTransform& getTransform() const { return objectTransform_; }
-    ObjectTransform& getTransform() { return objectTransform_; }
-
-    void setDrawingMode(bool wf = false, bool en = true, bool write = true, glm::vec3 wfc = glm::vec3(1.0f)) {
-        wireframeMode_ = wf;
-        drawingEnabled_ = en;
-        writeToDepthBuffer_ = write;
-        wireframeColor_ = wfc;
+    void setVertexShaderUniform(const VertexShaderUniform& vertexShaderUniform) {
+        vertexShaderUniform_ = vertexShaderUniform;
+    }
+    const VertexShaderUniform& getVertexShaderUniform() const {
+        return vertexShaderUniform_;
+    }
+    VertexShaderUniform& getVertexShaderUniform() {
+        return vertexShaderUniform_;
     }
 
-    size_t getTriangleCount() const { return mesh_.get().faces.size(); }
+    void setFragmentShaderUniform(const FragmentShaderUniform& fragmentShaderUniform) {
+        fragmentShaderUniform_ = fragmentShaderUniform;
+    }
+    const FragmentShaderUniform& getFragmentShaderUniform() const {
+        return fragmentShaderUniform_;
+    }
+    FragmentShaderUniform& getFragmentShaderUniform() {
+        return fragmentShaderUniform_;
+    }
+
+    void setTransform(const ObjectTransform& objectTransform) {
+        objectTransform_ = objectTransform;
+    }
+    const ObjectTransform& getTransform() const {
+        return objectTransform_;
+    }
+    ObjectTransform& getTransform() {
+        return objectTransform_;
+    }
+
+    void setDrawingMode(bool wireframeMode = false, bool drawingEnabled = true, bool writeToDepthBuffer = true, glm::vec3 wireframeColor = glm::vec3(1.0f)) {
+        wireframeMode_ = wireframeMode;
+        drawingEnabled_ = drawingEnabled;
+        writeToDepthBuffer_ = writeToDepthBuffer;
+        wireframeColor_ = wireframeColor;
+    }
+
+    size_t getTriangleCount() const {
+        return mesh_.get().faces.size();
+    }
 
  private:
     MeshDataRef mesh_;

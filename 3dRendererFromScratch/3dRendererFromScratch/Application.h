@@ -28,8 +28,11 @@ class Application {
 
  private:
     void processEvents();
-    void mouseMove(glm::vec2 newPosition);
-    void keyPressedOrReleased(sf::Keyboard::Key key, bool mode);
+
+    void onClose();
+    void onMouseEnter();
+    void onMouseMove(glm::vec2 newPosition);
+    void onKeyPressOrRelease(sf::Keyboard::Key key, bool mode);
 
     void update(Seconds dt);
 
@@ -40,5 +43,5 @@ class Application {
     eng::Scene scene_;
 
     eng::CameraControl cameraControl_;
-    glm::vec2 mouseCoords_ = {-1.0f, -1.0f};
+    glm::vec2 mouseCoordinates_ = {-1.0f, -1.0f};
 };

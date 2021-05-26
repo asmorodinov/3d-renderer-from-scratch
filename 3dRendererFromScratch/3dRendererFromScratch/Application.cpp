@@ -4,31 +4,7 @@ Application::Application()
     : mainAppWindow_(sf::VideoMode(defaultWidth_, defaultHeight_), mainWindowMsg_),
       userInterface_(mainAppWindow_),
       renderer_(defaultWidth_, defaultHeight_, mainAppWindow_),
-      scene_(eng::makeScene1()) {}
-
-void Application::processEvents() {
-    sf::Event event;
-    while (mainAppWindow_.pollEvent(event)) {
-        if (event.type == sf::Event::Closed) {
-            mainAppWindow_.close();
-        } else if (event.type == sf::Event::KeyPressed) {
-            if (event.key.code == sf::Keyboard::Escape) mainAppWindow_.close();
-
-            keyPressedOrReleased(event.key.code, true);
-        } else if (event.type == sf::Event::KeyReleased) {
-            keyPressedOrReleased(event.key.code, false);
-        } else if (event.type == sf::Event::MouseMoved) {
-            mouseMove({event.mouseMove.x, event.mouseMove.y});
-            int x = defaultWidth_ / 2;
-            int y = defaultHeight_ / 2;
-            sf::Mouse::setPosition(sf::Vector2i(x, y), mainAppWindow_);
-            mouseMove({-1.0f, -1.0f});
-            mouseMove({x, y});
-
-        } else if (event.type == sf::Event::MouseEntered) {
-            mouseMove({-1.0f, -1.0f});
-        }
-    }
+      scene_(eng::makeScene1()) {
 }
 
 void Application::run() {
@@ -49,14 +25,57 @@ void Application::run() {
     }
 }
 
-void Application::mouseMove(glm::vec2 newPosition) {
-    if (mouseCoords_.x >= 0.0f && mouseCoords_.y >= 0.0f && newPosition.x >= 0.0f && newPosition.y >= 0.0f) {
-        cameraControl_.mouseMove(newPosition - mouseCoords_);
+void Application::processEvents() {
+    sf::Event event;
+    while (mainAppWindow_.pollEvent(event)) {
+        switch (event.type) {
+            case sf::Event::Closed:
+                onClose();
+                break;
+            case sf::Event::KeyPressed:
+                onKeyPressOrRelease(event.key.code, true);
+                break;
+            case sf::Event::KeyReleased:
+                onKeyPressOrRelease(event.key.code, false);
+                break;
+            case sf::Event::MouseMoved:
+                onMouseMove({event.mouseMove.x, event.mouseMove.y});
+                break;
+            case sf::Event::MouseEntered:
+                onMouseEnter();
+                break;
+            default:
+                break;
+        }
     }
-    mouseCoords_ = newPosition;
 }
 
-void Application::keyPressedOrReleased(sf::Keyboard::Key key, bool mode) { cameraControl_.keyPressedOrReleased(key, mode); }
+void Application::onClose() {
+    mainAppWindow_.close();
+}
+
+void Application::onMouseEnter() {
+    mouseCoordinates_ = glm::vec2(-1.0f, -1.0f);
+}
+
+void Application::onMouseMove(glm::vec2 newPosition) {
+    if (mouseCoordinates_.x >= 0.0f && mouseCoordinates_.y >= 0.0f) {
+        cameraControl_.mouseMove(newPosition - mouseCoordinates_);
+    }
+
+    Pixels x = defaultWidth_ / 2;
+    Pixels y = defaultHeight_ / 2;
+
+    sf::Mouse::setPosition(sf::Vector2i(x, y), mainAppWindow_);
+
+    mouseCoordinates_ = glm::vec2(x, y);
+}
+
+void Application::onKeyPressOrRelease(sf::Keyboard::Key key, bool mode) {
+    if (mode && key == sf::Keyboard::Escape) mainAppWindow_.close();
+
+    cameraControl_.keyPressedOrReleased(key, mode);
+}
 
 void Application::update(Seconds dt) {
     cameraControl_.update(dt);

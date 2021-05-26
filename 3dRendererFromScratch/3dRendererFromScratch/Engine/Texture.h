@@ -14,6 +14,9 @@
 
 namespace eng {
 
+// If you want, you can find definition of the verb "sample" here: https://learnopengl.com/Getting-started/Textures
+// (it's a commonly used 3d graphics term)
+
 struct Texture {
     using Pixels = Screen::Pixels;
     using Color = Screen::Color;
@@ -33,7 +36,7 @@ struct CubemapTexture {
     CubemapTexture();
     CubemapTexture(const std::string& folder, bool defaultFormat = true, const std::string& imageFormat = ".jpg");
 
-    glm::vec4 sample(glm::vec3 v) const;
+    glm::vec4 sample(glm::vec3 direction) const;
 
     FacesTextures textures;
 };

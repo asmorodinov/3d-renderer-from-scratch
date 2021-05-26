@@ -20,9 +20,9 @@ void drawLine(glm::vec3 pos1, glm::vec3 pos2, Screen::Color color, Screen& scree
     int sy = y0 < y1 ? 1 : -1;
     int err = dx + dy; /* error value e_xy */
     while (true) {     /* loop */
-        float t = (x0 == x1 && y0 == y1) ? 0.0f
-                                         : std::sqrt(static_cast<float>(std::pow(x - x0, 2) + std::pow(y - y0, 2)) /
-                                                     (std::pow(x1 - x0, 2) + std::pow(y1 - y0, 2)));
+        float t = (x0 == x1 && y0 == y1)
+                      ? 0.0f
+                      : std::sqrt(static_cast<float>(std::pow(x - x0, 2) + std::pow(y - y0, 2)) / (std::pow(x1 - x0, 2) + std::pow(y1 - y0, 2)));
         float z = t * p2.z + (1 - t) * p1.z;
 
         if (z >= -1.0f && z <= 1.0f && x >= 0 && y >= 0 && x < screen.getWidth() && y < screen.getHeight()) {

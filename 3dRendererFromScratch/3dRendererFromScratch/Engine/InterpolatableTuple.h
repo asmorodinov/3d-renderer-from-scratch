@@ -8,15 +8,26 @@ namespace eng {
 
 struct EmptyStruct {};
 struct NoVariables {
-    void operator*=(float t) {}
-    NoVariables operator*(float t) const { return {}; }
-    NoVariables operator+(const NoVariables& oth) const { return {}; }
+    void operator*=(float t) {
+    }
+    NoVariables operator*(float t) const {
+        return {};
+    }
+    NoVariables operator+(const NoVariables& oth) const {
+        return {};
+    }
 };
 template <typename T>
 struct OneVariable {
-    void operator*=(float t_) { t *= t_; }
-    OneVariable operator*(float t_) const { return {t * t_}; }
-    OneVariable operator+(const OneVariable& oth) const { return {t + oth.t}; }
+    void operator*=(float t_) {
+        t *= t_;
+    }
+    OneVariable operator*(float t_) const {
+        return {t * t_};
+    }
+    OneVariable operator+(const OneVariable& oth) const {
+        return {t + oth.t};
+    }
 
     T t;
 };
@@ -26,8 +37,12 @@ struct TwoVariables {
         t1 *= t;
         t2 *= t;
     }
-    TwoVariables operator*(float t) const { return {t1 * t, t2 * t}; }
-    TwoVariables operator+(const TwoVariables& oth) const { return {t1 + oth.t1, t2 + oth.t2}; }
+    TwoVariables operator*(float t) const {
+        return {t1 * t, t2 * t};
+    }
+    TwoVariables operator+(const TwoVariables& oth) const {
+        return {t1 + oth.t1, t2 + oth.t2};
+    }
     T1 t1;
     T2 t2;
 };

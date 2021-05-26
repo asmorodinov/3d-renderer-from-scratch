@@ -2,7 +2,8 @@
 
 namespace eng {
 
-CameraControl::CameraControl(glm::vec3 position, glm::vec3 direction) : position_(position), direction_(direction), keys_() {}
+CameraControl::CameraControl(glm::vec3 position, glm::vec3 direction) : position_(position), direction_(direction), keys_() {
+}
 
 void CameraControl::mouseMove(glm::vec2 delta) {
     constexpr static float sensitivity = 0.2f;
@@ -19,6 +20,7 @@ void CameraControl::mouseMove(glm::vec2 delta) {
     direction_.z = std::sin(yaw_) * std::cos(pitch_);
     direction_ = glm::normalize(direction_);
 }
+
 void CameraControl::keyPressedOrReleased(sf::Keyboard::Key key, bool mode) {
     switch (key) {
         case sf::Keyboard::A:
@@ -43,7 +45,8 @@ void CameraControl::keyPressedOrReleased(sf::Keyboard::Key key, bool mode) {
             break;
     }
 }
-void CameraControl::update(float dt) {
+
+void CameraControl::update(Seconds deltaTime) {
     float speed = 1.0f;
 
     glm::vec3 front = glm::normalize(glm::vec3(direction_.x, 0, direction_.z));
@@ -61,13 +64,23 @@ void CameraControl::update(float dt) {
 
     if (movement != glm::vec3(0.0f)) movement = glm::normalize(movement);
 
-    position_ += speed * dt * movement;
+    position_ += speed * deltaTime * movement;
 }
 
-void CameraControl::setPosition(glm::vec3 pos) { position_ = pos; }
-glm::vec3 CameraControl::getPosition() const { return position_; }
+glm::vec3 CameraControl::getPosition() const {
+    return position_;
+}
 
-void CameraControl::setDirection(glm::vec3 dir) { direction_ = dir; }
-glm::vec3 CameraControl::getDirection() const { return direction_; }
+glm::vec3 CameraControl::getDirection() const {
+    return direction_;
+}
+
+void CameraControl::setPosition(glm::vec3 position) {
+    position_ = position;
+}
+
+void CameraControl::setDirection(glm::vec3 direction) {
+    direction_ = direction;
+}
 
 }  // namespace eng

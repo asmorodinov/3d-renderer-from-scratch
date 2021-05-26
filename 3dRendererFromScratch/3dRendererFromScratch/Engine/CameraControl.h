@@ -10,16 +10,26 @@
 
 namespace eng {
 
-enum struct MovementDirection { Forward, Backward, Left, Right, Up, Down };
+namespace cameraControlDefaults {
+
+static const glm::vec3 position = glm::vec3(0.0f, 0.0f, 6.0f);
+static const glm::vec3 direction = glm::vec3(0.0f, 0.0f, -1.0f);
+
+}  // namespace cameraControlDefaults
 
 class CameraControl {
+ private:
+    enum struct MovementDirection { Forward, Backward, Left, Right, Up, Down };
+
  public:
-    CameraControl(glm::vec3 position = glm::vec3(0.0f, 0.0f, 6.0f), glm::vec3 direction = glm::vec3(0, 0, -1));
+    using Seconds = float;
+
+    CameraControl(glm::vec3 position = cameraControlDefaults::position, glm::vec3 direction = cameraControlDefaults::direction);
 
     void mouseMove(glm::vec2 delta);
     void keyPressedOrReleased(sf::Keyboard::Key key, bool mode);
 
-    void update(float dt);
+    void update(Seconds deltaTime);
 
     glm::vec3 getPosition() const;
     glm::vec3 getDirection() const;

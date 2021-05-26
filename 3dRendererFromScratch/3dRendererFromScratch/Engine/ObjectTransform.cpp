@@ -2,7 +2,9 @@
 
 namespace eng {
 
-ObjectTransform::ObjectTransform(glm::vec3 pos) : position_(pos) {}
+ObjectTransform::ObjectTransform(glm::vec3 position) : position_(position) {
+}
+
 glm::mat4 ObjectTransform::getModel() {
     if (modelInvalid_) {
         glm::mat4 model = glm::mat4(1.0f);
@@ -19,20 +21,30 @@ glm::mat4 ObjectTransform::getModel() {
     return model_;
 }
 
-glm::vec3 ObjectTransform::getPosition() const { return position_; }
-glm::quat ObjectTransform::getOrientation() const { return orientation_; }
-glm::vec3 ObjectTransform::getScale() const { return scale_; }
+glm::vec3 ObjectTransform::getPosition() const {
+    return position_;
+}
 
-void ObjectTransform::setPosition(const glm::vec3 pos) {
-    position_ = pos;
+glm::quat ObjectTransform::getOrientation() const {
+    return orientation_;
+}
+
+glm::vec3 ObjectTransform::getScale() const {
+    return scale_;
+}
+
+void ObjectTransform::setPosition(const glm::vec3 position) {
+    position_ = position;
     modelInvalid_ = true;
 }
-void ObjectTransform::setOrientation(const glm::quat orient) {
-    orientation_ = orient;
+
+void ObjectTransform::setOrientation(const glm::quat orientation) {
+    orientation_ = orientation;
     modelInvalid_ = true;
 }
-void ObjectTransform::setScale(const glm::vec3 sc) {
-    scale_ = sc;
+
+void ObjectTransform::setScale(const glm::vec3 scale) {
+    scale_ = scale;
     modelInvalid_ = true;
 }
 

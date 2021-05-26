@@ -11,6 +11,9 @@
 
 namespace eng {
 
+// stores transformation of 3d object: translation, scaling and orientation (rotation)
+// https://www.tutorialspoint.com/computer_graphics/3d_transformation.htm
+
 class ObjectTransform {
  public:
     ObjectTransform() = default;
@@ -22,9 +25,9 @@ class ObjectTransform {
     glm::quat getOrientation() const;
     glm::vec3 getScale() const;
 
-    void setPosition(const glm::vec3 pos);
-    void setOrientation(const glm::quat orient);
-    void setScale(const glm::vec3 sc);
+    void setPosition(const glm::vec3 position);
+    void setOrientation(const glm::quat orientation);
+    void setScale(const glm::vec3 scale);
 
  private:
     glm::vec3 position_ = glm::vec3(0.0f);

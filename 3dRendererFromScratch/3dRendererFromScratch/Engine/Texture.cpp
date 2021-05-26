@@ -2,7 +2,8 @@
 
 namespace eng {
 
-Texture::Texture() : textureWidth(0), textureHeight(0) {}
+Texture::Texture() : textureWidth(0), textureHeight(0) {
+}
 
 Texture::Texture(const std::string& file) {
     int x = 0, y = 0, n = 0;
@@ -33,7 +34,8 @@ glm::vec4 Texture::sample(glm::vec2 uv) const {
     return glm::vec4(colorBuffer.get(xc, textureHeight - 1 - yc), 1.0f);
 }
 
-CubemapTexture::CubemapTexture() {}
+CubemapTexture::CubemapTexture() {
+}
 
 CubemapTexture::CubemapTexture(const std::string& folder, bool defaultFormat, const std::string& f) {
     if (defaultFormat) {
@@ -53,18 +55,18 @@ CubemapTexture::CubemapTexture(const std::string& folder, bool defaultFormat, co
     }
 }
 
-glm::vec4 CubemapTexture::sample(glm::vec3 vec) const {
-    vec = glm::normalize(vec);
+glm::vec4 CubemapTexture::sample(glm::vec3 direction) const {
+    direction = glm::normalize(direction);
     if (textures[0].textureWidth == 0) {
-        return glm::vec4(0.5f * (vec + 1.0f), 1.0f);
+        return glm::vec4(0.5f * (direction + 1.0f), 1.0f);
     } else {
         int index = 0;
         float u = 0.0f;
         float v = 0.0f;
 
-        float x = vec.x;
-        float y = vec.y;
-        float z = vec.z;
+        float x = direction.x;
+        float y = direction.y;
+        float z = direction.z;
 
         float absX = std::abs(x);
         float absY = std::abs(y);

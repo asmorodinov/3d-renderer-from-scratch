@@ -23,8 +23,8 @@ UserInterface::UserInterface(sf::RenderWindow& window_) : mainAppWindow_(window_
     text3_.setOrigin({0.0f, 0.0f});
 }
 
-void UserInterface::updateAndDraw(Seconds dt, size_t trianglesCount) {
-    currentTime_ += dt;
+void UserInterface::updateAndDraw(Seconds deltaTime, size_t trianglesCount) {
+    currentTime_ += deltaTime;
     ++frames_;
 
     if (currentTime_ - lastTime_ >= 1.5f) {
