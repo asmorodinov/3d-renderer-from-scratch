@@ -15,7 +15,7 @@ size_t SFMLRenderer::render(eng::Scene& scene) {
     Pixels width = screen.getWidth();
     Pixels height = screen.getHeight();
 
-    std::vector<sf::Uint8> pixels(width * height * 4, 0);
+    static std::vector<sf::Uint8> pixels(width * height * 4, 0);
 
     for (Pixels x = 0; x < width; ++x) {
         for (Pixels y = 0; y < height; ++y) {

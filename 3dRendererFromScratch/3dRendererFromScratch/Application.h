@@ -9,6 +9,7 @@
 
 #include "Engine/CameraControl.h"
 #include "Engine/SampleScenes.h"
+#include "Engine/MeshIO.h"
 #include "UI.h"
 #include "SFMLRenderer.h"
 
@@ -44,4 +45,6 @@ class Application {
 
     eng::CameraControl cameraControl_;
     glm::vec2 mouseCoordinates_ = {-1.0f, -1.0f};
+
+    bool pause = false;
 };

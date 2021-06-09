@@ -18,8 +18,9 @@ class ObjectTransform {
  public:
     ObjectTransform() = default;
     ObjectTransform(glm::vec3 pos);
+    ObjectTransform(glm::vec3 pos, glm::vec3 scale);
 
-    glm::mat4 getModel();
+    const glm::mat4& getModel();
 
     glm::vec3 getPosition() const;
     glm::quat getOrientation() const;

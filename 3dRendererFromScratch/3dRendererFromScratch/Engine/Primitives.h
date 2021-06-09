@@ -79,9 +79,9 @@ std::vector<Triangle<Var>> clipTriangleAgainstPlane(const Triangle<Var>& t, glm:
         int i2 = 1;
         if (oneInsideInvert) std::swap(i1, i2);
 
-        glm::vec4 p0 = out.p0;
-        glm::vec4 p1 = outsidePoints[i1].first;
-        glm::vec4 p2 = outsidePoints[i2].first;
+        const auto& p0 = out.p0;
+        const auto& p1 = outsidePoints[i1].first;
+        const auto& p2 = outsidePoints[i2].first;
 
         float t = segmentPlaneIntersect(point, normal, p0, p1);
 
@@ -95,7 +95,7 @@ std::vector<Triangle<Var>> clipTriangleAgainstPlane(const Triangle<Var>& t, glm:
 
         return {out};
     }
-    // need to clip, this will result in quadraticAttenuationCoefficient (2 triangles)
+    // need to clip, this will result in a quad (2 triangles)
     if (ip == 2) {
         Triangle<Var> out1, out2;
 
@@ -103,9 +103,9 @@ std::vector<Triangle<Var>> clipTriangleAgainstPlane(const Triangle<Var>& t, glm:
         int i2 = 1;
         if (oneOutsideInvert) std::swap(i1, i2);
 
-        glm::vec4 p0 = insidePoints[i1].first;
-        glm::vec4 p1 = insidePoints[i2].first;
-        glm::vec4 p2 = outsidePoints[0].first;
+        const auto& p0 = insidePoints[i1].first;
+        const auto& p1 = insidePoints[i2].first;
+        const auto& p2 = outsidePoints[0].first;
 
         out1.p0 = p0;
         out1.v0 = insidePoints[i1].second;
@@ -208,9 +208,9 @@ void rasterizeTriangle(const Triangle<Var>& t, Shader& shader, Screen& screen, c
 
     auto insideTriangle = [&](int x, int y) { return e01(x, y) >= 0 && e12(x, y) >= 0 && e20(x, y) >= 0; };
 
-    Var t0 = t.v0;
-    Var t1 = t.v1;
-    Var t2 = t.v2;
+    const auto& t0 = t.v0;
+    const auto& t1 = t.v1;
+    const auto& t2 = t.v2;
 
     int xMin = std::max(0, minx);
     int xMax = std::min(static_cast<int>(screen.getWidth()) - 1, maxx);

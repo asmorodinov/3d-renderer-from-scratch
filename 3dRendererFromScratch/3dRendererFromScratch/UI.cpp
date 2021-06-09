@@ -8,7 +8,7 @@ UserInterface::UserInterface(sf::RenderWindow& window_) : mainAppWindow_(window_
         exit(1);
     }
 
-    mainAppWindow_.get().setMouseCursorVisible(false);
+    ImGui::SFML::Init(mainAppWindow_);
 
     text_.setFont(font_);
     text_.setCharacterSize(18);
@@ -40,4 +40,18 @@ void UserInterface::updateAndDraw(Seconds deltaTime, size_t trianglesCount) {
     mainAppWindow_.get().draw(text_);
     mainAppWindow_.get().draw(text2_);
     mainAppWindow_.get().draw(text3_);
+
+    ImGui::SFML::Update(mainAppWindow_, sf::seconds(deltaTime));
+
+    if (pause) {
+        ImGui::ShowDemoWindow();
+    } else {
+        ImGui::SetMouseCursor(ImGuiMouseCursor_None);
+    }
+
+    ImGui::SFML::Render(mainAppWindow_);
+}
+
+void UserInterface::togglePause() {
+    pause = !pause;
 }

@@ -48,7 +48,8 @@ Scene eng::makeScene1() {
 
         auto lightObj = light;
         lightObj.getTransform().setPosition(pos);
-        lightObj.setDrawingMode(true, true, true, color);
+        lightObj.setDrawingMode(false, true, true, color);
+        lightObj.setFragmentShaderUniform(color);
 
         scene.addObject(std::move(lightObj));
     }

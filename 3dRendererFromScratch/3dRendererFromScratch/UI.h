@@ -7,6 +7,9 @@
 #include <chrono>
 #include <cstddef>
 
+#include <imgui.h>
+#include <imgui-SFML.h>
+
 #include "Engine/Assets.h"
 #include "Engine/Renderer.h"
 #include "Engine/SampleScenes.h"
@@ -20,6 +23,8 @@ class UserInterface {
     UserInterface(sf::RenderWindow& window_);
 
     void updateAndDraw(Seconds deltaTime, size_t trianglesCount = 0);
+
+    void togglePause();
 
  private:
     std::reference_wrapper<sf::RenderWindow> mainAppWindow_;
@@ -35,4 +40,6 @@ class UserInterface {
     sf::Text text_;
     sf::Text text2_;
     sf::Text text3_;
+
+    bool pause = false;
 };

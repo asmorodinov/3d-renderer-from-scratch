@@ -15,10 +15,10 @@ class Camera {
  public:
     Camera(glm::vec3 position = cameraDefaults::position, glm::vec3 direction = cameraDefaults::direction);
 
-    glm::mat4 getViewMatrix() const;
+    const glm::mat4& getViewMatrix() const;
 
-    glm::vec3 getPosition() const;
-    glm::vec3 getDirection() const;
+    const glm::vec3& getPosition() const;
+    const glm::vec3& getDirection() const;
 
     void setPosition(glm::vec3 position);
     void setDirection(glm::vec3 direction);
@@ -26,6 +26,7 @@ class Camera {
  private:
     glm::vec3 position_;
     glm::vec3 direction_;
+    glm::mat4 viewMatrix_;
 };
 
 }  // namespace eng

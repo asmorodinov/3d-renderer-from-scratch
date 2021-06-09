@@ -1,0 +1,29 @@
+{
+	meshScale 0.1
+	flatColor 1 1 1
+	wireframeMode 1
+}
+	
+{
+	meshScale 0.1
+	transformPosition 1 0 0
+	flatColor 1 0 0
+}
+
+{
+	meshScale 0.1
+	transformPosition -1 0 0
+	flatColor 0.2 0 0
+}
+
+{
+	meshScale 0.1
+	transformPosition 0 0 1
+	flatColor 0 0 1
+}
+
+{
+	meshScale 0.1
+	transformPosition 0 0 -1
+	flatColor 0 0 0.2
+}

@@ -23,10 +23,13 @@
 
 namespace eng {
 
-template <typename VertexShaderUniform, typename FragmentShaderUniform, typename VertexShaderOutput, typename VertexShader, typename FragmentShader>
+template <typename VertexShader, typename FragmentShader>
 class Mesh {
  public:
     using MeshDataRef = std::reference_wrapper<const MeshData>;
+    using VertexShaderUniform = typename VertexShader::Uniform;
+    using FragmentShaderUniform = typename FragmentShader::Uniform;
+    using VertexShaderOutput = typename VertexShader::Output;
 
     Mesh(MeshDataRef mesh, const VertexShaderUniform& vertexShaderUniform, const FragmentShaderUniform& fragmentShaderUniform,
          const ObjectTransform& objectTransform, bool wireframeMode = false, bool writeToDepthBuffer = true, glm::vec3 wireframeColor = glm::vec3(1.0f))
@@ -44,10 +47,10 @@ class Mesh {
     void draw(const Camera& camera, Screen& screen, const LightsVec& lights) {
         if (!drawingEnabled_) return;
 
-        glm::mat4 model = objectTransform_.getModel();
-        glm::mat4 view = camera.getViewMatrix();
-        glm::mat4 projection = screen.getProjectionMatrix();
-        glm::vec3 viewPos = camera.getPosition();
+        const auto& model = objectTransform_.getModel();
+        const auto& view = camera.getViewMatrix();
+        const auto& projection = screen.getProjectionMatrix();
+        const auto& viewPos = camera.getPosition();
 
         vertexShader_.uniform = vertexShaderUniform_;
         fragmentShader_.uniform = fragmentShaderUniform_;
@@ -60,7 +63,7 @@ class Mesh {
             VertexShaderOutput out = vertexShader_.run({mesh.vertices[face.i], mesh.vertices[face.j], mesh.vertices[face.k], mesh.textureCoords[face.ti],
                                                         mesh.textureCoords[face.tj], mesh.textureCoords[face.tk], mesh.normals[face.ni], mesh.normals[face.nj],
                                                         mesh.normals[face.nk]});
-            auto triangle = out.triangle;
+            const auto& triangle = out.triangle;
             fragmentShader_.vso = out.uniformOutput;
 
             if (wireframeMode_) {

@@ -104,7 +104,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>SFML_STATIC;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)ThirdPartyLibraries\glm;$(SolutionDir)ThirdPartyLibraries\stb_image;$(SolutionDir)ThirdPartyLibraries\sfml\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)ThirdPartyLibraries\imgui-sfml-master;$(SolutionDir)ThirdPartyLibraries\imgui-master;$(SolutionDir)ThirdPartyLibraries\glm;$(SolutionDir)ThirdPartyLibraries\stb_image;$(SolutionDir)ThirdPartyLibraries\sfml\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
@@ -144,7 +144,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>SFML_STATIC;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)ThirdPartyLibraries\glm;$(SolutionDir)ThirdPartyLibraries\stb_image;$(SolutionDir)ThirdPartyLibraries\sfml\include;$(SolutionDir)ThirdPartyLibraries\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)ThirdPartyLibraries\imgui-sfml-master;$(SolutionDir)ThirdPartyLibraries\imgui-master;$(SolutionDir)ThirdPartyLibraries\glm;$(SolutionDir)ThirdPartyLibraries\stb_image;$(SolutionDir)ThirdPartyLibraries\sfml\include;$(SolutionDir)ThirdPartyLibraries\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <OpenMPSupport>false</OpenMPSupport>
@@ -164,6 +164,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\ThirdPartyLibraries\imgui-master\imgui.cpp" />
+    <ClCompile Include="..\ThirdPartyLibraries\imgui-master\imgui_demo.cpp" />
+    <ClCompile Include="..\ThirdPartyLibraries\imgui-master\imgui_draw.cpp" />
+    <ClCompile Include="..\ThirdPartyLibraries\imgui-master\imgui_tables.cpp" />
+    <ClCompile Include="..\ThirdPartyLibraries\imgui-master\imgui_widgets.cpp" />
+    <ClCompile Include="..\ThirdPartyLibraries\imgui-sfml-master\imgui-SFML.cpp" />
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="Engine\Assets.cpp" />
     <ClCompile Include="Engine\Camera.cpp" />
@@ -171,6 +177,7 @@
     <ClCompile Include="Engine\Light.cpp" />
     <ClCompile Include="Engine\Mesh.cpp" />
     <ClCompile Include="Engine\CameraControl.cpp" />
+    <ClCompile Include="Engine\MeshIO.cpp" />
     <ClCompile Include="Engine\ObjectTransform.cpp" />
     <ClCompile Include="Engine\Pool.cpp" />
     <ClCompile Include="Engine\Primitives.cpp" />
@@ -199,6 +206,7 @@
     <ClInclude Include="Engine\InterpolatableTuple.h" />
     <ClInclude Include="Engine\Light.h" />
     <ClInclude Include="Engine\Mesh.h" />
+    <ClInclude Include="Engine\MeshIO.h" />
     <ClInclude Include="Engine\MeshTypes.h" />
     <ClInclude Include="Engine\CameraControl.h" />
     <ClInclude Include="Engine\ObjectTransform.h" />

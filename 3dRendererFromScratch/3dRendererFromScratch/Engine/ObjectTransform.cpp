@@ -5,7 +5,10 @@ namespace eng {
 ObjectTransform::ObjectTransform(glm::vec3 position) : position_(position) {
 }
 
-glm::mat4 ObjectTransform::getModel() {
+ObjectTransform::ObjectTransform(glm::vec3 pos, glm::vec3 scale) : position_(pos), scale_(scale) {
+}
+
+const glm::mat4& ObjectTransform::getModel() {
     if (modelInvalid_) {
         glm::mat4 model = glm::mat4(1.0f);
         glm::mat4 rotationMatrix = glm::mat4_cast(orientation_);
