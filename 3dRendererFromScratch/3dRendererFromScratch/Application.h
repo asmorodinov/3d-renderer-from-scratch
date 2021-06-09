@@ -41,7 +41,9 @@ class Application {
     UserInterface userInterface_;
 
     SFMLRenderer renderer_;
-    eng::Scene scene_;
+    std::vector<eng::Scene> scenes_;
+    std::reference_wrapper<eng::Scene> currentScene_;
+    size_t currentSceneIndex_ = 0;
 
     eng::CameraControl cameraControl_;
     glm::vec2 mouseCoordinates_ = {-1.0f, -1.0f};

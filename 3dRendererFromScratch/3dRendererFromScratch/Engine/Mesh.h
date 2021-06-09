@@ -32,7 +32,8 @@ class Mesh {
     using VertexShaderOutput = typename VertexShader::Output;
 
     Mesh(MeshDataRef mesh, const VertexShaderUniform& vertexShaderUniform, const FragmentShaderUniform& fragmentShaderUniform,
-         const ObjectTransform& objectTransform, bool wireframeMode = false, bool writeToDepthBuffer = true, glm::vec3 wireframeColor = glm::vec3(1.0f))
+         const ObjectTransform& objectTransform, bool wireframeMode = false, bool writeToDepthBuffer = true, glm::vec3 wireframeColor = glm::vec3(1.0f),
+         bool drawingEnabled = true)
         : mesh_(mesh),
           vertexShaderUniform_(vertexShaderUniform),
           fragmentShaderUniform_(fragmentShaderUniform),
@@ -41,6 +42,7 @@ class Mesh {
           fragmentShader_(),
           wireframeMode_(wireframeMode),
           writeToDepthBuffer_(writeToDepthBuffer),
+          drawingEnabled_(drawingEnabled),
           wireframeColor_(wireframeColor) {
     }
 
@@ -108,11 +110,34 @@ class Mesh {
         return objectTransform_;
     }
 
+    void setMeshData(MeshDataRef mesh) {
+        mesh_ = mesh;
+    }
+    MeshDataRef getMeshData() const {
+        return mesh_;
+    }
+
     void setDrawingMode(bool wireframeMode = false, bool drawingEnabled = true, bool writeToDepthBuffer = true, glm::vec3 wireframeColor = glm::vec3(1.0f)) {
         wireframeMode_ = wireframeMode;
         drawingEnabled_ = drawingEnabled;
         writeToDepthBuffer_ = writeToDepthBuffer;
         wireframeColor_ = wireframeColor;
+    }
+
+    bool getWireframeMode() const {
+        return wireframeMode_;
+    }
+
+    bool getWriteToDepthBuffer() const {
+        return writeToDepthBuffer_;
+    }
+
+    bool getDrawingEnabled() const {
+        return drawingEnabled_;
+    }
+
+    glm::vec3 getWireframeColor() const {
+        return wireframeColor_;
     }
 
     size_t getTriangleCount() const {

@@ -1,4 +1,13 @@
 {
+	name 			Cubemap
+	typeName 		CubemapMesh
+	meshFileName 		cube
+	writeToDepthBuffer 	0
+	meshInvertNormals 	1
+	meshOnlyVertices 	0
+}
+
+{
 	name 			Mesh1
 	meshScale 		0.1
 	flatColor 		1 1 1
@@ -16,7 +25,7 @@
 	name 			Mesh3
 	meshScale 		0.1
 	transformPosition 	-1 0 0
-	flatColor 		0.5 0 0
+	flatColor 		0.2 0 0
 }
 
 {
@@ -30,5 +39,5 @@
 	name 			Mesh5
 	meshScale 		0.1
 	transformPosition 	0 0 -1
-	flatColor 		0 0 0.5
+	flatColor 		0 0 0.2
 }

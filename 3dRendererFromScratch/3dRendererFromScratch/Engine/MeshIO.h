@@ -33,6 +33,7 @@
 namespace eng {
 
 struct Properties {
+    std::string name = "Mesh";
     std::string typeName = "FlatMesh";
     std::string diffuseTextureName = "brickwall.jpg";
     std::string normalTextureName = "brickwall_normal.jpg";
@@ -44,6 +45,7 @@ struct Properties {
     bool meshOnlyVertices = true;
     bool wireframeMode = false;
     bool writeToDepthBuffer = true;
+    bool drawingEnabled = true;
     bool cubemapDefaultFormat = true;
     glm::vec3 transformPosition = glm::vec3();
     glm::vec3 transformScale = glm::vec3(1.0f);
@@ -62,18 +64,50 @@ Mesh createMesh(const Properties& pr, std::function<typename Mesh::VertexShaderU
     auto meshData = Assets::getMeshData(pr.meshFileName, pr.meshScale, pr.meshInvertNormals, pr.meshOnlyVertices);
     auto transform = ObjectTransform(pr.transformPosition, pr.transformScale);
 
-    return Mesh(meshData, f1(pr), f2(pr), transform, pr.wireframeMode, pr.writeToDepthBuffer, pr.wireframeColor);
+    return Mesh(meshData, f1(pr), f2(pr), transform, pr.wireframeMode, pr.writeToDepthBuffer, pr.wireframeColor, pr.drawingEnabled);
+}
+
+// get properties from Mesh
+template <typename Mesh>
+Properties getProperties(const Mesh& mesh, std::function<void(const typename Mesh::VertexShaderUniform&, Properties&)> f1,
+                         std::function<void(const typename Mesh::FragmentShaderUniform&, Properties&)> f2, std::string typeName, std::string name) {
+    auto meshData = mesh.getMeshData();
+    const auto& transform = mesh.getTransform();
+
+    Properties pr;
+    pr.name = name;
+    pr.typeName = typeName;
+    pr.meshFileName = meshData.get().fileName;
+    pr.meshInvertNormals = meshData.get().invertNormals;
+    pr.meshOnlyVertices = meshData.get().onlyVertices;
+    pr.meshScale = meshData.get().scale;
+    pr.transformPosition = transform.getPosition();
+    pr.transformScale = transform.getScale();
+    pr.wireframeColor = mesh.getWireframeColor();
+    pr.wireframeMode = mesh.getWireframeMode();
+    pr.writeToDepthBuffer = mesh.getWriteToDepthBuffer();
+    pr.drawingEnabled = mesh.getDrawingEnabled();
+
+    f1(mesh.getVertexShaderUniform(), pr);
+    f2(mesh.getFragmentShaderUniform(), pr);
+
+    return pr;
 }
 
 FlatMesh createFlatMesh(const Properties& pr);
-
 TextureMesh createTextureMesh(const Properties& pr);
-
 CubemapMesh createCubemapMesh(const Properties& pr);
 // todo: add more createMesh functions
 
 void addMesh(const Properties& pr, Scene& scene);
 
 Scene loadSceneFromFile(std::string fileName);
+
+// get properties
+Properties getMeshProperties(const FlatMesh& mesh, std::string name);
+Properties getMeshProperties(const TextureMesh& mesh, std::string name);
+Properties getMeshProperties(const CubemapMesh& mesh, std::string name);
+
+Properties getMeshProperties(const MeshVariant& mesh, std::string name);
 
 }  // namespace eng

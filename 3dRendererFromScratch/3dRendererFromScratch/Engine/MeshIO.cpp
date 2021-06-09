@@ -21,6 +21,7 @@ Properties loadProperties(std::ifstream& file) {
 
         bool correctProperty = false;
 
+        READ_MEMBER(name, std::string)
         READ_MEMBER(typeName, std::string)
         READ_MEMBER(diffuseTextureName, std::string)
         READ_MEMBER(normalTextureName, std::string)
@@ -32,6 +33,7 @@ Properties loadProperties(std::ifstream& file) {
         READ_MEMBER(meshOnlyVertices, bool)
         READ_MEMBER(wireframeMode, bool)
         READ_MEMBER(writeToDepthBuffer, bool)
+        READ_MEMBER(drawingEnabled, bool)
         READ_MEMBER(cubemapDefaultFormat, bool)
         READ_VEC3_MEMBER(transformPosition)
         READ_VEC3_MEMBER(transformScale)
@@ -70,17 +72,17 @@ void addMesh(const Properties& pr, Scene& scene) {
     std::string typeName = pr.typeName;
 
     if (typeName == "FlatMesh") {
-        scene.addObject(createFlatMesh(pr));
+        scene.addObject(pr.name, createFlatMesh(pr));
     } else if (typeName == "TextureMesh") {
-        scene.addObject(createTextureMesh(pr));
+        scene.addObject(pr.name, createTextureMesh(pr));
     } else if (typeName == "CubemapMesh") {
-        scene.addObject(createCubemapMesh(pr));
+        scene.addObject(pr.name, createCubemapMesh(pr));
     }
     // todo: handle all mesh types
 }
 
 Scene loadSceneFromFile(std::string fileName) {
-    std::ifstream file(fileName);
+    std::ifstream file(std::string("data/scenes/") + fileName);
 
     Scene scene;
 
@@ -95,6 +97,34 @@ Scene loadSceneFromFile(std::string fileName) {
     file.close();
 
     return scene;
+}
+
+// get properties
+Properties getMeshProperties(const FlatMesh& mesh, std::string name) {
+    return getProperties<FlatMesh>(
+        mesh, [](const FlatMesh::VertexShaderUniform& uniform, Properties& pr) {},
+        [](const FlatMesh::FragmentShaderUniform& uniform, Properties& pr) { pr.flatColor = uniform; }, "FlatMesh", name);
+}
+
+Properties getMeshProperties(const TextureMesh& mesh, std::string name) {
+    return getProperties<TextureMesh>(
+        mesh, [](const TextureMesh::VertexShaderUniform& uniform, Properties& pr) {},
+        [](const TextureMesh::FragmentShaderUniform& uniform, Properties& pr) { pr.diffuseTextureName = uniform.get().fileName; }, "TextureMesh", name);
+}
+
+Properties getMeshProperties(const CubemapMesh& mesh, std::string name) {
+    return getProperties<CubemapMesh>(
+        mesh, [](const CubemapMesh::VertexShaderUniform& uniform, Properties& pr) {},
+        [](const CubemapMesh::FragmentShaderUniform& uniform, Properties& pr) {
+            pr.cubemapTextureName = uniform.get().fileName;
+            pr.cubemapDefaultFormat = uniform.get().defaultFormat;
+            pr.cubemapImageFormat = uniform.get().imageFormat;
+        },
+        "CubemapMesh", name);
+}
+
+Properties getMeshProperties(const MeshVariant& mesh, std::string name) {
+    return std::visit([&](auto&& arg) -> Properties { return getMeshProperties(arg, name); }, mesh);
 }
 
 }  // namespace eng

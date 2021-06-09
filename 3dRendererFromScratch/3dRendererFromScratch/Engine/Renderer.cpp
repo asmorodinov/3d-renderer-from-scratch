@@ -13,27 +13,26 @@ void Renderer::clearScreen() {
     screen_.clear();
 }
 
-template <std::size_t I = 0, typename... Tp>
-typename std::enable_if<I == sizeof...(Tp), size_t>::type draw(std::tuple<Tp...>& t, const Camera& camera, Screen& screen, const LightsVec& lights) {
-    return 0;
-}
-template <std::size_t I = 0, typename... Tp>
-    typename std::enable_if < I<sizeof...(Tp), size_t>::type draw(std::tuple<Tp...>& t, const Camera& camera, Screen& screen, const LightsVec& lights) {
-    size_t trianglesDrawn = 0;
-    for (auto& object : std::get<I>(t)) {
-        object.draw(camera, screen, lights);
-        trianglesDrawn += object.getTriangleCount();
-    }
-    trianglesDrawn += draw<I + 1, Tp...>(t, camera, screen, lights);
-
-    return trianglesDrawn;
+size_t drawMesh(MeshVariant& mesh, const Camera& camera, Screen& screen, const LightsVec& lights) {
+    return std::visit(
+        [&](auto&& arg) -> size_t {
+            arg.draw(camera, screen, lights);
+            return arg.getTriangleCount();
+        },
+        mesh);
 }
 
 size_t Renderer::renderSceneToScreen(Scene& scene) {
     const Camera& camera = scene.getCamera();
     const LightsVec& lights = scene.getPointLights();
 
-    return draw(scene.getAllObjects(), camera, screen_, lights);
+    size_t trianglesDrawn = 0;
+
+    for (auto& [name, mesh] : scene.getAllObjects()) {
+        trianglesDrawn += drawMesh(mesh, camera, screen_, lights);
+    }
+
+    return trianglesDrawn;
 }
 
 void Renderer::renderScreenToFile(const std::string& file) const {

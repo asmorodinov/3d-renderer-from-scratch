@@ -28,6 +28,8 @@ struct Texture {
 
     Pixels textureWidth, textureHeight;
     ColorBuffer colorBuffer;
+
+    std::string fileName;
 };
 
 struct CubemapTexture {
@@ -39,6 +41,10 @@ struct CubemapTexture {
     glm::vec4 sample(glm::vec3 direction) const;
 
     FacesTextures textures;
+
+    std::string fileName;
+    bool defaultFormat;
+    std::string imageFormat;
 };
 
 }  // namespace eng

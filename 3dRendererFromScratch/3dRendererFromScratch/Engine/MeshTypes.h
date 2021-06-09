@@ -1,5 +1,7 @@
 #pragma once
 
+#include <map>
+#include <variant>
 #include <tuple>
 
 #include "Shaders.h"
@@ -16,7 +18,8 @@ using NormalMesh = Mesh<NormalVertexShader, NormalShader>;
 using PhongMesh = Mesh<PhongVertexShader, PhongShader>;
 using NormalMapMesh = Mesh<NormalMapVertexShader, NormalMapShader>;
 
-using ObjectsVec = std::tuple<std::pmr::vector<CubemapMesh>, std::pmr::vector<TextureMesh>, std::pmr::vector<FlatMesh>, std::pmr::vector<UVMesh>,
-                              std::pmr::vector<NormalMesh>, std::pmr::vector<PhongMesh>, std::pmr::vector<NormalMapMesh>>;
+using MeshVariant = std::variant<FlatMesh, TextureMesh, CubemapMesh, UVMesh, NormalMesh, PhongMesh, NormalMapMesh>;
+
+using ObjectsVec = std::map<std::string, MeshVariant>;
 
 }  // namespace eng

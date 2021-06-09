@@ -8,11 +8,15 @@
 #include <cstddef>
 
 #include <imgui.h>
+#include <misc/cpp/imgui_stdlib.h>
+
 #include <imgui-SFML.h>
 
 #include "Engine/Assets.h"
 #include "Engine/Renderer.h"
 #include "Engine/SampleScenes.h"
+
+#include "Engine/MeshIO.h"
 
 class UserInterface {
  public:
@@ -22,7 +26,7 @@ class UserInterface {
 
     UserInterface(sf::RenderWindow& window_);
 
-    void updateAndDraw(Seconds deltaTime, size_t trianglesCount = 0);
+    void updateAndDraw(Seconds deltaTime, size_t trianglesCount, eng::Scene& scene);
 
     void togglePause();
 

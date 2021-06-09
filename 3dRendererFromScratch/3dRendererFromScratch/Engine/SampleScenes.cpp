@@ -5,6 +5,7 @@ namespace eng {
 Scene eng::makeScene1() {
     auto scene = Scene();
 
+    /*
     static eng::MeshData skyboxMesh = eng::MeshData::generateCubeData(1.0f, true);
 
     float s = 2.6f;
@@ -53,6 +54,7 @@ Scene eng::makeScene1() {
 
         scene.addObject(std::move(lightObj));
     }
+    */
 
     return scene;
 }

@@ -27,6 +27,11 @@ struct MeshData {
     std::vector<Face> faces;
 
     static MeshData generateCubeData(float size = 1.0f, bool invertNormals = false);
+
+    std::string fileName;
+    float scale = 1.0f;
+    bool invertNormals = false;
+    bool onlyVertices = false;
 };
 
 MeshData loadFromObj(const std::string& filename, float scale = 1.0f, bool invertNormals = false, bool onlyVertices = false);

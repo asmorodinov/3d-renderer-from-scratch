@@ -21,21 +21,15 @@ class Scene {
     const ObjectsVec& getAllObjects() const;
     ObjectsVec& getAllObjects();
 
-    template <typename T>
-    const std::pmr::vector<T>& getObjects() const {
-        return std::get<std::pmr::vector<T>>(objects_);
-    }
-    template <typename T>
-    std::pmr::vector<T>& getObjects() {
-        return std::get<std::pmr::vector<T>>(objects_);
-    }
-
     const LightsVec& getPointLights() const;
     LightsVec& getPointLights();
 
     template <typename T>
-    void addObject(const T& t) {
-        std::get<std::pmr::vector<T>>(objects_).push_back(t);
+    void addObject(std::string name, const T& t) {
+        if (objects_.count(name) == 0)
+            objects_.insert({name, {t}});
+        else
+            objects_.at(name) = {t};
     }
 
  private:

@@ -38,10 +38,16 @@ MeshData MeshData::generateCubeData(float size, bool invertNormals) {
 }
 
 MeshData loadFromObj(const std::string& filename, float scale, bool invertNormals, bool onlyVertices) {
-    std::ifstream file(filename);
+    std::ifstream file("data/models/" + filename + ".obj");
     assert(file);
 
     MeshData mesh;
+
+    mesh.fileName = filename;
+    mesh.scale = scale;
+    mesh.invertNormals = invertNormals;
+    mesh.onlyVertices = onlyVertices;
+
     if (onlyVertices) {
         mesh.textureCoords.push_back(glm::vec2(0.5f));
     }

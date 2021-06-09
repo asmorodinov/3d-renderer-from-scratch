@@ -169,6 +169,7 @@
     <ClCompile Include="..\ThirdPartyLibraries\imgui-master\imgui_draw.cpp" />
     <ClCompile Include="..\ThirdPartyLibraries\imgui-master\imgui_tables.cpp" />
     <ClCompile Include="..\ThirdPartyLibraries\imgui-master\imgui_widgets.cpp" />
+    <ClCompile Include="..\ThirdPartyLibraries\imgui-master\misc\cpp\imgui_stdlib.cpp" />
     <ClCompile Include="..\ThirdPartyLibraries\imgui-sfml-master\imgui-SFML.cpp" />
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="Engine\Assets.cpp" />

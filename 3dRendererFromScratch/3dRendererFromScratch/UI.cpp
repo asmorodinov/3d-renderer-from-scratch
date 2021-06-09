@@ -9,6 +9,14 @@ UserInterface::UserInterface(sf::RenderWindow& window_) : mainAppWindow_(window_
     }
 
     ImGui::SFML::Init(mainAppWindow_);
+    ImGuiIO& io = ImGui::GetIO();
+    io.FontDefault = io.Fonts->AddFontFromFileTTF("data/fonts/Roboto-Regular.ttf", 18);
+    io.Fonts->Build();
+    ImGui::SFML::UpdateFontTexture();
+
+    ImGuiStyle& style = ImGui::GetStyle();
+    style.FrameRounding = 7.0f;
+    style.Alpha = 0.95f;
 
     text_.setFont(font_);
     text_.setCharacterSize(18);
@@ -23,7 +31,7 @@ UserInterface::UserInterface(sf::RenderWindow& window_) : mainAppWindow_(window_
     text3_.setOrigin({0.0f, 0.0f});
 }
 
-void UserInterface::updateAndDraw(Seconds deltaTime, size_t trianglesCount) {
+void UserInterface::updateAndDraw(Seconds deltaTime, size_t trianglesCount, eng::Scene& scene) {
     currentTime_ += deltaTime;
     ++frames_;
 
@@ -44,7 +52,150 @@ void UserInterface::updateAndDraw(Seconds deltaTime, size_t trianglesCount) {
     ImGui::SFML::Update(mainAppWindow_, sf::seconds(deltaTime));
 
     if (pause) {
-        ImGui::ShowDemoWindow();
+        auto& objects = scene.getAllObjects();
+
+        ImGui::SetNextWindowSize(ImVec2(650, 700), ImGuiCond_FirstUseEver);
+        if (ImGui::Begin("Objects")) {
+            // Left
+
+            static std::string selectedName;
+            static eng::Properties selectedProperties;
+            static eng::Properties selectedPropertiesCopy;
+            static eng::Properties selectedPropertiesCopy2;
+            static eng::Properties selectedPropertiesCopy3;
+            static eng::Properties selectedPropertiesCopy4;
+
+            static int item_current = 0;
+            std::array<const char*, 3> items = {"FlatMesh", "TextureMesh", "CubemapMesh"};
+
+            {
+                ImGui::BeginChild("left", ImVec2(150, 0));
+                ImGui::BeginChild("left pane", ImVec2(150, -ImGui::GetFrameHeightWithSpacing()), true);
+
+                for (auto& [name, mesh] : objects) {
+                    const char* label = name.c_str();
+                    if (ImGui::Selectable(label, selectedName == name)) {
+                        selectedName = name;
+                        selectedProperties = eng::getMeshProperties(objects.at(selectedName), selectedName);
+                        selectedPropertiesCopy = selectedProperties;
+                        selectedPropertiesCopy2 = selectedProperties;
+                        selectedPropertiesCopy3 = selectedProperties;
+                        selectedPropertiesCopy4 = selectedProperties;
+
+                        for (int j = 0; j < items.size(); ++j)
+                            if (selectedProperties.typeName == items[j]) item_current = j;
+                    }
+                }
+                ImGui::EndChild();
+
+                ImGui::BeginChild("add object", ImVec2(0, 0));
+                if (ImGui::Button("Add object")) {
+                    for (int i = 1; 1; ++i) {
+                        if (objects.count("Mesh" + std::to_string(i)) == 0) {
+                            eng::Properties pr;
+                            pr.name = "Mesh" + std::to_string(i);
+                            eng::addMesh(pr, scene);
+                            break;
+                        }
+                    }
+                }
+
+                ImGui::EndChild();
+
+                ImGui::EndChild();
+            }
+            ImGui::SameLine();
+
+            // Right
+            if (objects.count(selectedName) > 0) {
+                bool changedProperty = false;
+
+                ImGui::BeginGroup();
+                ImGui::BeginChild("item view", ImVec2(0, 0), true);
+
+                ImGui::InputText("", &selectedPropertiesCopy4.name);
+                ImGui::SameLine();
+                if (ImGui::Button("Rename")) {
+                    if (objects.count(selectedPropertiesCopy4.name) == 0) {
+                        objects.erase(selectedName);
+                        selectedProperties.name = selectedPropertiesCopy4.name;
+                        eng::addMesh(selectedProperties, scene);
+
+                        selectedName = selectedPropertiesCopy4.name;
+                    }
+                }
+
+                if (ImGui::Button("Remove object")) {
+                    objects.erase(selectedName);
+                }
+
+                ImGui::Separator();
+
+                if (ImGui::Combo("Type", &item_current, items.data(), items.size())) {
+                    selectedPropertiesCopy3.typeName = items[item_current];
+                }
+                if (ImGui::Button("Edit mesh type")) {
+                    selectedProperties.typeName = selectedPropertiesCopy3.typeName;
+                    changedProperty = true;
+                }
+
+                ImGui::Separator();
+
+                ImGui::InputText("meshData file name", &selectedPropertiesCopy.meshFileName);
+                ImGui::DragFloat("meshData scale", &selectedPropertiesCopy.meshScale, 0.01);
+                ImGui::Checkbox("meshData only vertices", &selectedPropertiesCopy.meshOnlyVertices);
+                ImGui::Checkbox("meshData invert normals", &selectedPropertiesCopy.meshInvertNormals);
+
+                if (ImGui::Button("Edit MeshData")) {
+                    selectedProperties.meshFileName = selectedPropertiesCopy.meshFileName;
+                    selectedProperties.meshScale = selectedPropertiesCopy.meshScale;
+                    selectedProperties.meshOnlyVertices = selectedPropertiesCopy.meshOnlyVertices;
+                    selectedProperties.meshInvertNormals = selectedPropertiesCopy.meshInvertNormals;
+
+                    changedProperty = true;
+                }
+                ImGui::Separator();
+
+                ImGui::InputText("diffuse map name", &selectedPropertiesCopy2.diffuseTextureName);
+                ImGui::InputText("normal map name", &selectedPropertiesCopy2.normalTextureName);
+                ImGui::InputText("cubemap name", &selectedPropertiesCopy2.cubemapTextureName);
+                ImGui::InputText("cubemap image format", &selectedPropertiesCopy2.cubemapImageFormat);
+                ImGui::Checkbox("cubemap default format", &selectedPropertiesCopy2.cubemapDefaultFormat);
+
+                if (ImGui::Button("Edit textures")) {
+                    selectedProperties.diffuseTextureName = selectedPropertiesCopy2.diffuseTextureName;
+                    selectedProperties.normalTextureName = selectedPropertiesCopy2.normalTextureName;
+                    selectedProperties.cubemapTextureName = selectedPropertiesCopy2.cubemapTextureName;
+                    selectedProperties.cubemapImageFormat = selectedPropertiesCopy2.cubemapImageFormat;
+                    selectedProperties.cubemapDefaultFormat = selectedPropertiesCopy2.cubemapDefaultFormat;
+
+                    changedProperty = true;
+                }
+
+                ImGui::Separator();
+
+                if (ImGui::DragFloat3("position", &selectedProperties.transformPosition.x, 0.01)) changedProperty = true;
+                if (ImGui::DragFloat3("scale", &selectedProperties.transformScale.x, 0.01)) changedProperty = true;
+
+                if (ImGui::ColorEdit3("flat color", (float*)&selectedProperties.flatColor)) changedProperty = true;
+                if (ImGui::ColorEdit3("wireframe color", (float*)&selectedProperties.wireframeColor)) changedProperty = true;
+                if (ImGui::Checkbox("wireframe mode", &selectedProperties.wireframeMode)) changedProperty = true;
+                if (ImGui::Checkbox("write to depth buffer", &selectedProperties.writeToDepthBuffer)) changedProperty = true;
+                if (ImGui::Checkbox("enable draw", &selectedProperties.drawingEnabled)) changedProperty = true;
+
+                ImGui::EndChild();
+
+                ImGui::EndGroup();
+
+                if (changedProperty) {
+                    eng::addMesh(selectedProperties, scene);
+                }
+            }
+
+            ImGui::EndChild();
+        }
+        ImGui::End();
+
     } else {
         ImGui::SetMouseCursor(ImGuiMouseCursor_None);
     }

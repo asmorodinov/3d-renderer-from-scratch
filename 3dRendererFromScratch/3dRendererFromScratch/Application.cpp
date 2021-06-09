@@ -4,7 +4,8 @@ Application::Application()
     : mainAppWindow_(sf::VideoMode(defaultWidth_, defaultHeight_), mainWindowMsg_),
       userInterface_(mainAppWindow_),
       renderer_(defaultWidth_, defaultHeight_, mainAppWindow_),
-      scene_(eng::loadSceneFromFile("data/scenes/scene1.txt")) {
+      scenes_{eng::loadSceneFromFile("scene1.txt"), eng::loadSceneFromFile("scene2.txt")},
+      currentScene_(scenes_.front()) {
 }
 
 void Application::run() {
@@ -18,8 +19,8 @@ void Application::run() {
 
         mainAppWindow_.clear();
 
-        size_t trianglesDrawn = renderer_.render(scene_);
-        userInterface_.updateAndDraw(dt, trianglesDrawn);
+        size_t trianglesDrawn = renderer_.render(currentScene_);
+        userInterface_.updateAndDraw(dt, trianglesDrawn, currentScene_);
 
         mainAppWindow_.display();
     }
@@ -54,6 +55,7 @@ void Application::processEvents() {
 
 void Application::onClose() {
     mainAppWindow_.close();
+    ImGui::SFML::Shutdown();
 }
 
 void Application::onMouseEnter() {
@@ -84,13 +86,17 @@ void Application::onKeyPressOrRelease(sf::Keyboard::Key key, bool mode) {
         userInterface_.togglePause();
         pause = !pause;
     }
+    if (mode && key == sf::Keyboard::LShift) {
+        currentSceneIndex_ = (currentSceneIndex_ + 1) % scenes_.size();
+        currentScene_ = scenes_[currentSceneIndex_];
+    }
 
-    cameraControl_.keyPressedOrReleased(key, mode);
+    if (!pause) cameraControl_.keyPressedOrReleased(key, mode);
 }
 
 void Application::update(Seconds dt) {
     cameraControl_.update(dt);
 
-    scene_.getCamera().setPosition(cameraControl_.getPosition());
-    scene_.getCamera().setDirection(cameraControl_.getDirection());
+    currentScene_.get().getCamera().setPosition(cameraControl_.getPosition());
+    currentScene_.get().getCamera().setDirection(cameraControl_.getDirection());
 }

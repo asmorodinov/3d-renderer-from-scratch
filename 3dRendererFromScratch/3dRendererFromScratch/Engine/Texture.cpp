@@ -6,6 +6,8 @@ Texture::Texture() : textureWidth(0), textureHeight(0) {
 }
 
 Texture::Texture(const std::string& file) {
+    fileName = file;
+
     int x = 0, y = 0, n = 0;
     unsigned char* data = stbi_load(file.c_str(), &x, &y, &n, 3);
 
@@ -37,8 +39,12 @@ glm::vec4 Texture::sample(glm::vec2 uv) const {
 CubemapTexture::CubemapTexture() {
 }
 
-CubemapTexture::CubemapTexture(const std::string& folder, bool defaultFormat, const std::string& f) {
-    if (defaultFormat) {
+CubemapTexture::CubemapTexture(const std::string& folder, bool defaultFormat_, const std::string& f) {
+    fileName = folder;
+    defaultFormat = defaultFormat_;
+    imageFormat = f;
+
+    if (defaultFormat_) {
         textures[0] = Texture(folder + "/posx" + f);
         textures[1] = Texture(folder + "/negx" + f);
         textures[2] = Texture(folder + "/posy" + f);

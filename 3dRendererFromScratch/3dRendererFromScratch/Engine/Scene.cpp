@@ -2,10 +2,7 @@
 
 namespace eng {
 
-Scene::Scene()
-    : objects_(std::pmr::vector<CubemapMesh>{Pool::getPool()}, std::pmr::vector<TextureMesh>{Pool::getPool()}, std::pmr::vector<FlatMesh>{Pool::getPool()},
-               std::pmr::vector<UVMesh>{Pool::getPool()}, std::pmr::vector<NormalMesh>{Pool::getPool()}, std::pmr::vector<PhongMesh>{Pool::getPool()},
-               std::pmr::vector<NormalMapMesh>{Pool::getPool()}){};
+Scene::Scene(){};
 
 const Camera& Scene::getCamera() const {
     return camera_;
