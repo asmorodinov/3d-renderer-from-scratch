@@ -49,7 +49,9 @@ MeshData loadFromObj(const std::string& filename, float scale, bool invertNormal
     mesh.onlyVertices = onlyVertices;
 
     if (onlyVertices) {
-        mesh.textureCoords.push_back(glm::vec2(0.5f));
+        mesh.textureCoords.push_back(glm::vec2(0.0f, 0.0f));
+        mesh.textureCoords.push_back(glm::vec2(1.0f, 0.0f));
+        mesh.textureCoords.push_back(glm::vec2(1.0f, 1.0f));
     }
 
     unsigned faceCnt = 0;
@@ -76,7 +78,7 @@ MeshData loadFromObj(const std::string& filename, float scale, bool invertNormal
             mesh.normals.push_back({x, y, z});
         } else if (s == "f") {
             int i, j, k;
-            int ti = 1, tj = 1, tk = 1;
+            int ti = 1, tj = 2, tk = 3;
             int ni = faceCnt + 1, nj = faceCnt + 1, nk = faceCnt + 1;
             ++faceCnt;
 

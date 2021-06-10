@@ -22,12 +22,19 @@
         res.##member## = val;   \
         correctProperty = true; \
     }
+
 #define READ_VEC3_MEMBER(member)         \
     if (name == #member) {               \
         glm::vec3 val;                   \
         file >> val.x >> val.y >> val.z; \
         res.##member## = val;            \
         correctProperty = true;          \
+    }
+
+#define ADD_MESH(meshType)                                \
+    if (typeName == #meshType) {                          \
+        scene.addObject(pr.name, create##meshType##(pr)); \
+        correctMeshType = true;                           \
     }
 
 namespace eng {
@@ -97,7 +104,10 @@ Properties getProperties(const Mesh& mesh, std::function<void(const typename Mes
 FlatMesh createFlatMesh(const Properties& pr);
 TextureMesh createTextureMesh(const Properties& pr);
 CubemapMesh createCubemapMesh(const Properties& pr);
-// todo: add more createMesh functions
+UVMesh createUVMesh(const Properties& pr);
+NormalMesh createNormalMesh(const Properties& pr);
+PhongMesh createPhongMesh(const Properties& pr);
+NormalMapMesh createNormalMapMesh(const Properties& pr);
 
 void addMesh(const Properties& pr, Scene& scene);
 
@@ -107,6 +117,10 @@ Scene loadSceneFromFile(std::string fileName);
 Properties getMeshProperties(const FlatMesh& mesh, std::string name);
 Properties getMeshProperties(const TextureMesh& mesh, std::string name);
 Properties getMeshProperties(const CubemapMesh& mesh, std::string name);
+Properties getMeshProperties(const UVMesh& mesh, std::string name);
+Properties getMeshProperties(const NormalMesh& mesh, std::string name);
+Properties getMeshProperties(const PhongMesh& mesh, std::string name);
+Properties getMeshProperties(const NormalMapMesh& mesh, std::string name);
 
 Properties getMeshProperties(const MeshVariant& mesh, std::string name);
 

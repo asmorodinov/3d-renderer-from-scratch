@@ -68,17 +68,45 @@ CubemapMesh createCubemapMesh(const Properties& pr) {
         [](const Properties& pr) -> CubemapMesh::FragmentShaderUniform { return getCubemapTextureFromProperties(pr); });
 }
 
+UVMesh createUVMesh(const Properties& pr) {
+    return createMesh<UVMesh>(
+        pr, [](const Properties& pr) -> UVMesh::VertexShaderUniform { return {}; }, [](const Properties& pr) -> UVMesh::FragmentShaderUniform { return {}; });
+}
+
+NormalMesh createNormalMesh(const Properties& pr) {
+    return createMesh<NormalMesh>(
+        pr, [](const Properties& pr) -> NormalMesh::VertexShaderUniform { return {}; },
+        [](const Properties& pr) -> NormalMesh::FragmentShaderUniform { return {}; });
+}
+
+PhongMesh createPhongMesh(const Properties& pr) {
+    return createMesh<PhongMesh>(
+        pr, [](const Properties& pr) -> PhongMesh::VertexShaderUniform { return {}; },
+        [](const Properties& pr) -> PhongMesh::FragmentShaderUniform { return Assets::getTexture(pr.diffuseTextureName); });
+}
+
+NormalMapMesh createNormalMapMesh(const Properties& pr) {
+    return createMesh<NormalMapMesh>(
+        pr, [](const Properties& pr) -> NormalMapMesh::VertexShaderUniform { return {}; },
+        [](const Properties& pr) -> NormalMapMesh::FragmentShaderUniform {
+            return {Assets::getTexture(pr.diffuseTextureName), Assets::getTexture(pr.normalTextureName)};
+        });
+}
+
 void addMesh(const Properties& pr, Scene& scene) {
     std::string typeName = pr.typeName;
 
-    if (typeName == "FlatMesh") {
-        scene.addObject(pr.name, createFlatMesh(pr));
-    } else if (typeName == "TextureMesh") {
-        scene.addObject(pr.name, createTextureMesh(pr));
-    } else if (typeName == "CubemapMesh") {
-        scene.addObject(pr.name, createCubemapMesh(pr));
-    }
-    // todo: handle all mesh types
+    bool correctMeshType = false;
+
+    ADD_MESH(FlatMesh);
+    ADD_MESH(TextureMesh);
+    ADD_MESH(CubemapMesh);
+    ADD_MESH(UVMesh);
+    ADD_MESH(NormalMesh);
+    ADD_MESH(PhongMesh);
+    ADD_MESH(NormalMapMesh);
+
+    assert(correctMeshType);
 }
 
 Scene loadSceneFromFile(std::string fileName) {
@@ -121,6 +149,34 @@ Properties getMeshProperties(const CubemapMesh& mesh, std::string name) {
             pr.cubemapImageFormat = uniform.get().imageFormat;
         },
         "CubemapMesh", name);
+}
+
+Properties getMeshProperties(const UVMesh& mesh, std::string name) {
+    return getProperties<UVMesh>(
+        mesh, [](const UVMesh::VertexShaderUniform& uniform, Properties& pr) {}, [](const UVMesh::FragmentShaderUniform& uniform, Properties& pr) {}, "UVMesh",
+        name);
+}
+
+Properties getMeshProperties(const NormalMesh& mesh, std::string name) {
+    return getProperties<NormalMesh>(
+        mesh, [](const NormalMesh::VertexShaderUniform& uniform, Properties& pr) {}, [](const NormalMesh::FragmentShaderUniform& uniform, Properties& pr) {},
+        "NormalMesh", name);
+}
+
+Properties getMeshProperties(const PhongMesh& mesh, std::string name) {
+    return getProperties<PhongMesh>(
+        mesh, [](const PhongMesh::VertexShaderUniform& uniform, Properties& pr) {},
+        [](const PhongMesh::FragmentShaderUniform& uniform, Properties& pr) { pr.diffuseTextureName = uniform.get().fileName; }, "PhongMesh", name);
+}
+
+Properties getMeshProperties(const NormalMapMesh& mesh, std::string name) {
+    return getProperties<NormalMapMesh>(
+        mesh, [](const NormalMapMesh::VertexShaderUniform& uniform, Properties& pr) {},
+        [](const NormalMapMesh::FragmentShaderUniform& uniform, Properties& pr) {
+            pr.diffuseTextureName = uniform.diffuseMap.get().fileName;
+            pr.normalTextureName = uniform.normalMap.get().fileName;
+        },
+        "NormalMapMesh", name);
 }
 
 Properties getMeshProperties(const MeshVariant& mesh, std::string name) {

@@ -6,20 +6,13 @@ glm::vec4 PhongShader::computePixelColor(const Var& var, const LightsVec& lights
     auto FragPos = var.t1;
     auto uv = var.t2;
 
-    auto texture = uniform.texture;
+    auto texture = uniform;
     auto viewPos = vso.viewPos;
     auto normal = vso.normal;
-    auto skybox = uniform.skybox;
 
     glm::vec4 color = texture.get().sample(uv);
 
     glm::vec3 lighting = glm::vec3(0.0f);
-
-    glm::vec3 I = glm::normalize(FragPos - viewPos);
-    glm::vec3 R = glm::reflect(I, glm::normalize(normal));
-
-    lighting = skybox.get().sample(R);
-    lighting += 0.2f * glm::vec3(color);
 
     for (const auto& light : lights) {
         glm::vec3 lightPos = light.position;
@@ -38,7 +31,7 @@ glm::vec4 PhongShader::computePixelColor(const Var& var, const LightsVec& lights
                                     std::pow(d, 3.0f) * light.cubicAttenuationCoefficient);
         diffuse *= attenuation / 1.7;
         specular *= attenuation / 1.7;
-        lighting += 0.3f * light.intensity * glm::vec3(1.0f) * (diffuse + specular);
+        lighting += light.intensity * glm::vec3(1.0f) * (diffuse + specular);
     }
 
     lighting = glm::pow(lighting, glm::vec3(1.0f / 2.2f));

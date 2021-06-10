@@ -15,8 +15,9 @@ struct PointLight {
     static constexpr const float defaultQuadraticAttenuationCoefficient = 0.0f;
     static constexpr const float defaultCubicAttenuationCoefficient = 0.00001f;
 
-    PointLight(glm::vec3 position, glm::vec3 color, float intensity = defaultIntensity, float specularCoefficient = defaultSpecularCoefficient,
-               float diffuseCoefficient = defaultDiffuseCoefficient, float linearAttenuationCoefficient = defaultLinearAttenuationCoefficient,
+    PointLight(glm::vec3 position = glm::vec3(0.0f), glm::vec3 color = glm::vec3(1.0f), float intensity = defaultIntensity,
+               float specularCoefficient = defaultSpecularCoefficient, float diffuseCoefficient = defaultDiffuseCoefficient,
+               float linearAttenuationCoefficient = defaultLinearAttenuationCoefficient,
                float quadraticAttenuationCoefficient = defaultQuadraticAttenuationCoefficient,
                float cubicAttenuationCoefficient = defaultCubicAttenuationCoefficient);
 

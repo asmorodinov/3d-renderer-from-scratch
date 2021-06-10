@@ -5,10 +5,7 @@
 namespace eng {
 
 struct PhongShader {
-    struct Uniform {
-        std::reference_wrapper<const Texture> texture = Assets::getTexture();
-        std::reference_wrapper<const CubemapTexture> skybox = Assets::getCubemapTexture();
-    };
+    using Uniform = std::reference_wrapper<const Texture>;
     struct VertexShaderOutput {
         glm::vec3 viewPos;
         glm::vec3 normal;
@@ -17,7 +14,7 @@ struct PhongShader {
 
     glm::vec4 computePixelColor(const Var& var, const LightsVec& lights);
 
-    Uniform uniform;
+    Uniform uniform = Assets::getTexture();
     VertexShaderOutput vso;
 };
 

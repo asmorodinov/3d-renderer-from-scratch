@@ -15,7 +15,7 @@ TextureRef Assets::getTexture(std::string filename) {
     auto& textures = Assets::get().textures_;
 
     if (textures.find(filename) == textures.end()) {
-        textures[filename] = Texture("data/textures/"s + filename);
+        textures[filename] = Texture(filename);
     }
 
     return std::cref(textures[filename]);
@@ -31,7 +31,7 @@ CubemapTextureRef Assets::getCubemapTexture(std::string filename, bool df, const
     std::string name = filename + std::to_string(df) + "_"s + f;
 
     if (cubemapTextures.find(name) == cubemapTextures.end()) {
-        cubemapTextures[name] = CubemapTexture("data/cubemaps/"s + filename, df, f);
+        cubemapTextures[name] = CubemapTexture(filename, df, f);
     }
 
     return std::cref(cubemapTextures[name]);

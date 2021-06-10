@@ -9,7 +9,7 @@ Texture::Texture(const std::string& file) {
     fileName = file;
 
     int x = 0, y = 0, n = 0;
-    unsigned char* data = stbi_load(file.c_str(), &x, &y, &n, 3);
+    unsigned char* data = stbi_load(("data/textures/" + file).c_str(), &x, &y, &n, 3);
 
     assert(x > 0 && y > 0 && n >= 3 && data);
     textureWidth = x;
@@ -41,23 +41,25 @@ CubemapTexture::CubemapTexture() {
 
 CubemapTexture::CubemapTexture(const std::string& folder, bool defaultFormat_, const std::string& f) {
     fileName = folder;
+    auto filename2 = "../cubemaps/" + folder;
+
     defaultFormat = defaultFormat_;
     imageFormat = f;
 
     if (defaultFormat_) {
-        textures[0] = Texture(folder + "/posx" + f);
-        textures[1] = Texture(folder + "/negx" + f);
-        textures[2] = Texture(folder + "/posy" + f);
-        textures[3] = Texture(folder + "/negy" + f);
-        textures[4] = Texture(folder + "/posz" + f);
-        textures[5] = Texture(folder + "/negz" + f);
+        textures[0] = Texture(filename2 + "/posx" + f);
+        textures[1] = Texture(filename2 + "/negx" + f);
+        textures[2] = Texture(filename2 + "/posy" + f);
+        textures[3] = Texture(filename2 + "/negy" + f);
+        textures[4] = Texture(filename2 + "/posz" + f);
+        textures[5] = Texture(filename2 + "/negz" + f);
     } else {
-        textures[0] = Texture(folder + "/right" + f);
-        textures[1] = Texture(folder + "/left" + f);
-        textures[2] = Texture(folder + "/top" + f);
-        textures[3] = Texture(folder + "/bottom" + f);
-        textures[4] = Texture(folder + "/front" + f);
-        textures[5] = Texture(folder + "/back" + f);
+        textures[0] = Texture(filename2 + "/right" + f);
+        textures[1] = Texture(filename2 + "/left" + f);
+        textures[2] = Texture(filename2 + "/top" + f);
+        textures[3] = Texture(filename2 + "/bottom" + f);
+        textures[4] = Texture(filename2 + "/front" + f);
+        textures[5] = Texture(filename2 + "/back" + f);
     }
 }
 
