@@ -10,7 +10,7 @@ Here are some more advanced features that are planned to be implemented in futur
 - [ ] Deferred shading (maybe/probably won't happen)
 - [ ] SSAO
 - [ ] PBR
-- [ ] Transperent objects
+- [ ] Transparent objects
 - [ ] Shadows
 - [ ] Scene level frustrum culling (e.g. with octrees)
 - [ ] Geometric shader support (also probably won't happen)
