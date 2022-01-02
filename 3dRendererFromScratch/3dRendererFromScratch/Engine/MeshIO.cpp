@@ -109,10 +109,23 @@ void addMesh(const Properties& pr, Scene& scene) {
     assert(correctMeshType);
 }
 
+static bool endsWith(std::string_view str, std::string_view suffix) {
+    return str.size() >= suffix.size() && (0 == str.compare(str.size() - suffix.size(), suffix.size(), suffix));
+}
+
 Scene loadSceneFromFile(std::string fileName) {
+    const auto suf = std::string(".scn");
+    assert(endsWith(fileName, suf));
+
     std::ifstream file(std::string("data/scenes/") + fileName);
 
-    Scene scene;
+    if (!file) {
+        return Scene("empty");
+    }
+
+    std::string sceneName = fileName.substr(0, fileName.size() - suf.size());
+
+    Scene scene(sceneName);
 
     while (1) {
         Properties properties = loadProperties(file);
@@ -125,6 +138,49 @@ Scene loadSceneFromFile(std::string fileName) {
     file.close();
 
     return scene;
+}
+
+bool saveSceneToFile(const Scene& scene, std::string fileName) {
+    const auto suf = std::string(".scn");
+    assert(endsWith(fileName, suf));
+
+    std::ofstream file(std::string("data/scenes/") + fileName);
+
+    if (!file) {
+        return false;
+    }
+
+    for (const auto& [name, meshVariant] : scene.getAllObjects()) {
+        Properties properties = getMeshProperties(meshVariant, name);
+        Properties defaultProperties = Properties();
+
+        file << "{\n";
+
+        WRITE_MEMBER(name)
+        WRITE_MEMBER(typeName)
+        WRITE_MEMBER(diffuseTextureName)
+        WRITE_MEMBER(normalTextureName)
+        WRITE_MEMBER(cubemapTextureName)
+        WRITE_MEMBER(meshFileName)
+        WRITE_MEMBER(cubemapImageFormat)
+        WRITE_MEMBER(meshScale)
+        WRITE_MEMBER(meshInvertNormals)
+        WRITE_MEMBER(meshOnlyVertices)
+        WRITE_MEMBER(wireframeMode)
+        WRITE_MEMBER(writeToDepthBuffer)
+        WRITE_MEMBER(drawingEnabled)
+        WRITE_MEMBER(cubemapDefaultFormat)
+        WRITE_VEC3_MEMBER(transformPosition)
+        WRITE_VEC3_MEMBER(transformScale)
+        WRITE_VEC3_MEMBER(wireframeColor)
+        WRITE_VEC3_MEMBER(flatColor)
+
+        file << "}\n";
+    }
+
+    file.close();
+
+    return true;
 }
 
 // get properties

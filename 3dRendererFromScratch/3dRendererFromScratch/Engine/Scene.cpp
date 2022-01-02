@@ -2,7 +2,7 @@
 
 namespace eng {
 
-Scene::Scene(){};
+Scene::Scene(const std::string& name): name_(name){};
 
 const Camera& Scene::getCamera() const {
     return camera_;
@@ -26,6 +26,14 @@ const LightsVec& Scene::getPointLights() const {
 
 LightsVec& Scene::getPointLights() {
     return pointLights_;
+}
+
+const std::string& Scene::getName() const {
+    return name_;
+}
+
+std::string& Scene::getName() {
+    return name_;
 }
 
 }  // namespace eng

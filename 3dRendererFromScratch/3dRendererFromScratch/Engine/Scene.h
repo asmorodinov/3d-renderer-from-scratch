@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string>
 #include <tuple>
 
 #include <glm/glm.hpp>
@@ -13,7 +14,8 @@ namespace eng {
 
 class Scene {
  public:
-    Scene();
+    Scene() = default;
+    Scene(const std::string& name);
 
     const Camera& getCamera() const;
     Camera& getCamera();
@@ -23,6 +25,9 @@ class Scene {
 
     const LightsVec& getPointLights() const;
     LightsVec& getPointLights();
+
+    const std::string& getName() const;
+    std::string& getName();
 
     template <typename T>
     void addObject(std::string name, const T& t) {
@@ -36,6 +41,8 @@ class Scene {
     Camera camera_;
     ObjectsVec objects_;
     LightsVec pointLights_;
+
+    std::string name_ = std::string("unnamed scene");
 };
 
 }  // namespace eng

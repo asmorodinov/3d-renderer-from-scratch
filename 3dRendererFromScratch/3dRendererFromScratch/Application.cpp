@@ -4,7 +4,7 @@ Application::Application()
     : mainAppWindow_(sf::VideoMode(defaultWidth_, defaultHeight_), mainWindowMsg_),
       userInterface_(mainAppWindow_),
       renderer_(defaultWidth_, defaultHeight_, mainAppWindow_),
-      scenes_{eng::loadSceneFromFile("scene1.txt"), eng::loadSceneFromFile("scene2.txt")},
+      scenes_{eng::loadSceneFromFile("scene1.scn"), eng::loadSceneFromFile("scene2.scn")},
       currentScene_(scenes_.front()) {
 }
 
@@ -20,7 +20,8 @@ void Application::run() {
         mainAppWindow_.clear();
 
         size_t trianglesDrawn = renderer_.render(currentScene_);
-        userInterface_.updateAndDraw(dt, trianglesDrawn, currentScene_);
+        userInterface_.updateAndDraw(dt, trianglesDrawn, currentSceneIndex_, scenes_);
+        currentScene_ = scenes_[currentSceneIndex_];
 
         mainAppWindow_.display();
     }

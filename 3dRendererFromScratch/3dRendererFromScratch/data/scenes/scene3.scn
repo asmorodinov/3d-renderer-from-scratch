@@ -1,0 +1,29 @@
+{
+	name	Mesh1
+	typeName	NormalMesh
+	meshScale	0.46
+}
+{
+	name	Mesh2
+	meshScale	0.1
+	transformPosition	1 0 0
+	flatColor	1 0 0
+}
+{
+	name	Mesh3
+	meshScale	0.1
+	transformPosition	-1 0 0
+	flatColor	0.5 0 0
+}
+{
+	name	Mesh4
+	meshScale	0.1
+	transformPosition	0 0 1
+	flatColor	0 0 1
+}
+{
+	name	Mesh5
+	meshScale	0.1
+	transformPosition	0 0 -1
+	flatColor	0 0 0.5
+}

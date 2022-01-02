@@ -23,6 +23,16 @@
         correctProperty = true; \
     }
 
+#define WRITE_MEMBER(member)                                              \
+    if (properties.##member## != defaultProperties.##member##) {          \
+        file << '\t' << #member << '\t' << properties.##member## << '\n'; \
+    }
+
+#define WRITE_VEC3_MEMBER(member)                                                                                                               \
+    if (properties.##member## != defaultProperties.##member##) {                                                                                \
+        file << '\t' << #member << "\t" << properties.##member##.x << ' ' << properties.##member##.y << ' ' << properties.##member##.z << '\n'; \
+    }
+
 #define READ_VEC3_MEMBER(member)         \
     if (name == #member) {               \
         glm::vec3 val;                   \
@@ -112,6 +122,7 @@ NormalMapMesh createNormalMapMesh(const Properties& pr);
 void addMesh(const Properties& pr, Scene& scene);
 
 Scene loadSceneFromFile(std::string fileName);
+bool saveSceneToFile(const Scene& scene, std::string fileName);
 
 // get properties
 Properties getMeshProperties(const FlatMesh& mesh, std::string name);

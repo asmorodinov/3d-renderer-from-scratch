@@ -26,7 +26,7 @@ class UserInterface {
 
     UserInterface(sf::RenderWindow& window_);
 
-    void updateAndDraw(Seconds deltaTime, size_t trianglesCount, eng::Scene& scene);
+    void updateAndDraw(Seconds deltaTime, size_t trianglesCount, size_t& sceneIndex, std::vector<eng::Scene>& scenes);
 
     void togglePause();
 

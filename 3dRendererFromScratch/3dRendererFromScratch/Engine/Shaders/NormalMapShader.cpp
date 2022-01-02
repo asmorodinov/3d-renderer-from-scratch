@@ -35,7 +35,7 @@ glm::vec4 NormalMapShader::computePixelColor(const Var& var, const LightsVec& li
         lighting += 1.0f * light.intensity * glm::vec3(1.0f) * (diffuse + specular);
     }
 
-    lighting = glm::pow(lighting, glm::vec3(1.0f / 2.2f));
+    lighting = glm::clamp(glm::pow(lighting, glm::vec3(1.0f / 2.2f)), 0.0f, 1.0f);
 
     return glm::vec4(lighting, 1.0f);
 }

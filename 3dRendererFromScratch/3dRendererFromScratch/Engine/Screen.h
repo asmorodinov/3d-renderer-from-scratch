@@ -14,15 +14,26 @@
 
 namespace eng {
 
+using Byte = unsigned char;
+
 class Screen {
  public:
     using Pixels = std::size_t;
     using Color = glm::vec3;
     using Depth = float;
+
+    // one byte per color component (alpha included)
+    using CompressedColor = glm::u8vec4;
+
     using AspectRatio = float;
     using Degrees = float;
 
+    // stores 12 bytes per pixel
     using ColorBuffer = Vector2d<Color>;
+
+    // only store 4 bytes per pixel
+    using CompressedColorBuffer = Vector2d<CompressedColor>;
+
     using DepthBuffer = Vector2d<Depth>;
 
  private:
@@ -36,6 +47,9 @@ class Screen {
     const glm::mat4& getProjectionMatrix() const;
 
     Color getPixelColor(Pixels x, Pixels y) const;
+
+    const CompressedColorBuffer& getColorBuffer() const;
+
     void setPixelColor(Pixels x, Pixels y, Color color, Depth z);
 
     Depth getPixelDepth(Pixels x, Pixels y) const;
@@ -62,10 +76,16 @@ class Screen {
     AspectRatio aspectRatio_ = 1.0f;
 
     Color clearColor_;
-    ColorBuffer colorBuffer_;
+
+    // color and depth buffers
+    CompressedColorBuffer colorBuffer_;
     DepthBuffer depthBuffer_;
 
     glm::mat4 projectionMatrix_;
 };
+
+Screen::CompressedColor compress_color(Screen::Color color);
+
+Screen::Color decompress_color(Screen::CompressedColor color);
 
 }  // namespace eng

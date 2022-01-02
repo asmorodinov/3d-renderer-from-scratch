@@ -31,7 +31,7 @@ UserInterface::UserInterface(sf::RenderWindow& window_) : mainAppWindow_(window_
     text3_.setOrigin({0.0f, 0.0f});
 }
 
-void UserInterface::updateAndDraw(Seconds deltaTime, size_t trianglesCount, eng::Scene& scene) {
+void UserInterface::updateAndDraw(Seconds deltaTime, size_t trianglesCount, size_t& sceneIndex, std::vector<eng::Scene>& scenes) {
     currentTime_ += deltaTime;
     ++frames_;
 
@@ -52,6 +52,8 @@ void UserInterface::updateAndDraw(Seconds deltaTime, size_t trianglesCount, eng:
     ImGui::SFML::Update(mainAppWindow_, sf::seconds(deltaTime));
 
     if (pause) {
+        auto& scene = scenes[sceneIndex];
+
         auto& objects = scene.getAllObjects();
         auto& lights = scene.getPointLights();
 
@@ -65,7 +67,6 @@ void UserInterface::updateAndDraw(Seconds deltaTime, size_t trianglesCount, eng:
                 static eng::Properties selectedProperties;
                 static eng::Properties selectedPropertiesCopy;
                 static eng::Properties selectedPropertiesCopy2;
-                static eng::Properties selectedPropertiesCopy3;
                 static eng::Properties selectedPropertiesCopy4;
 
                 static int item_current = 0;
@@ -82,7 +83,6 @@ void UserInterface::updateAndDraw(Seconds deltaTime, size_t trianglesCount, eng:
                             selectedProperties = eng::getMeshProperties(objects.at(selectedName), selectedName);
                             selectedPropertiesCopy = selectedProperties;
                             selectedPropertiesCopy2 = selectedProperties;
-                            selectedPropertiesCopy3 = selectedProperties;
                             selectedPropertiesCopy4 = selectedProperties;
 
                             for (int j = 0; j < items.size(); ++j)
@@ -135,10 +135,7 @@ void UserInterface::updateAndDraw(Seconds deltaTime, size_t trianglesCount, eng:
                     ImGui::Separator();
 
                     if (ImGui::Combo("Type", &item_current, items.data(), items.size())) {
-                        selectedPropertiesCopy3.typeName = items[item_current];
-                    }
-                    if (ImGui::Button("Edit mesh type")) {
-                        selectedProperties.typeName = selectedPropertiesCopy3.typeName;
+                        selectedProperties.typeName = items[item_current];
                         changedProperty = true;
                     }
 
@@ -234,7 +231,7 @@ void UserInterface::updateAndDraw(Seconds deltaTime, size_t trianglesCount, eng:
                     bool changedProperty = false;
 
                     ImGui::BeginGroup();
-                    ImGui::BeginChild("item view", ImVec2(0, 0), true);
+                    ImGui::BeginChild("lights view", ImVec2(0, 0), true);
 
                     if (ImGui::Button("Remove object")) {
                         lights.erase(lights.begin() + selectedLightId);
@@ -257,6 +254,79 @@ void UserInterface::updateAndDraw(Seconds deltaTime, size_t trianglesCount, eng:
                         lights[selectedLightId] = selectedLight;
                     }
                 }
+
+                ImGui::EndTabItem();
+            }
+
+            if (ImGui::BeginTabItem("Scenes")) {
+                // Top
+                ImGui::BeginChild("top", ImVec2(0, -ImGui::GetFrameHeightWithSpacing()));
+
+                // Left
+                {
+                    ImGui::BeginChild("left", ImVec2(150, 0));
+                    ImGui::BeginChild("left panel", ImVec2(150, 0), true);
+
+                    for (size_t i = 0; i < scenes.size(); ++i) {
+                        const std::string name = scenes[i].getName() + "##" + std::to_string(i);
+
+                        if (ImGui::Selectable(name.c_str(), i == sceneIndex)) {
+                            sceneIndex = i;
+                        }
+                    }
+                    ImGui::EndChild();
+
+                    ImGui::EndChild();
+                }
+                ImGui::SameLine();
+
+                // Right
+                {
+                    ImGui::BeginGroup();
+                    ImGui::BeginChild("scene view", ImVec2(0, 0), true);
+
+                    static auto currentSceneCopy = scenes[sceneIndex];
+                    static auto currentSceneCopy2 = scenes[sceneIndex];
+                    static auto lastIndex = sceneIndex;
+
+                    if (lastIndex != sceneIndex) {
+                        lastIndex = sceneIndex;
+                        currentSceneCopy = scenes[sceneIndex];
+                        currentSceneCopy2 = scenes[sceneIndex];
+                    }
+
+                    ImGui::InputText("", &currentSceneCopy.getName());
+                    ImGui::SameLine();
+                    if (ImGui::Button("Rename")) {
+                        scenes[sceneIndex].getName() = currentSceneCopy.getName();
+                    }
+
+                    ImGui::InputText("##2", &currentSceneCopy2.getName());
+                    ImGui::SameLine();
+                    if (ImGui::Button("Save as")) {
+                        eng::saveSceneToFile(scenes[sceneIndex], currentSceneCopy2.getName() + ".scn");
+                    }
+
+                    ImGui::EndChild();
+                    ImGui::EndGroup();
+                }
+
+                ImGui::EndChild();
+
+                // Bottom
+                ImGui::BeginGroup();
+                ImGui::BeginChild("load scene", ImVec2(0, 0));
+                static auto loadSceneName = std::string("scene");
+                ImGui::InputText("", &loadSceneName);
+                ImGui::SameLine();
+
+                if (ImGui::Button("load scene", ImVec2(100, 0))) {
+                    scenes.push_back(eng::loadSceneFromFile(loadSceneName + ".scn"));
+                    sceneIndex = scenes.size() - 1;
+                }
+
+                ImGui::EndChild();
+                ImGui::EndGroup();
 
                 ImGui::EndTabItem();
             }

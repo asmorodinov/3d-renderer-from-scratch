@@ -9,7 +9,7 @@ Screen::Screen(Pixels width, Pixels height, Color clearColor)
       screenHeight_(height),
       aspectRatio_(width / (float)height),
       clearColor_(clearColor),
-      colorBuffer_(width, height, clearColor),
+      colorBuffer_(width, height, compress_color(clearColor)),
       depthBuffer_(width, height, std::numeric_limits<float>::max()),
       projectionMatrix_(glm::perspective(glm::radians(defaultFieldOfViewAngle_), aspectRatio_, nearPlaneDistance_, farPlaneDistance_)) {
 }
@@ -21,7 +21,11 @@ const glm::mat4& Screen::getProjectionMatrix() const {
 Screen::Color Screen::getPixelColor(Pixels x, Pixels y) const {
     assert(x < screenWidth_ && y < screenHeight_);
 
-    return colorBuffer_.get(x, y);
+    return decompress_color(colorBuffer_.get(x, y));
+}
+
+const Screen::CompressedColorBuffer& Screen::getColorBuffer() const {
+    return colorBuffer_;
 }
 
 void Screen::setPixelColor(Pixels x, Pixels y, Color color, Depth z) {
@@ -34,7 +38,7 @@ Screen::Depth Screen::getPixelDepth(Pixels x, Pixels y) const {
 }
 
 void Screen::clear() {
-    colorBuffer_.fill(clearColor_);
+    colorBuffer_.fill(compress_color(clearColor_));
     depthBuffer_.fill(std::numeric_limits<float>::max());
 }
 
@@ -65,7 +69,7 @@ Screen::Color Screen::getClearColor() const {
 void Screen::setPixelColor(Pixels x, Pixels y, Color color) {
     assert(x < screenWidth_ && y < screenHeight_);
 
-    colorBuffer_.set(x, y, color);
+    colorBuffer_.set(x, y, compress_color(color));
 }
 
 void Screen::depthCheckSetPixelColor(Pixels x, Pixels y, Depth z, Color color) {
@@ -84,6 +88,14 @@ void Screen::setPixelDepth(Pixels x, Pixels y, Depth z) {
     assert(x < screenWidth_ && y < screenHeight_);
 
     depthBuffer_.set(x, y, z);
+}
+
+Screen::CompressedColor compress_color(Screen::Color color) {
+    return Screen::CompressedColor(Byte(255.99f * color.r), Byte(255.99 * color.g), Byte(255.99 * color.b), Byte(255));
+}
+
+Screen::Color decompress_color(Screen::CompressedColor color) {
+    return Screen::Color(color.r, color.g, color.b) / 255.0f;
 }
 
 }  // namespace eng

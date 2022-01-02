@@ -25,6 +25,10 @@ class Vector2d {
         std::fill(vector_.begin(), vector_.end(), elem);
     }
 
+    const T* get_pointer() const {
+        return &vector_[0];
+    }
+
  private:
     std::pmr::vector<T> vector_;
     size_t matrixWidth_, matrixHeight_;
