@@ -7,6 +7,9 @@
 #include <chrono>
 #include <cstddef>
 
+#include <filesystem>
+namespace fs = std::filesystem;
+
 #include "Engine/CameraControl.h"
 #include "Engine/SampleScenes.h"
 #include "Engine/MeshIO.h"
@@ -42,7 +45,6 @@ class Application {
 
     SFMLRenderer renderer_;
     std::vector<eng::Scene> scenes_;
-    std::reference_wrapper<eng::Scene> currentScene_;
     size_t currentSceneIndex_ = 0;
 
     eng::CameraControl cameraControl_;

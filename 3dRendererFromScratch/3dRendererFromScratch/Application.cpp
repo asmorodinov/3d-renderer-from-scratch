@@ -1,11 +1,25 @@
 #include "Application.h"
 
+static bool endsWith(std::string_view str, std::string_view suffix) {
+    return str.size() >= suffix.size() && (0 == str.compare(str.size() - suffix.size(), suffix.size(), suffix));
+}
+
 Application::Application()
     : mainAppWindow_(sf::VideoMode(defaultWidth_, defaultHeight_), mainWindowMsg_),
       userInterface_(mainAppWindow_),
       renderer_(defaultWidth_, defaultHeight_, mainAppWindow_),
-      scenes_{eng::loadSceneFromFile("scene1.scn"), eng::loadSceneFromFile("scene2.scn")},
-      currentScene_(scenes_.front()) {
+      scenes_() {
+    auto path = std::string("data/scenes/");
+
+    for (const auto& entry : fs::directory_iterator(path)) {
+        auto entryPath = entry.path().string();
+
+        static const auto suffix = std::string(".scn");
+
+        if (endsWith(entryPath, suffix)) {
+            scenes_.push_back(eng::loadSceneFromFile(entryPath.substr(path.size(), entryPath.size() - path.size() - suffix.size())));
+        }
+    }
 }
 
 void Application::run() {
@@ -19,9 +33,8 @@ void Application::run() {
 
         mainAppWindow_.clear();
 
-        size_t trianglesDrawn = renderer_.render(currentScene_);
+        size_t trianglesDrawn = renderer_.render(scenes_[currentSceneIndex_]);
         userInterface_.updateAndDraw(dt, trianglesDrawn, currentSceneIndex_, scenes_);
-        currentScene_ = scenes_[currentSceneIndex_];
 
         mainAppWindow_.display();
     }
@@ -89,7 +102,6 @@ void Application::onKeyPressOrRelease(sf::Keyboard::Key key, bool mode) {
     }
     if (mode && key == sf::Keyboard::LShift) {
         currentSceneIndex_ = (currentSceneIndex_ + 1) % scenes_.size();
-        currentScene_ = scenes_[currentSceneIndex_];
     }
 
     if (!pause) cameraControl_.keyPressedOrReleased(key, mode);
@@ -98,6 +110,6 @@ void Application::onKeyPressOrRelease(sf::Keyboard::Key key, bool mode) {
 void Application::update(Seconds dt) {
     cameraControl_.update(dt);
 
-    currentScene_.get().getCamera().setPosition(cameraControl_.getPosition());
-    currentScene_.get().getCamera().setDirection(cameraControl_.getDirection());
+    scenes_[currentSceneIndex_].getCamera().setPosition(cameraControl_.getPosition());
+    scenes_[currentSceneIndex_].getCamera().setDirection(cameraControl_.getDirection());
 }

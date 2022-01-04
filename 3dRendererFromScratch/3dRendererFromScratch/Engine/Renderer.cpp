@@ -32,13 +32,17 @@ size_t Renderer::renderSceneToScreen(Scene& scene) {
         trianglesDrawn += drawMesh(mesh, camera, screen_, lights);
     }
 
-    static Mesh lightMesh = FlatMesh(Assets::getMeshData("light", 0.05f, false, true), {}, glm::vec3(1.0f), ObjectTransform(), true);
+    static Mesh lightMesh = FlatMesh(Assets::getMeshData("light_bulb", 0.05f), {}, glm::vec3(1.0f), ObjectTransform(), false);
 
     for (const auto& light : lights) {
         lightMesh.getTransform().setPosition(light.position);
         lightMesh.getTransform().setScale(glm::clamp(light.intensity, 0.1f, 5.0f) * glm::vec3(1.0f));
         lightMesh.setWireframeColor(light.color);
+        lightMesh.setFragmentShaderUniform(light.color);
+
         lightMesh.draw(camera, screen_, lights);
+
+        trianglesDrawn += lightMesh.getTriangleCount();
     }
 
     return trianglesDrawn;

@@ -1,0 +1,54 @@
+Mesh
+{
+	name	Mesh1
+	typeName	PhongMesh
+	diffuseTextureName	texture2.png
+	meshFileName	teapot
+	meshScale	0.39
+}
+Mesh
+{
+	name	Mesh2
+	meshScale	0.1
+	transformPosition	1 0 0
+	flatColor	1 0 0
+}
+Mesh
+{
+	name	Mesh3
+	meshScale	0.1
+	transformPosition	-1 0 0
+	flatColor	0.5 0 0
+}
+Mesh
+{
+	name	Mesh4
+	meshScale	0.1
+	transformPosition	0 0 1
+	flatColor	0 0 1
+}
+Mesh
+{
+	name	Mesh5
+	meshScale	0.1
+	transformPosition	0 0 -1
+	flatColor	0 0 0.5
+}
+PointLight
+{
+	position	0 1.84 0
+	color	0.945946 0.00730461 0.898833
+	intensity	3.235
+}
+PointLight
+{
+	position	0 0.43 0.95
+	color	1 0.440476 0
+	intensity	3.375
+}
+PointLight
+{
+	position	-1.27 0.69 0
+	color	0 0.275902 0.945946
+	intensity	3.2
+}

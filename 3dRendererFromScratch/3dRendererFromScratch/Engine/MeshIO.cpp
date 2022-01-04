@@ -143,23 +143,14 @@ void addMesh(const Properties& pr, Scene& scene) {
     assert(correctMeshType);
 }
 
-static bool endsWith(std::string_view str, std::string_view suffix) {
-    return str.size() >= suffix.size() && (0 == str.compare(str.size() - suffix.size(), suffix.size(), suffix));
-}
-
 Scene loadSceneFromFile(std::string fileName) {
-    const auto suf = std::string(".scn");
-    assert(endsWith(fileName, suf));
-
-    std::ifstream file(std::string("data/scenes/") + fileName);
+    std::ifstream file(std::string("data/scenes/") + fileName + ".scn");
 
     if (file.fail()) {
         return Scene("empty");
     }
 
-    std::string sceneName = fileName.substr(0, fileName.size() - suf.size());
-
-    Scene scene(sceneName);
+    Scene scene(fileName);
 
     while (1) {
         std::string objectType;
@@ -188,10 +179,7 @@ Scene loadSceneFromFile(std::string fileName) {
 }
 
 bool saveSceneToFile(const Scene& scene, std::string fileName) {
-    const auto suf = std::string(".scn");
-    assert(endsWith(fileName, suf));
-
-    std::ofstream file(std::string("data/scenes/") + fileName);
+    std::ofstream file(std::string("data/scenes/") + fileName + ".scn");
 
     if (!file) {
         return false;

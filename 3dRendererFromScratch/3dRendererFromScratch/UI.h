@@ -44,6 +44,7 @@ class UserInterface {
     sf::Text text_;
     sf::Text text2_;
     sf::Text text3_;
+    sf::Text text4_;
 
     bool pause = false;
 };

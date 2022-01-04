@@ -29,6 +29,10 @@ UserInterface::UserInterface(sf::RenderWindow& window_) : mainAppWindow_(window_
     text3_.setFont(font_);
     text3_.setCharacterSize(18);
     text3_.setOrigin({0.0f, 0.0f});
+
+    text4_.setFont(font_);
+    text4_.setCharacterSize(18);
+    text4_.setOrigin({0.0f, -66.0f});
 }
 
 void UserInterface::updateAndDraw(Seconds deltaTime, size_t trianglesCount, size_t& sceneIndex, std::vector<eng::Scene>& scenes) {
@@ -44,10 +48,12 @@ void UserInterface::updateAndDraw(Seconds deltaTime, size_t trianglesCount, size
     }
 
     text3_.setString("triangles: " + std::to_string(trianglesCount));
+    text4_.setString(scenes[sceneIndex].getName());
 
     mainAppWindow_.get().draw(text_);
     mainAppWindow_.get().draw(text2_);
     mainAppWindow_.get().draw(text3_);
+    mainAppWindow_.get().draw(text4_);
 
     ImGui::SFML::Update(mainAppWindow_, sf::seconds(deltaTime));
 
@@ -304,7 +310,7 @@ void UserInterface::updateAndDraw(Seconds deltaTime, size_t trianglesCount, size
                     ImGui::InputText("##2", &currentSceneCopy2.getName());
                     ImGui::SameLine();
                     if (ImGui::Button("Save as")) {
-                        eng::saveSceneToFile(scenes[sceneIndex], currentSceneCopy2.getName() + ".scn");
+                        eng::saveSceneToFile(scenes[sceneIndex], currentSceneCopy2.getName());
                     }
 
                     ImGui::EndChild();
@@ -321,7 +327,7 @@ void UserInterface::updateAndDraw(Seconds deltaTime, size_t trianglesCount, size
                 ImGui::SameLine();
 
                 if (ImGui::Button("load scene", ImVec2(100, 0))) {
-                    scenes.push_back(eng::loadSceneFromFile(loadSceneName + ".scn"));
+                    scenes.push_back(eng::loadSceneFromFile(loadSceneName));
                     sceneIndex = scenes.size() - 1;
                 }
 
