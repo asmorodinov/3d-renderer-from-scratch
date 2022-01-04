@@ -1,3 +1,4 @@
+Mesh
 {
 	name 			Cubemap
 	typeName 		CubemapMesh
@@ -6,35 +7,35 @@
 	meshInvertNormals 	1
 	meshOnlyVertices 	0
 }
-
+Mesh
 {
 	name 			Mesh1
 	meshScale 		0.1
 	flatColor 		1 1 1
 	wireframeMode 		1
 }
-	
+Mesh
 {
 	name 			Mesh2
 	meshScale 		0.1
 	transformPosition 	1 0 0
 	flatColor 		1 0 0
 }
-
+Mesh
 {
 	name 			Mesh3
 	meshScale 		0.1
 	transformPosition 	-1 0 0
 	flatColor 		0.2 0 0
 }
-
+Mesh
 {
 	name 			Mesh4
 	meshScale 		0.1
 	transformPosition 	0 0 1
 	flatColor 		0 0 1
 }
-
+Mesh
 {
 	name 			Mesh5
 	meshScale 		0.1

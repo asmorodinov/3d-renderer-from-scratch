@@ -72,6 +72,8 @@ struct Properties {
 
 Properties loadProperties(std::ifstream& file);
 
+PointLight loadPointLightFromFile(std::ifstream& file);
+
 CubemapTextureRef getCubemapTextureFromProperties(const Properties& pr);
 
 // create mesh from properties

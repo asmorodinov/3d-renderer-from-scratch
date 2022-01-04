@@ -1,8 +1,9 @@
 Mesh
 {
 	name	Mesh1
-	meshScale	0.1
-	wireframeMode	1
+	typeName	NormalMesh
+	meshFileName	teapot
+	meshScale	0.54
 }
 Mesh
 {
@@ -31,10 +32,4 @@ Mesh
 	meshScale	0.1
 	transformPosition	0 0 -1
 	flatColor	0 0 0.5
-}
-PointLight
-{
-	position	0 0.84 0
-	color	0.168692 0.949807 0.397899
-	intensity	1.625
 }

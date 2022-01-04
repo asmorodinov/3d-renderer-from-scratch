@@ -140,6 +140,10 @@ class Mesh {
         return wireframeColor_;
     }
 
+    void setWireframeColor(glm::vec3 color) {
+        wireframeColor_ = color;
+    }
+
     size_t getTriangleCount() const {
         return mesh_.get().faces.size();
     }

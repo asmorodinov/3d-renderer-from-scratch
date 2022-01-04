@@ -46,6 +46,40 @@ Properties loadProperties(std::ifstream& file) {
     return res;
 }
 
+PointLight loadPointLightFromFile(std::ifstream& file) {
+    PointLight res;
+
+    bool start = false;
+
+    while (1) {
+        std::string name;
+        file >> name;
+
+        if (file.fail()) break;
+
+        if (name == "{") start = true;
+
+        if (!start) continue;
+
+        if (name == "}") break;
+
+        bool correctProperty = false;
+
+        READ_VEC3_MEMBER(position)
+        READ_VEC3_MEMBER(color)
+        READ_MEMBER(intensity, float)
+        READ_MEMBER(specularCoefficient, float)
+        READ_MEMBER(diffuseCoefficient, float)
+        READ_MEMBER(linearAttenuationCoefficient, float)
+        READ_MEMBER(quadraticAttenuationCoefficient, float)
+        READ_MEMBER(cubicAttenuationCoefficient, float)
+
+        assert(correctProperty);
+    }
+
+    return res;
+}
+
 CubemapTextureRef getCubemapTextureFromProperties(const Properties& pr) {
     return Assets::getCubemapTexture(pr.cubemapTextureName, pr.cubemapDefaultFormat, pr.cubemapImageFormat);
 }
@@ -119,7 +153,7 @@ Scene loadSceneFromFile(std::string fileName) {
 
     std::ifstream file(std::string("data/scenes/") + fileName);
 
-    if (!file) {
+    if (file.fail()) {
         return Scene("empty");
     }
 
@@ -128,11 +162,24 @@ Scene loadSceneFromFile(std::string fileName) {
     Scene scene(sceneName);
 
     while (1) {
-        Properties properties = loadProperties(file);
+        std::string objectType;
+        file >> objectType;
 
         if (file.fail()) break;
 
-        addMesh(properties, scene);
+        if (objectType == "Mesh") {
+            Properties properties = loadProperties(file);
+
+            if (file.fail()) break;
+
+            addMesh(properties, scene);
+        } else if (objectType == "PointLight") {
+            PointLight light = loadPointLightFromFile(file);
+
+            if (file.fail()) break;
+
+            scene.getPointLights().push_back(light);
+        }
     }
 
     file.close();
@@ -154,6 +201,7 @@ bool saveSceneToFile(const Scene& scene, std::string fileName) {
         Properties properties = getMeshProperties(meshVariant, name);
         Properties defaultProperties = Properties();
 
+        file << "Mesh\n";
         file << "{\n";
 
         WRITE_MEMBER(name)
@@ -174,6 +222,25 @@ bool saveSceneToFile(const Scene& scene, std::string fileName) {
         WRITE_VEC3_MEMBER(transformScale)
         WRITE_VEC3_MEMBER(wireframeColor)
         WRITE_VEC3_MEMBER(flatColor)
+
+        file << "}\n";
+    }
+
+    for (const auto& light : scene.getPointLights()) {
+        PointLight properties = light;
+        PointLight defaultProperties = PointLight();
+
+        file << "PointLight\n";
+        file << "{\n";
+
+        WRITE_VEC3_MEMBER(position)
+        WRITE_VEC3_MEMBER(color)
+        WRITE_MEMBER(intensity)
+        WRITE_MEMBER(specularCoefficient)
+        WRITE_MEMBER(diffuseCoefficient)
+        WRITE_MEMBER(linearAttenuationCoefficient)
+        WRITE_MEMBER(quadraticAttenuationCoefficient)
+        WRITE_MEMBER(cubicAttenuationCoefficient)
 
         file << "}\n";
     }
