@@ -53,9 +53,9 @@ NormalMapVertexShader::Output NormalMapVertexShader::run(const WorldSpaceTriangl
     T = glm::normalize(T - glm::dot(T, N) * N);
     auto B = glm::cross(N, T);
 
-    glm::mat3 invTBN = glm::inverse(glm::transpose(glm::mat3(T, B, N)));
+    glm::mat3 TBN = glm::mat3(T, B, N);
 
-    return {{bvso.cv0, bvso.cv1, bvso.cv2, {bvso.v0, tr.t0}, {bvso.v1, tr.t1}, {bvso.v2, tr.t2}}, {bvs.viewPos, invTBN}};
+    return {{bvso.cv0, bvso.cv1, bvso.cv2, {bvso.v0, tr.t0}, {bvso.v1, tr.t1}, {bvso.v2, tr.t2}}, {bvs.viewPos, TBN}};
 }
 
 }  // namespace eng
