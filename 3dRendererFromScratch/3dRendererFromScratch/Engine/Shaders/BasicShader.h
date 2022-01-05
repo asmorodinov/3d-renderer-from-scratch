@@ -14,17 +14,20 @@
 namespace eng {
 
 struct WorldSpaceTriangle {
+    // vertex coords
     glm::vec3 v0;
     glm::vec3 v1;
     glm::vec3 v2;
 
+    // texture coords
     glm::vec2 t0;
     glm::vec2 t1;
     glm::vec2 t2;
 
-    glm::vec3 n0;
-    glm::vec3 n1;
-    glm::vec3 n2;
+    // tangent, bitangent, normal
+    glm::vec3 tangent;
+    glm::vec3 bitangent;
+    glm::vec3 normal;
 };
 
 struct BasicVertexShader {

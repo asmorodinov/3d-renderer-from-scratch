@@ -9,8 +9,8 @@ namespace eng {
 
 struct PointLight {
     static constexpr const float defaultIntensity = 1.0f;
-    static constexpr const float defaultSpecularCoefficient = 0.4f;
-    static constexpr const float defaultDiffuseCoefficient = 1.2f;
+    static constexpr const float defaultSpecularCoefficient = 0.2f;
+    static constexpr const float defaultDiffuseCoefficient = 1.0f;
     static constexpr const float defaultLinearAttenuationCoefficient = 0.0f;
     static constexpr const float defaultQuadraticAttenuationCoefficient = 0.0f;
     static constexpr const float defaultCubicAttenuationCoefficient = 0.00001f;

@@ -11,6 +11,8 @@ MeshData MeshData::generateCubeData(float size, bool invertNormals) {
                          {size, -size, size},
                          {size, size, -size},
                          {size, size, size}},
+                        {},  // tangents
+                        {},  // bitangents
                         {{0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, -1.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, -1.0f, 0.0f}, {1.0f, 0.0f, 0.0f}, {-1.0f, 0.0f, 0.0f}},
                         {{0, 0}, {0, 1}, {1, 1}, {1, 0}},
                         {{1, 7, 3, 0, 2, 1, 0, 0, 0},
@@ -34,7 +36,52 @@ MeshData MeshData::generateCubeData(float size, bool invertNormals) {
         }
         for (auto& normal : res.normals) normal *= -1.0f;
     }
+    res.generateTBNVectors();
+
     return res;
+}
+
+void MeshData::generateTBNVectors() {
+    normals.clear();
+    tangents.clear();
+    bitangents.clear();
+
+    for (size_t i = 0; i < faces.size(); ++i) {
+        auto& face = faces[i];
+        face.ni = i;
+        face.nj = i;
+        face.nk = i;
+
+        glm::vec3 v0 = vertices[face.i];
+        glm::vec3 v1 = vertices[face.j];
+        glm::vec3 v2 = vertices[face.k];
+        glm::vec3 normal = glm::normalize(glm::cross(v1 - v0, v2 - v0));
+
+        glm::vec2 uv0 = textureCoords[face.ti];
+        glm::vec2 uv1 = textureCoords[face.tj];
+        glm::vec2 uv2 = textureCoords[face.tk];
+
+        glm::vec3 edge1 = v1 - v0;
+        glm::vec3 edge2 = v2 - v0;
+        glm::vec2 deltaUV1 = uv1 - uv0;
+        glm::vec2 deltaUV2 = uv2 - uv0;
+
+        glm::vec3 tangent;
+        glm::vec3 bitangent;
+        float f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
+
+        tangent.x = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
+        tangent.y = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
+        tangent.z = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
+
+        bitangent.x = f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
+        bitangent.y = f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
+        bitangent.z = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
+
+        normals.push_back(normal);
+        tangents.push_back(tangent);
+        bitangents.push_back(bitangent);
+    }
 }
 
 MeshData loadFromObj(const std::string& filename, float scale, bool invertNormals, bool onlyVertices) {
@@ -54,7 +101,7 @@ MeshData loadFromObj(const std::string& filename, float scale, bool invertNormal
         mesh.textureCoords.push_back(glm::vec2(1.0f, 1.0f));
     }
 
-    unsigned faceCnt = 0;
+    size_t faceCnt = 0;
 
     std::string s;
     while (file >> s) {
@@ -77,9 +124,9 @@ MeshData loadFromObj(const std::string& filename, float scale, bool invertNormal
             }
             mesh.normals.push_back({x, y, z});
         } else if (s == "f") {
-            int i, j, k;
-            int ti = 1, tj = 2, tk = 3;
-            int ni = faceCnt + 1, nj = faceCnt + 1, nk = faceCnt + 1;
+            size_t i, j, k;
+            size_t ti = 1, tj = 2, tk = 3;
+            size_t ni = faceCnt + 1, nj = faceCnt + 1, nk = faceCnt + 1;
             ++faceCnt;
 
             if (onlyVertices) {
@@ -112,6 +159,8 @@ MeshData loadFromObj(const std::string& filename, float scale, bool invertNormal
         }
     }
     file.close();
+
+    mesh.generateTBNVectors();
 
     return mesh;
 }

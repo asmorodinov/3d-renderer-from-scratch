@@ -45,7 +45,7 @@ void PhongVertexShader::setMVP(glm::mat4 model_, glm::mat4 view_, glm::mat4 proj
 
 PhongVertexShader::Output PhongVertexShader::run(const WorldSpaceTriangle& tr) {
     auto bvso = bvs.run(tr);
-    return {{bvso.cv0, bvso.cv1, bvso.cv2, {bvso.v0, tr.t0}, {bvso.v1, tr.t1}, {bvso.v2, tr.t2}}, {bvs.viewPos, bvs.normalMatrix * tr.n0}};
+    return {{bvso.cv0, bvso.cv1, bvso.cv2, {bvso.v0, tr.t0}, {bvso.v1, tr.t1}, {bvso.v2, tr.t2}}, {bvs.viewPos, glm::normalize(bvs.normalMatrix * tr.normal)}};
 }
 
 }  // namespace eng

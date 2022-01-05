@@ -13,16 +13,20 @@ namespace eng {
 
 struct Face {
     // vertex indices
-    int i, j, k;
+    size_t i, j, k;
     // texture indices
-    int ti, tj, tk;
+    size_t ti, tj, tk;
     // normal indices
-    int ni, nj, nk;
+    size_t ni, nj, nk;
 };
 
 struct MeshData {
     std::vector<glm::vec3> vertices;
+
+    std::vector<glm::vec3> tangents;
+    std::vector<glm::vec3> bitangents;
     std::vector<glm::vec3> normals;
+
     std::vector<glm::vec2> textureCoords;
     std::vector<Face> faces;
 
@@ -32,6 +36,8 @@ struct MeshData {
     float scale = 1.0f;
     bool invertNormals = false;
     bool onlyVertices = false;
+
+    void generateTBNVectors();
 };
 
 MeshData loadFromObj(const std::string& filename, float scale = 1.0f, bool invertNormals = false, bool onlyVertices = false);

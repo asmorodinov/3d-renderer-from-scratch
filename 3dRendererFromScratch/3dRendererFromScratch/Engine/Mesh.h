@@ -62,9 +62,14 @@ class Mesh {
         const auto& mesh = mesh_.get();
 
         for (const auto& face : mesh.faces) {
-            VertexShaderOutput out = vertexShader_.run({mesh.vertices[face.i], mesh.vertices[face.j], mesh.vertices[face.k], mesh.textureCoords[face.ti],
-                                                        mesh.textureCoords[face.tj], mesh.textureCoords[face.tk], mesh.normals[face.ni], mesh.normals[face.nj],
-                                                        mesh.normals[face.nk]});
+            VertexShaderOutput out = vertexShader_.run({
+                mesh.vertices[face.i], mesh.vertices[face.j], mesh.vertices[face.k],                    // vertices
+                mesh.textureCoords[face.ti], mesh.textureCoords[face.tj], mesh.textureCoords[face.tk],  // texture coords
+                mesh.tangents[face.ni],                                                                 // tangent
+                mesh.bitangents[face.ni],                                                               // bitangent
+                mesh.normals[face.ni]                                                                   // normal
+            });
+
             const auto& triangle = out.triangle;
             fragmentShader_.vso = out.uniformOutput;
 

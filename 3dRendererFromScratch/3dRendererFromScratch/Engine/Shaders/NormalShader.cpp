@@ -12,7 +12,7 @@ void NormalVertexShader::setMVP(glm::mat4 model_, glm::mat4 view_, glm::mat4 pro
 
 NormalVertexShader::Output NormalVertexShader::run(const WorldSpaceTriangle& tr) {
     auto bvso = bvs.run(tr);
-    return {{bvso.cv0, bvso.cv1, bvso.cv2, {}, {}, {}}, {bvs.normalMatrix * tr.n0}};
+    return {{bvso.cv0, bvso.cv1, bvso.cv2, {}, {}, {}}, {glm::normalize(bvs.normalMatrix * tr.normal)}};
 }
 
 }  // namespace eng

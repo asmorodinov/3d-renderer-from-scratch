@@ -9,7 +9,11 @@ struct NormalMapShader {
         std::reference_wrapper<const Texture> diffuseMap = Assets::getTexture();
         std::reference_wrapper<const Texture> normalMap = Assets::getTexture();
     };
-    using VertexShaderOutput = glm::vec3;
+    struct VertexShaderOutput {
+        glm::vec3 viewPos;
+        glm::mat3 invTBN;
+    };
+
     using Var = TwoVariables<glm::vec3, glm::vec2>;
 
     glm::vec4 computePixelColor(const Var& var, const LightsVec& lights);

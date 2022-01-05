@@ -8,8 +8,8 @@ glm::vec4 NormalMapShader::computePixelColor(const Var& var, const LightsVec& li
 
     auto diffuseMap = uniform.diffuseMap;
     auto normalMap = uniform.normalMap;
-    auto viewPos = vso;
-    auto normal = glm::normalize(glm::vec3(normalMap.get().sample(uv)) * 2.0f - 1.0f);
+    auto viewPos = vso.viewPos;
+    auto normal = vso.invTBN * glm::normalize(glm::vec3(normalMap.get().sample(uv)) * 2.0f - 1.0f);
 
     glm::vec4 color = diffuseMap.get().sample(uv);
 
@@ -20,7 +20,7 @@ glm::vec4 NormalMapShader::computePixelColor(const Var& var, const LightsVec& li
         glm::vec3 viewDir = glm::normalize(viewPos - FragPos);
         glm::vec3 lightDir = glm::normalize(lightPos - FragPos);
 
-        float diff = (glm::max(glm::dot(normal, lightDir), 0.0f) + 0.2f);
+        float diff = (glm::max(glm::dot(normal, lightDir), 0.0f) + 0.1f);
         glm::vec3 diffuse = diff * glm::vec3(color) * light.color * light.diffuseCoefficient;
 
         glm::vec3 halfwayDir = glm::normalize(lightDir + viewDir);
@@ -32,7 +32,8 @@ glm::vec4 NormalMapShader::computePixelColor(const Var& var, const LightsVec& li
                                     std::pow(d, 3.0f) * light.cubicAttenuationCoefficient);
         diffuse *= attenuation / 1.7;
         specular *= attenuation / 1.7;
-        lighting += 1.0f * light.intensity * glm::vec3(1.0f) * (diffuse + specular);
+
+        lighting += light.intensity * (diffuse + specular);
     }
 
     lighting = glm::clamp(glm::pow(lighting, glm::vec3(1.0f / 2.2f)), 0.0f, 1.0f);
@@ -46,7 +47,15 @@ void NormalMapVertexShader::setMVP(glm::mat4 model_, glm::mat4 view_, glm::mat4 
 
 NormalMapVertexShader::Output NormalMapVertexShader::run(const WorldSpaceTriangle& tr) {
     auto bvso = bvs.run(tr);
-    return {{bvso.cv0, bvso.cv1, bvso.cv2, {bvso.v0, tr.t0}, {bvso.v1, tr.t1}, {bvso.v2, tr.t2}}, bvs.viewPos};
+
+    auto T = glm::normalize(bvs.normalMatrix * tr.tangent);
+    auto N = glm::normalize(bvs.normalMatrix * tr.normal);
+    T = glm::normalize(T - glm::dot(T, N) * N);
+    auto B = glm::cross(N, T);
+
+    glm::mat3 invTBN = glm::inverse(glm::transpose(glm::mat3(T, B, N)));
+
+    return {{bvso.cv0, bvso.cv1, bvso.cv2, {bvso.v0, tr.t0}, {bvso.v1, tr.t1}, {bvso.v2, tr.t2}}, {bvs.viewPos, invTBN}};
 }
 
 }  // namespace eng
