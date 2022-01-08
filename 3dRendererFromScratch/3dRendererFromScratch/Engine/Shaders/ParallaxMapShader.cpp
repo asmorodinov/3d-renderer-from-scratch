@@ -2,7 +2,7 @@
 
 namespace eng {
 
-static constexpr auto heightScale = 0.2f;
+static constexpr auto heightScale = 0.1f;
 
 // parallax mapping helper function
 glm::vec2 ParallaxMapping(glm::vec2 texCoords, glm::vec3 viewDir, const Texture& depthMap) {
