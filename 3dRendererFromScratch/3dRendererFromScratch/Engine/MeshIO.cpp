@@ -23,8 +23,11 @@ Properties loadProperties(std::ifstream& file) {
 
         READ_MEMBER(name, std::string)
         READ_MEMBER(typeName, std::string)
+
         READ_MEMBER(diffuseTextureName, std::string)
         READ_MEMBER(normalTextureName, std::string)
+        READ_MEMBER(displacementTextureName, std::string)
+
         READ_MEMBER(cubemapTextureName, std::string)
         READ_MEMBER(meshFileName, std::string)
         READ_MEMBER(cubemapImageFormat, std::string)
@@ -151,8 +154,11 @@ bool saveSceneToFile(const Scene& scene, std::string fileName) {
 
         WRITE_MEMBER(name)
         WRITE_MEMBER(typeName)
+
         WRITE_MEMBER(diffuseTextureName)
         WRITE_MEMBER(normalTextureName)
+        WRITE_MEMBER(displacementTextureName)
+
         WRITE_MEMBER(cubemapTextureName)
         WRITE_MEMBER(meshFileName)
         WRITE_MEMBER(cubemapImageFormat)

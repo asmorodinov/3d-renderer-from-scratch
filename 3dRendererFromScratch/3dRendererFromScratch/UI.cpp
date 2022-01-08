@@ -164,6 +164,8 @@ void UserInterface::updateAndDraw(Seconds deltaTime, size_t trianglesCount, size
 
                     ImGui::InputText("diffuse map name", &selectedPropertiesCopy2.diffuseTextureName);
                     ImGui::InputText("normal map name", &selectedPropertiesCopy2.normalTextureName);
+                    ImGui::InputText("displacement map name", &selectedPropertiesCopy2.displacementTextureName);
+
                     ImGui::InputText("cubemap name", &selectedPropertiesCopy2.cubemapTextureName);
                     ImGui::InputText("cubemap image format", &selectedPropertiesCopy2.cubemapImageFormat);
                     ImGui::Checkbox("cubemap default format", &selectedPropertiesCopy2.cubemapDefaultFormat);

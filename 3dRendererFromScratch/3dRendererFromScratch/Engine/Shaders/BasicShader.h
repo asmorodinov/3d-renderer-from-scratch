@@ -18,6 +18,8 @@ using VertexShaderUniform = EmptyStruct;
 struct FragmentShaderUniform {
     TextureRef diffuseTexture = Assets::getTexture();
     TextureRef normalTexture = Assets::getTexture();
+    TextureRef displacementTexture = Assets::getTexture();
+
     CubemapTextureRef cubemapTexture = Assets::getCubemapTexture();
 
     glm::vec3 flatColor = glm::vec3(1.0f);

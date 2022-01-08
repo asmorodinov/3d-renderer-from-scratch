@@ -52,8 +52,11 @@ namespace eng {
 struct Properties {
     std::string name = "Mesh";
     std::string typeName = "FlatMesh";
+
     std::string diffuseTextureName = "brickwall.jpg";
     std::string normalTextureName = "brickwall_normal.jpg";
+    std::string displacementTextureName = "bricks2_disp.jpg";
+
     std::string cubemapTextureName = "LancellottiChapel";
     std::string meshFileName = "light";
     std::string cubemapImageFormat = ".jpg";
@@ -85,10 +88,11 @@ Mesh createMesh(const Properties& pr) {
     VertexShaderUniform vun = {};
 
     FragmentShaderUniform fun = {
-        Assets::getTexture(pr.diffuseTextureName),  // diffuse
-        Assets::getTexture(pr.normalTextureName),   // normmal
-        getCubemapTextureFromProperties(pr),        // cubemap
-        pr.flatColor                                // flat color
+        Assets::getTexture(pr.diffuseTextureName),       // diffuse
+        Assets::getTexture(pr.normalTextureName),        // normmal
+        Assets::getTexture(pr.displacementTextureName),  // displacement
+        getCubemapTextureFromProperties(pr),             // cubemap
+        pr.flatColor                                     // flat color
     };
 
     return Mesh(meshData, vun, fun, transform, pr.wireframeMode, pr.writeToDepthBuffer, pr.wireframeColor, pr.drawingEnabled);
@@ -123,6 +127,7 @@ Properties getProperties(const Mesh& mesh, std::string name) {
     pr.cubemapDefaultFormat = uniform.cubemapTexture.get().defaultFormat;
     pr.cubemapImageFormat = uniform.cubemapTexture.get().imageFormat;
     pr.normalTextureName = uniform.normalTexture.get().fileName;
+    pr.displacementTextureName = uniform.displacementTexture.get().fileName;
 
     return pr;
 }
