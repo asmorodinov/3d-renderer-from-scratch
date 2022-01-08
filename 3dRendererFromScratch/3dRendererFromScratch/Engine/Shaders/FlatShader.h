@@ -5,7 +5,7 @@
 namespace eng {
 
 struct FlatShader {
-    using Uniform = glm::vec3;
+    using Uniform = FragmentShaderUniform;
     using VertexShaderOutput = EmptyStruct;
     using Var = NoVariables;
 
@@ -16,7 +16,7 @@ struct FlatShader {
 };
 
 struct FlatVertexShader {
-    using Uniform = EmptyStruct;
+    using Uniform = VertexShaderUniform;
     struct Output {
         Triangle<FlatShader::Var> triangle;
         FlatShader::VertexShaderOutput uniformOutput;

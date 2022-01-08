@@ -6,7 +6,7 @@ glm::vec4 PhongShader::computePixelColor(const Var& var, const LightsVec& lights
     auto FragPos = var.t1;
     auto uv = var.t2;
 
-    auto texture = uniform;
+    auto texture = uniform.diffuseTexture;
     auto viewPos = vso.viewPos;
     auto normal = vso.normal;
 

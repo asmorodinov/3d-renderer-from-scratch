@@ -5,18 +5,18 @@
 namespace eng {
 
 struct CubemapShader {
-    using Uniform = std::reference_wrapper<const CubemapTexture>;
+    using Uniform = FragmentShaderUniform;
     using VertexShaderOutput = EmptyStruct;
     using Var = OneVariable<glm::vec3>;
 
     glm::vec4 computePixelColor(const Var& var, const LightsVec& lights);
 
-    Uniform uniform = Assets::getCubemapTexture();
+    Uniform uniform;
     VertexShaderOutput vso;
 };
 
 struct CubemapVertexShader {
-    using Uniform = EmptyStruct;
+    using Uniform = VertexShaderUniform;
     struct Output {
         Triangle<CubemapShader::Var> triangle;
         CubemapShader::VertexShaderOutput uniformOutput;

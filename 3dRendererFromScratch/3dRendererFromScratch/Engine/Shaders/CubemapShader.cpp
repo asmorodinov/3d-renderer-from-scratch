@@ -3,7 +3,7 @@
 namespace eng {
 
 glm::vec4 CubemapShader::computePixelColor(const Var& var, const LightsVec& lights) {
-    return uniform.get().sample(var.t);
+    return uniform.cubemapTexture.get().sample(var.t);
 }
 
 void CubemapVertexShader::setMVP(glm::mat4 model_, glm::mat4 view_, glm::mat4 projection_, glm::vec3 viewPos_) {

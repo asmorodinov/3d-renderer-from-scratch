@@ -13,6 +13,16 @@
 
 namespace eng {
 
+using VertexShaderUniform = EmptyStruct;
+
+struct FragmentShaderUniform {
+    TextureRef diffuseTexture = Assets::getTexture();
+    TextureRef normalTexture = Assets::getTexture();
+    CubemapTextureRef cubemapTexture = Assets::getCubemapTexture();
+
+    glm::vec3 flatColor = glm::vec3(1.0f);
+};
+
 struct WorldSpaceTriangle {
     // vertex coords
     glm::vec3 v0;

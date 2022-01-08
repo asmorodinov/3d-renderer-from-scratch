@@ -41,10 +41,10 @@
         correctProperty = true;          \
     }
 
-#define ADD_MESH(meshType)                                \
-    if (typeName == #meshType) {                          \
-        scene.addObject(pr.name, create##meshType##(pr)); \
-        correctMeshType = true;                           \
+#define ADD_MESH(meshType)                                      \
+    if (typeName == #meshType) {                                \
+        scene.addObject(pr.name, createMesh<##meshType##>(pr)); \
+        correctMeshType = true;                                 \
     }
 
 namespace eng {
@@ -78,24 +78,32 @@ CubemapTextureRef getCubemapTextureFromProperties(const Properties& pr);
 
 // create mesh from properties
 template <typename Mesh>
-Mesh createMesh(const Properties& pr, std::function<typename Mesh::VertexShaderUniform(const Properties&)> f1,
-                std::function<typename Mesh::FragmentShaderUniform(const Properties&)> f2) {
+Mesh createMesh(const Properties& pr) {
     auto meshData = Assets::getMeshData(pr.meshFileName, pr.meshScale, pr.meshInvertNormals, pr.meshOnlyVertices);
     auto transform = ObjectTransform(pr.transformPosition, pr.transformScale);
 
-    return Mesh(meshData, f1(pr), f2(pr), transform, pr.wireframeMode, pr.writeToDepthBuffer, pr.wireframeColor, pr.drawingEnabled);
+    VertexShaderUniform vun = {};
+
+    FragmentShaderUniform fun = {
+        Assets::getTexture(pr.diffuseTextureName),  // diffuse
+        Assets::getTexture(pr.normalTextureName),   // normmal
+        getCubemapTextureFromProperties(pr),        // cubemap
+        pr.flatColor                                // flat color
+    };
+
+    return Mesh(meshData, vun, fun, transform, pr.wireframeMode, pr.writeToDepthBuffer, pr.wireframeColor, pr.drawingEnabled);
 }
 
 // get properties from Mesh
 template <typename Mesh>
-Properties getProperties(const Mesh& mesh, std::function<void(const typename Mesh::VertexShaderUniform&, Properties&)> f1,
-                         std::function<void(const typename Mesh::FragmentShaderUniform&, Properties&)> f2, std::string typeName, std::string name) {
+Properties getProperties(const Mesh& mesh, std::string name) {
     auto meshData = mesh.getMeshData();
     const auto& transform = mesh.getTransform();
 
     Properties pr;
     pr.name = name;
-    pr.typeName = typeName;
+    pr.typeName = TypeNameMap<Mesh>::name;
+
     pr.meshFileName = meshData.get().fileName;
     pr.meshInvertNormals = meshData.get().invertNormals;
     pr.meshOnlyVertices = meshData.get().onlyVertices;
@@ -107,19 +115,17 @@ Properties getProperties(const Mesh& mesh, std::function<void(const typename Mes
     pr.writeToDepthBuffer = mesh.getWriteToDepthBuffer();
     pr.drawingEnabled = mesh.getDrawingEnabled();
 
-    f1(mesh.getVertexShaderUniform(), pr);
-    f2(mesh.getFragmentShaderUniform(), pr);
+    // fragment shader uniform properties
+    const FragmentShaderUniform& uniform = mesh.getFragmentShaderUniform();
+    pr.diffuseTextureName = uniform.diffuseTexture.get().fileName;
+    pr.flatColor = uniform.flatColor;
+    pr.cubemapTextureName = uniform.cubemapTexture.get().fileName;
+    pr.cubemapDefaultFormat = uniform.cubemapTexture.get().defaultFormat;
+    pr.cubemapImageFormat = uniform.cubemapTexture.get().imageFormat;
+    pr.normalTextureName = uniform.normalTexture.get().fileName;
 
     return pr;
 }
-
-FlatMesh createFlatMesh(const Properties& pr);
-TextureMesh createTextureMesh(const Properties& pr);
-CubemapMesh createCubemapMesh(const Properties& pr);
-UVMesh createUVMesh(const Properties& pr);
-NormalMesh createNormalMesh(const Properties& pr);
-PhongMesh createPhongMesh(const Properties& pr);
-NormalMapMesh createNormalMapMesh(const Properties& pr);
 
 void addMesh(const Properties& pr, Scene& scene);
 
@@ -127,14 +133,6 @@ Scene loadSceneFromFile(std::string fileName);
 bool saveSceneToFile(const Scene& scene, std::string fileName);
 
 // get properties
-Properties getMeshProperties(const FlatMesh& mesh, std::string name);
-Properties getMeshProperties(const TextureMesh& mesh, std::string name);
-Properties getMeshProperties(const CubemapMesh& mesh, std::string name);
-Properties getMeshProperties(const UVMesh& mesh, std::string name);
-Properties getMeshProperties(const NormalMesh& mesh, std::string name);
-Properties getMeshProperties(const PhongMesh& mesh, std::string name);
-Properties getMeshProperties(const NormalMapMesh& mesh, std::string name);
-
 Properties getMeshProperties(const MeshVariant& mesh, std::string name);
 
 }  // namespace eng

@@ -5,10 +5,7 @@
 namespace eng {
 
 struct NormalMapShader {
-    struct Uniform {
-        std::reference_wrapper<const Texture> diffuseMap = Assets::getTexture();
-        std::reference_wrapper<const Texture> normalMap = Assets::getTexture();
-    };
+    using Uniform = FragmentShaderUniform;
     struct VertexShaderOutput {
         glm::vec3 viewPos;
         glm::mat3 invTBN;
@@ -23,7 +20,7 @@ struct NormalMapShader {
 };
 
 struct NormalMapVertexShader {
-    using Uniform = EmptyStruct;
+    using Uniform = VertexShaderUniform;
     struct Output {
         Triangle<NormalMapShader::Var> triangle;
         NormalMapShader::VertexShaderOutput uniformOutput;

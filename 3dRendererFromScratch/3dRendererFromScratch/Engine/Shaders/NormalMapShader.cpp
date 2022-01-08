@@ -6,8 +6,8 @@ glm::vec4 NormalMapShader::computePixelColor(const Var& var, const LightsVec& li
     auto FragPos = var.t1;
     auto uv = var.t2;
 
-    auto diffuseMap = uniform.diffuseMap;
-    auto normalMap = uniform.normalMap;
+    auto diffuseMap = uniform.diffuseTexture;
+    auto normalMap = uniform.normalTexture;
     auto viewPos = vso.viewPos;
     auto normal = vso.invTBN * glm::normalize(glm::vec3(normalMap.get().sample(uv)) * 2.0f - 1.0f);
 

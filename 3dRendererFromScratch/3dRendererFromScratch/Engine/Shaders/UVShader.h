@@ -6,7 +6,7 @@
 namespace eng {
 
 struct UVShader {
-    using Uniform = EmptyStruct;
+    using Uniform = FragmentShaderUniform;
     using VertexShaderOutput = EmptyStruct;
     using Var = OneVariable<glm::vec2>;
 

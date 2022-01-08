@@ -5,18 +5,18 @@
 namespace eng {
 
 struct TextureShader {
-    using Uniform = std::reference_wrapper<const Texture>;
+    using Uniform = FragmentShaderUniform;
     using VertexShaderOutput = EmptyStruct;
     using Var = OneVariable<glm::vec2>;
 
     glm::vec4 computePixelColor(const Var& var, const LightsVec& lights);
 
-    Uniform uniform = Assets::getTexture();
+    Uniform uniform;
     VertexShaderOutput vso;
 };
 
 struct TextureVertexShader {
-    using Uniform = EmptyStruct;
+    using Uniform = VertexShaderUniform;
     struct Output {
         Triangle<TextureShader::Var> triangle;
         TextureShader::VertexShaderOutput uniformOutput;

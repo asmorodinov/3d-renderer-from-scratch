@@ -5,7 +5,7 @@
 namespace eng {
 
 struct PhongShader {
-    using Uniform = std::reference_wrapper<const Texture>;
+    using Uniform = FragmentShaderUniform;
     struct VertexShaderOutput {
         glm::vec3 viewPos;
         glm::vec3 normal;
@@ -14,12 +14,12 @@ struct PhongShader {
 
     glm::vec4 computePixelColor(const Var& var, const LightsVec& lights);
 
-    Uniform uniform = Assets::getTexture();
+    Uniform uniform;
     VertexShaderOutput vso;
 };
 
 struct PhongVertexShader {
-    using Uniform = EmptyStruct;
+    using Uniform = VertexShaderUniform;
     struct Output {
         Triangle<PhongShader::Var> triangle;
         PhongShader::VertexShaderOutput uniformOutput;

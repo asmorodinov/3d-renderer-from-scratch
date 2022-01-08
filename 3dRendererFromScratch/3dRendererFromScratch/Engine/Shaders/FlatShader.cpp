@@ -3,7 +3,7 @@
 namespace eng {
 
 glm::vec4 FlatShader::computePixelColor(const Var& var, const LightsVec& lights) {
-    return glm::vec4(uniform, 1.0f);
+    return glm::vec4(uniform.flatColor, 1.0f);
 }
 
 void FlatVertexShader::setMVP(glm::mat4 model_, glm::mat4 view_, glm::mat4 projection_, glm::vec3 viewPos_) {
