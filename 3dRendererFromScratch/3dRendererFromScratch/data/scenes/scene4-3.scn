@@ -1,0 +1,15 @@
+Mesh
+{
+	name	Mesh1
+	typeName	ParallaxMapMesh
+	diffuseTextureName	wood.png
+	normalTextureName	toy_box_normal.png
+	displacementTextureName	toy_box_disp.png
+	meshFileName	cube
+	meshOnlyVertices	0
+}
+PointLight
+{
+	position	0.79 0 2.19
+	intensity	2.155
+}

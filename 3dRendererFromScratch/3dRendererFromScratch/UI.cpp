@@ -76,7 +76,8 @@ void UserInterface::updateAndDraw(Seconds deltaTime, size_t trianglesCount, size
                 static eng::Properties selectedPropertiesCopy4;
 
                 static int item_current = 0;
-                std::array<const char*, 7> items = {"FlatMesh", "TextureMesh", "CubemapMesh", "UVMesh", "NormalMesh", "PhongMesh", "NormalMapMesh"};
+                std::array<const char*, 8> items = {"FlatMesh",   "TextureMesh", "CubemapMesh",   "UVMesh",
+                                                    "NormalMesh", "PhongMesh",   "NormalMapMesh", "ParallaxMapMesh"};
 
                 {
                     ImGui::BeginChild("left", ImVec2(150, 0));

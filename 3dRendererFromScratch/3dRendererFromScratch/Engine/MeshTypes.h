@@ -18,8 +18,9 @@ using UVMesh = Mesh<UVVertexShader, UVShader>;
 using NormalMesh = Mesh<NormalVertexShader, NormalShader>;
 using PhongMesh = Mesh<PhongVertexShader, PhongShader>;
 using NormalMapMesh = Mesh<NormalMapVertexShader, NormalMapShader>;
+using ParallaxMapMesh = Mesh<ParallaxMapVertexShader, ParallaxMapShader>;
 
-using MeshVariant = std::variant<FlatMesh, TextureMesh, CubemapMesh, UVMesh, NormalMesh, PhongMesh, NormalMapMesh>;
+using MeshVariant = std::variant<FlatMesh, TextureMesh, CubemapMesh, UVMesh, NormalMesh, PhongMesh, NormalMapMesh, ParallaxMapMesh>;
 
 using ObjectsVec = std::map<std::string, MeshVariant>;
 
@@ -43,5 +44,6 @@ SPECIFY_TYPE_NAME_FOR_SOME_TYPE(UVMesh);
 SPECIFY_TYPE_NAME_FOR_SOME_TYPE(NormalMesh);
 SPECIFY_TYPE_NAME_FOR_SOME_TYPE(PhongMesh);
 SPECIFY_TYPE_NAME_FOR_SOME_TYPE(NormalMapMesh);
+SPECIFY_TYPE_NAME_FOR_SOME_TYPE(ParallaxMapMesh);
 
 }  // namespace eng

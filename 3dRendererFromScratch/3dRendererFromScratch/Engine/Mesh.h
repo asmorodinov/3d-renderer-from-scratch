@@ -21,14 +21,16 @@
 #include "MeshData.h"
 #include "ObjectTransform.h"
 
+#include "Shaders/BasicShader.h"
+
 namespace eng {
 
 template <typename VertexShader, typename FragmentShader>
 class Mesh {
  public:
     using MeshDataRef = std::reference_wrapper<const MeshData>;
-    using VertexShaderUniform = typename VertexShader::Uniform;
-    using FragmentShaderUniform = typename FragmentShader::Uniform;
+    using VertexShaderUniform = VertexShaderUniform;
+    using FragmentShaderUniform = FragmentShaderUniform;
     using VertexShaderOutput = typename VertexShader::Output;
 
     Mesh(MeshDataRef mesh, const VertexShaderUniform& vertexShaderUniform, const FragmentShaderUniform& fragmentShaderUniform,

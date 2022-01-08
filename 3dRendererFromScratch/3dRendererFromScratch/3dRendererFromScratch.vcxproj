@@ -190,6 +190,7 @@
     <ClCompile Include="Engine\Shaders\FlatShader.cpp" />
     <ClCompile Include="Engine\Shaders\NormalMapShader.cpp" />
     <ClCompile Include="Engine\Shaders\NormalShader.cpp" />
+    <ClCompile Include="Engine\Shaders\ParallaxMapShader.cpp" />
     <ClCompile Include="Engine\Shaders\PhongShader.cpp" />
     <ClCompile Include="Engine\Shaders\TextureShader.cpp" />
     <ClCompile Include="Engine\Shaders\UVShader.cpp" />
@@ -222,6 +223,7 @@
     <ClInclude Include="Engine\Shaders\FlatShader.h" />
     <ClInclude Include="Engine\Shaders\NormalMapShader.h" />
     <ClInclude Include="Engine\Shaders\NormalShader.h" />
+    <ClInclude Include="Engine\Shaders\ParallaxMapShader.h" />
     <ClInclude Include="Engine\Shaders\PhongShader.h" />
     <ClInclude Include="Engine\Shaders\TextureShader.h" />
     <ClInclude Include="Engine\Shaders\UVShader.h" />

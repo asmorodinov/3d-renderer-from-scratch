@@ -1,0 +1,14 @@
+Mesh
+{
+	name	Mesh1
+	typeName	ParallaxMapMesh
+	diffuseTextureName	bricks2.jpg
+	normalTextureName	bricks2_normal.jpg
+	meshFileName	cube
+	meshOnlyVertices	0
+}
+PointLight
+{
+	position	1.03 -0.08 2.34
+	intensity	2.595
+}

@@ -242,7 +242,7 @@ void rasterizeTriangle(const Triangle<Var>& t, Shader& shader, Screen& screen, c
             Var t = (t0 * w0 + t1 * w1 + t2 * w2) * (1.0f / w);
             auto lighting = shader.computePixelColor(t, lights);
 
-            screen.setPixelColor(size_t(x), size_t(y), glm::vec3(lighting), z);
+            if (lighting.a > 0.0f) screen.setPixelColor(size_t(x), size_t(y), glm::vec3(lighting), z);
         }
     }
 }

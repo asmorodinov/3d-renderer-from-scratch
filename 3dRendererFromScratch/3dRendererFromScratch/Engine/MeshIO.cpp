@@ -99,6 +99,7 @@ void addMesh(const Properties& pr, Scene& scene) {
     ADD_MESH(NormalMesh);
     ADD_MESH(PhongMesh);
     ADD_MESH(NormalMapMesh);
+    ADD_MESH(ParallaxMapMesh);
 
     assert(correctMeshType);
 }
