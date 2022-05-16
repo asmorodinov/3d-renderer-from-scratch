@@ -12,11 +12,53 @@
 
 #include "InterpolatableTuple.h"
 #include "Light.h"
-#include "Screen.h"
+#include "Types.h"
+#include "ProjectionInfo.h"
+#include "Buffer.h"
 
 namespace eng {
 
-void drawLine(glm::vec3 pos1, glm::vec3 pos2, Screen::Color color, Screen& screen);
+template <typename Buffer>
+void drawLine(glm::vec3 pos1, glm::vec3 pos2, Color32 color, Buffer& buffer) {
+    glm::vec3 p1 = pos1;
+    glm::vec3 p2 = pos2;
+
+    int x0 = int(buffer.getWidth() * (p1.x + 1.0f) / 2.0f);
+    int y0 = int(buffer.getHeight() * (p1.y + 1.0f) / 2.0f);
+
+    int x1 = int(buffer.getWidth() * (p2.x + 1.0f) / 2.0f);
+    int y1 = int(buffer.getHeight() * (p2.y + 1.0f) / 2.0f);
+
+    int x = x0;
+    int y = y0;
+    int dx = std::abs(x1 - x0);
+    int dy = -std::abs(y1 - y0);
+    int sx = x0 < x1 ? 1 : -1;
+    int sy = y0 < y1 ? 1 : -1;
+    int err = dx + dy; /* error value e_xy */
+    while (true) {     /* loop */
+        float t = (x0 == x1 && y0 == y1)
+                      ? 0.0f
+                      : std::sqrt(static_cast<float>(std::pow(x - x0, 2) + std::pow(y - y0, 2)) / (std::pow(x1 - x0, 2) + std::pow(y1 - y0, 2)));
+        float z = t * p2.z + (1 - t) * p1.z;
+
+        if (z >= -1.0f && z <= 1.0f && x >= 0 && y >= 0 && x < buffer.getWidth() && y < buffer.getHeight()) {
+            buffer.setPixelColor(size_t(x), size_t(y), convertColor<Color32, Buffer::Color>(color), z);
+        }
+
+        if (x == x1 && y == y1) break;
+
+        int e2 = 2 * err;
+        if (e2 >= dy) { /* e_xy+e_x > 0 */
+            err += dy;
+            x += sx;
+        }
+        if (e2 <= dx) { /* e_xy+e_y < 0 */
+            err += dx;
+            y += sy;
+        }
+    }
+}
 
 template <typename Var>
 struct Triangle {
@@ -172,30 +214,38 @@ std::vector<Triangle<Var>> clipTriangleAgainstFrustrum(const Triangle<Var>& t, c
     return trianglesToDraw;
 }
 
-void drawWireframeTriangle(const Triangle<NoVariables>& t, const glm::mat4& projection, Screen::Color color, Screen& screen);
-
-template <typename Var, typename Shader>
-void drawTriangle(const Triangle<Var>& t, const glm::mat4& projection, Shader& shader, Screen& screen, const LightsVec& lights) {
-    float near = screen.getNearPlaneDistance();
+template <typename Buffer>
+void drawWireframeTriangle(const Triangle<NoVariables>& t, const glm::mat4& projection, Color32 color, ProjectionInfo& info, Buffer& buffer) {
+    float near = info.getNearPlaneDistance();
     for (const auto& triangle : clipTriangleAgainstFrustrum(t, projection, near)) {
-        rasterizeTriangle(triangle, shader, screen, lights);
+        drawLine(triangle.p0, triangle.p1, color, buffer);
+        drawLine(triangle.p1, triangle.p2, color, buffer);
+        drawLine(triangle.p2, triangle.p0, color, buffer);
     }
 }
 
-template <typename Var, typename Shader>
-void rasterizeTriangle(const Triangle<Var>& t, Shader& shader, Screen& screen, const LightsVec& lights) {
+template <typename Var, typename Shader, typename Buffer>
+void drawTriangle(const Triangle<Var>& t, const glm::mat4& projection, Shader& shader, ProjectionInfo& info, const LightsVec& lights, Buffer& buffer) {
+    float near = info.getNearPlaneDistance();
+    for (const auto& triangle : clipTriangleAgainstFrustrum(t, projection, near)) {
+        rasterizeTriangle(triangle, shader, buffer, lights);
+    }
+}
+
+template <typename Var, typename Shader, typename Buffer>
+void rasterizeTriangle(const Triangle<Var>& t, Shader& shader, Buffer& buffer, const LightsVec& lights) {
     glm::vec4 p0 = t.p0;
     glm::vec4 p1 = t.p1;
     glm::vec4 p2 = t.p2;
 
-    int x0 = int(screen.getWidth() * (p0.x + 1.0f) / 2.0f);
-    int y0 = int(screen.getHeight() * (p0.y + 1.0f) / 2.0f);
+    int x0 = int(buffer.getWidth() * (p0.x + 1.0f) / 2.0f);
+    int y0 = int(buffer.getHeight() * (p0.y + 1.0f) / 2.0f);
 
-    int x1 = int(screen.getWidth() * (p1.x + 1.0f) / 2.0f);
-    int y1 = int(screen.getHeight() * (p1.y + 1.0f) / 2.0f);
+    int x1 = int(buffer.getWidth() * (p1.x + 1.0f) / 2.0f);
+    int y1 = int(buffer.getHeight() * (p1.y + 1.0f) / 2.0f);
 
-    int x2 = int(screen.getWidth() * (p2.x + 1.0f) / 2.0f);
-    int y2 = int(screen.getHeight() * (p2.y + 1.0f) / 2.0f);
+    int x2 = int(buffer.getWidth() * (p2.x + 1.0f) / 2.0f);
+    int y2 = int(buffer.getHeight() * (p2.y + 1.0f) / 2.0f);
 
     int minx = std::min({x0, x1, x2});
     int miny = std::min({y0, y1, y2});
@@ -213,10 +263,10 @@ void rasterizeTriangle(const Triangle<Var>& t, Shader& shader, Screen& screen, c
     const auto& t2 = t.v2;
 
     int xMin = std::max(0, minx);
-    int xMax = std::min(static_cast<int>(screen.getWidth()) - 1, maxx);
+    int xMax = std::min(static_cast<int>(buffer.getWidth()) - 1, maxx);
 
     int yMin = std::max(0, miny);
-    int yMax = std::min(static_cast<int>(screen.getHeight()) - 1, maxy);
+    int yMax = std::min(static_cast<int>(buffer.getHeight()) - 1, maxy);
 
     for (int x = xMin; x <= xMax; ++x) {
         for (int y = yMin; y <= yMax; ++y) {
@@ -237,12 +287,12 @@ void rasterizeTriangle(const Triangle<Var>& t, Shader& shader, Screen& screen, c
             float w = w0 * p0.w + w1 * p1.w + w2 * p2.w;
 
             if (z < -1 || z > 1) continue;
-            if (z > screen.getPixelDepth(size_t(x), size_t(y))) continue;
+            if (z > buffer.getPixelDepth(Pixels(x), Pixels(y))) continue;
 
             Var t = (t0 * w0 + t1 * w1 + t2 * w2) * (1.0f / w);
             auto lighting = shader.computePixelColor(t, lights);
 
-            if (lighting.a > 0.0f) screen.setPixelColor(size_t(x), size_t(y), glm::vec3(lighting), z);
+            if (lighting.a > 0.0f) buffer.setPixelColor(Pixels(x), Pixels(y), convertColor<glm::vec4, Buffer::Color>(lighting), z);
         }
     }
 }

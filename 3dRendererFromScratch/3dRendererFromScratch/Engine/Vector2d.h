@@ -25,6 +25,15 @@ class Vector2d {
         std::fill(vector_.begin(), vector_.end(), elem);
     }
 
+    T& get(size_t i) {
+        assert(i < matrixWidth_ * matrixHeight_);
+        return vector_[i];
+    }
+    const T& get(size_t i) const {
+        assert(i < matrixWidth_ * matrixHeight_);
+        return vector_[i];
+    }
+
     const T* get_pointer() const {
         return &vector_[0];
     }

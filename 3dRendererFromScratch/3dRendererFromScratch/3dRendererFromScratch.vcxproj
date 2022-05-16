@@ -173,6 +173,7 @@
     <ClCompile Include="..\ThirdPartyLibraries\imgui-sfml-master\imgui-SFML.cpp" />
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="Engine\Assets.cpp" />
+    <ClCompile Include="Engine\Buffer.cpp" />
     <ClCompile Include="Engine\Camera.cpp" />
     <ClCompile Include="Engine\MeshData.cpp" />
     <ClCompile Include="Engine\Light.cpp" />
@@ -180,11 +181,12 @@
     <ClCompile Include="Engine\CameraControl.cpp" />
     <ClCompile Include="Engine\MeshIO.cpp" />
     <ClCompile Include="Engine\ObjectTransform.cpp" />
+    <ClCompile Include="Engine\Pipeline.cpp" />
     <ClCompile Include="Engine\Pool.cpp" />
     <ClCompile Include="Engine\Primitives.cpp" />
     <ClCompile Include="Engine\Renderer.cpp" />
     <ClCompile Include="Engine\SampleScenes.cpp" />
-    <ClCompile Include="Engine\Screen.cpp" />
+    <ClCompile Include="Engine\ProjectionInfo.cpp" />
     <ClCompile Include="Engine\Shaders\BasicShader.cpp" />
     <ClCompile Include="Engine\Shaders\CubemapShader.cpp" />
     <ClCompile Include="Engine\Shaders\FlatShader.cpp" />
@@ -203,6 +205,7 @@
   <ItemGroup>
     <ClInclude Include="Application.h" />
     <ClInclude Include="Engine\Assets.h" />
+    <ClInclude Include="Engine\Buffer.h" />
     <ClInclude Include="Engine\Camera.h" />
     <ClInclude Include="Engine\MeshData.h" />
     <ClInclude Include="Engine\InterpolatableTuple.h" />
@@ -212,11 +215,12 @@
     <ClInclude Include="Engine\MeshTypes.h" />
     <ClInclude Include="Engine\CameraControl.h" />
     <ClInclude Include="Engine\ObjectTransform.h" />
+    <ClInclude Include="Engine\Pipeline.h" />
     <ClInclude Include="Engine\Pool.h" />
     <ClInclude Include="Engine\Primitives.h" />
     <ClInclude Include="Engine\Renderer.h" />
     <ClInclude Include="Engine\SampleScenes.h" />
-    <ClInclude Include="Engine\Screen.h" />
+    <ClInclude Include="Engine\ProjectionInfo.h" />
     <ClInclude Include="Engine\Shaders.h" />
     <ClInclude Include="Engine\Shaders\BasicShader.h" />
     <ClInclude Include="Engine\Shaders\CubemapShader.h" />
@@ -229,6 +233,7 @@
     <ClInclude Include="Engine\Shaders\UVShader.h" />
     <ClInclude Include="Engine\Texture.h" />
     <ClInclude Include="Engine\Scene.h" />
+    <ClInclude Include="Engine\Types.h" />
     <ClInclude Include="Engine\Vector2d.h" />
     <ClInclude Include="SFMLRenderer.h" />
     <ClInclude Include="UI.h" />

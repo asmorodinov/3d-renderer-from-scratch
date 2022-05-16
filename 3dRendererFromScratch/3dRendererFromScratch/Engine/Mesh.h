@@ -15,11 +15,13 @@
 #include <glm/gtc/quaternion.hpp>
 
 #include "Camera.h"
-#include "Screen.h"
+#include "ProjectionInfo.h"
 #include "Light.h"
 
 #include "MeshData.h"
 #include "ObjectTransform.h"
+
+#include "Types.h"
 
 #include "Shaders/BasicShader.h"
 
@@ -34,7 +36,7 @@ class Mesh {
     using VertexShaderOutput = typename VertexShader::Output;
 
     Mesh(MeshDataRef mesh, const VertexShaderUniform& vertexShaderUniform, const FragmentShaderUniform& fragmentShaderUniform,
-         const ObjectTransform& objectTransform, bool wireframeMode = false, bool writeToDepthBuffer = true, glm::vec3 wireframeColor = glm::vec3(1.0f),
+         const ObjectTransform& objectTransform, bool wireframeMode = false, bool writeToDepthBuffer = true, Color32 wireframeColor = Color32(255),
          bool drawingEnabled = true)
         : mesh_(mesh),
           vertexShaderUniform_(vertexShaderUniform),
@@ -48,12 +50,13 @@ class Mesh {
           wireframeColor_(wireframeColor) {
     }
 
-    void draw(const Camera& camera, Screen& screen, const LightsVec& lights) {
+    template <typename Buffer>
+    void draw(const Camera& camera, ProjectionInfo& projectionInfo, const LightsVec& lights, Buffer& buffer) {
         if (!drawingEnabled_) return;
 
         const auto& model = objectTransform_.getModel();
         const auto& view = camera.getViewMatrix();
-        const auto& projection = screen.getProjectionMatrix();
+        const auto& projection = projectionInfo.getProjectionMatrix();
         const auto& viewPos = camera.getPosition();
 
         vertexShader_.uniform = vertexShaderUniform_;
@@ -76,13 +79,13 @@ class Mesh {
             fragmentShader_.vso = out.uniformOutput;
 
             if (wireframeMode_) {
-                drawWireframeTriangle({triangle.p0, triangle.p1, triangle.p2, {}, {}, {}}, projection, wireframeColor_, screen);
+                drawWireframeTriangle({triangle.p0, triangle.p1, triangle.p2, {}, {}, {}}, projection, wireframeColor_, projectionInfo, buffer);
             } else {
-                if (!writeToDepthBuffer_) screen.setWriteToDepthBuffer(false);
+                if (!writeToDepthBuffer_) buffer.setWriteToDepthBuffer(false);
 
-                drawTriangle(triangle, projection, fragmentShader_, screen, lights);
+                drawTriangle(triangle, projection, fragmentShader_, projectionInfo, lights, buffer);
 
-                if (!writeToDepthBuffer_) screen.setWriteToDepthBuffer(true);
+                if (!writeToDepthBuffer_) buffer.setWriteToDepthBuffer(true);
             }
         }
     }
@@ -124,7 +127,7 @@ class Mesh {
         return mesh_;
     }
 
-    void setDrawingMode(bool wireframeMode = false, bool drawingEnabled = true, bool writeToDepthBuffer = true, glm::vec3 wireframeColor = glm::vec3(1.0f)) {
+    void setDrawingMode(bool wireframeMode = false, bool drawingEnabled = true, bool writeToDepthBuffer = true, Color32 wireframeColor = Color32(255)) {
         wireframeMode_ = wireframeMode;
         drawingEnabled_ = drawingEnabled;
         writeToDepthBuffer_ = writeToDepthBuffer;
@@ -147,7 +150,7 @@ class Mesh {
         return wireframeColor_;
     }
 
-    void setWireframeColor(glm::vec3 color) {
+    void setWireframeColor(Color32 color) {
         wireframeColor_ = color;
     }
 
@@ -161,7 +164,7 @@ class Mesh {
     FragmentShaderUniform fragmentShaderUniform_;
     ObjectTransform objectTransform_;
 
-    glm::vec3 wireframeColor_ = glm::vec3(1.0f);
+    Color32 wireframeColor_ = Color32(255);
     bool wireframeMode_ = false;
     bool drawingEnabled_ = true;
     bool writeToDepthBuffer_ = true;

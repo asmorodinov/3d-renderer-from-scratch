@@ -14,6 +14,7 @@
 
 #include "Assets.h"
 #include "Scene.h"
+#include "Buffer.h"
 
 #define READ_MEMBER(member, T)  \
     if (name == #member) {      \
@@ -95,7 +96,8 @@ Mesh createMesh(const Properties& pr) {
         pr.flatColor                                     // flat color
     };
 
-    return Mesh(meshData, vun, fun, transform, pr.wireframeMode, pr.writeToDepthBuffer, pr.wireframeColor, pr.drawingEnabled);
+    return Mesh(meshData, vun, fun, transform, pr.wireframeMode, pr.writeToDepthBuffer,
+                convertColor<eng::Color128, eng::Color32>(eng::Color128(pr.wireframeColor, 1.0f)), pr.drawingEnabled);
 }
 
 // get properties from Mesh

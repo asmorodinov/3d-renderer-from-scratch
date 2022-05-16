@@ -10,7 +10,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <stb_image.h>
 
-#include "Screen.h"
+#include "Types.h"
 
 namespace eng {
 
@@ -18,16 +18,12 @@ namespace eng {
 // (it's a commonly used 3d graphics term)
 
 struct Texture {
-    using Pixels = Screen::Pixels;
-    using Color = Screen::Color;
-    using ColorBuffer = Screen::ColorBuffer;
-
     Texture();
     Texture(const std::string& file);
-    glm::vec4 sample(glm::vec2 uv) const;
+    Color128 sample(glm::vec2 uv) const;
 
     Pixels textureWidth, textureHeight;
-    ColorBuffer colorBuffer;
+    ColorBuffer128 colorBuffer;
 
     std::string fileName;
 };
@@ -38,7 +34,7 @@ struct CubemapTexture {
     CubemapTexture();
     CubemapTexture(const std::string& folder, bool defaultFormat = true, const std::string& imageFormat = ".jpg");
 
-    glm::vec4 sample(glm::vec3 direction) const;
+    Color128 sample(glm::vec3 direction) const;
 
     FacesTextures textures;
 

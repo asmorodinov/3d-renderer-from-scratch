@@ -15,10 +15,11 @@ namespace fs = std::filesystem;
 #include "Engine/MeshIO.h"
 #include "UI.h"
 #include "SFMLRenderer.h"
+#include "Engine/Types.h"
 
 class Application {
  private:
-    using Pixels = eng::Screen::Pixels;
+    using Pixels = eng::Pixels;
     using Seconds = float;
 
     static constexpr const Pixels defaultWidth_ = 1200;

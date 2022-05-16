@@ -10,27 +10,26 @@
 #include <stb_image_write.h>
 
 #include "Scene.h"
-#include "Screen.h"
+#include "ProjectionInfo.h"
+#include "Types.h"
+#include "Buffer.h"
+#include "Pipeline.h"
 
 namespace eng {
 
 class Renderer {
  public:
-    using Color = Screen::Color;
-    using Pixels = Screen::Pixels;
+    using Pipeline = DefaultPipeline;
 
+ public:
     Renderer(Pixels width, Pixels height);
 
-    Screen& getScreen();
-
-    void clearScreen();
-
-    size_t renderSceneToScreen(Scene& scene);
-
-    void renderScreenToFile(const std::string& file) const;
+    ProjectionInfo& getProjectionInfo();
+    Pipeline& getPipeline();
 
  private:
-    Screen screen_;
+    ProjectionInfo projectionInfo_;
+    Pipeline pipeline_;
 };
 
 }  // namespace eng

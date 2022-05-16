@@ -8,12 +8,13 @@
 #include <cstddef>
 
 #include "Engine/Renderer.h"
+#include "Engine/Types.h"
 
 class SFMLRenderer {
  public:
-    using Color = eng::Renderer::Color;
-    using Pixels = eng::Renderer::Pixels;
+    using Pixels = eng::Pixels;
 
+ public:
     SFMLRenderer(Pixels width, Pixels height, sf::RenderWindow& mainAppWindow);
 
     size_t render(eng::Scene& scene);
