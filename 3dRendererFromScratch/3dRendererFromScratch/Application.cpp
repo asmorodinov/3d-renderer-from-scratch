@@ -106,8 +106,11 @@ void Application::onKeyPressOrRelease(sf::Keyboard::Key key, bool mode) {
         currentSceneIndex_ = (currentSceneIndex_ + 1) % scenes_.size();
     }
 
-    if (mode && key == sf::Keyboard::LControl) {
-        scenes_[currentSceneIndex_].getPipeline() = eng::getNextPipeline(scenes_[currentSceneIndex_].getPipeline());
+    if (mode && key == sf::Keyboard::Right) {
+        scenes_[currentSceneIndex_].getPipeline() = eng::getNextPipeline(scenes_[currentSceneIndex_].getPipeline(), true);
+    }
+    if (mode && key == sf::Keyboard::Left) {
+        scenes_[currentSceneIndex_].getPipeline() = eng::getNextPipeline(scenes_[currentSceneIndex_].getPipeline(), false);
     }
 
     if (!pause) cameraControl_.keyPressedOrReleased(key, mode);

@@ -6,7 +6,11 @@
 namespace eng {
 
 Renderer::Renderer(Pixels width, Pixels height)
-    : projectionInfo_(width, height), defaultPipeline_(width, height), hdrPipeline_(width, height), convertingPipeline_(width, height) {
+    : projectionInfo_(width, height),
+      defaultPipeline_(width, height),
+      hdrPipeline_(width, height),
+      bloomPipeline_(width, height),
+      convertingPipeline_(width, height) {
 }
 
 ProjectionInfo& Renderer::getProjectionInfo() {
@@ -19,6 +23,8 @@ PipelineResult Renderer::renderScene(Scene& scene) {
         return defaultPipeline_.renderScene(scene, projectionInfo_);
     } else if (pipeline == "hdr") {
         return hdrPipeline_.renderScene(scene, projectionInfo_);
+    } else if (pipeline == "bloom") {
+        return bloomPipeline_.renderScene(scene, projectionInfo_);
     } else if (pipeline == "converting") {
         return convertingPipeline_.renderScene(scene, projectionInfo_);
     }

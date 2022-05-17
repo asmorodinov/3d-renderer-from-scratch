@@ -48,7 +48,7 @@ size_t renderSceneToBuffer(Scene& scene, ProjectionInfo& projectionInfo, Buffer&
         lightMesh.getTransform().setPosition(light.position);
         lightMesh.getTransform().setScale(glm::clamp(light.intensity, 0.1f, 5.0f) * glm::vec3(1.0f));
         lightMesh.setWireframeColor(DefaultConversion<Color128, Color32>::convertColor(Color128(light.color, 1.0f)));
-        lightMesh.getFragmentShaderUniform().flatColor = light.color;
+        lightMesh.getFragmentShaderUniform().flatColor = light.color * light.intensity;
 
         lightMesh.draw(camera, projectionInfo, lights, buffer);
 
@@ -63,16 +63,7 @@ struct PipelineResult {
     const Color32* buffer;
 };
 
-inline std::string getNextPipeline(std::string pipeline) {
-    auto pipelines = std::vector<std::string>{"default", "hdr"};
-    auto it = std::find(pipelines.begin(), pipelines.end(), pipeline);
-    if (it == pipelines.end()) {
-        assert(false);
-        std::exit(1);
-    }
-    auto index = it - pipelines.begin();
-    return pipelines[(index + 1) % pipelines.size()];
-}
+std::string getNextPipeline(std::string pipeline, bool next);
 
 // just render scene to buffer (one render pass)
 template <template <typename Color1, typename Color2> class Conversion>
@@ -101,6 +92,20 @@ class ConvertingPipeline {
 
  private:
     ColorAndDepthBuffer<Color128, DefaultConversion> buffer_;
+    ColorBuffer32 result_;
+};
+
+// bloom
+
+class BloomPipeline {
+ public:
+    BloomPipeline(Pixels width, Pixels height);
+    PipelineResult renderScene(Scene& scene, ProjectionInfo& projectionInfo);
+
+ private:
+    ColorAndDepthBuffer<Color128, DefaultConversion> buffer_;
+    ColorBuffer96 bloom_buffer1_;  // we are not using alpha channel for bloom, only rgb
+    ColorBuffer96 bloom_buffer2_;
     ColorBuffer32 result_;
 };
 
