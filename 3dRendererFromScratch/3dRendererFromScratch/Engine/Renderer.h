@@ -27,6 +27,7 @@ class Renderer {
  private:
     ProjectionInfo projectionInfo_;
     DefaultPipeline defaultPipeline_;
+    HDRPipeline hdrPipeline_;
     ConvertingPipeline convertingPipeline_;
 };
 

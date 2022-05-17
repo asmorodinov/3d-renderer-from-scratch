@@ -66,4 +66,24 @@ struct ClampT1 {
 template <typename Color1, typename Color2>
 using ClampConversion = TransformationConversion<Color1, Color2, ClampT1, IdentityT2>;
 
+// tone mapping (hdr) + gamma correction
+
+struct HDRT1 {
+    static Color128 transform(Color128 color) {
+        auto exposure = 1.0f;
+        auto gamma = 2.2f;
+
+        auto hdr = glm::vec3(color.r, color.g, color.b);
+        // tone mapping
+        auto mapped = 1.0f - glm::exp(-hdr * exposure);
+        // gamma correction
+        mapped = glm::pow(mapped, glm::vec3(1.0f / gamma));
+
+        return Color128(mapped, color.a);
+    }
+};
+
+template <typename Color1, typename Color2>
+using HDRConversion = TransformationConversion<Color1, Color2, HDRT1, IdentityT2>;
+
 }  // namespace eng

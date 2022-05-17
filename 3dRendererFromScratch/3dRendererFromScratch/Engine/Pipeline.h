@@ -64,7 +64,7 @@ struct PipelineResult {
 };
 
 inline std::string getNextPipeline(std::string pipeline) {
-    auto pipelines = std::vector<std::string>{"default", "converting"};
+    auto pipelines = std::vector<std::string>{"default", "hdr"};
     auto it = std::find(pipelines.begin(), pipelines.end(), pipeline);
     if (it == pipelines.end()) {
         assert(false);
@@ -75,14 +75,23 @@ inline std::string getNextPipeline(std::string pipeline) {
 }
 
 // just render scene to buffer (one render pass)
-class DefaultPipeline {
+template <template <typename Color1, typename Color2> class Conversion>
+class OnePassPipeline {
  public:
-    DefaultPipeline(Pixels width, Pixels height);
-    PipelineResult renderScene(Scene& scene, ProjectionInfo& projectionInfo);
+    OnePassPipeline(Pixels width, Pixels height) : buffer_(width, height, Color32{0, 0, 0, 255}) {
+    }
+    PipelineResult renderScene(Scene& scene, ProjectionInfo& projectionInfo) {
+        buffer_.clear();
+        auto tr = renderSceneToBuffer(scene, projectionInfo, buffer_);
+        return {tr, buffer_.getColorBuffer().get_pointer()};
+    }
 
  private:
-    ColorAndDepthBuffer<Color32, ClampConversion> buffer_;
+    ColorAndDepthBuffer<Color32, Conversion> buffer_;
 };
+
+using DefaultPipeline = OnePassPipeline<ClampConversion>;
+using HDRPipeline = OnePassPipeline<HDRConversion>;
 
 // first render into buffer of Color128, then convert ColorBuffer128 to ColorBuffer32 (one render pass + buffer convertion)
 class ConvertingPipeline {

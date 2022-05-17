@@ -2,15 +2,6 @@
 
 namespace eng {
 
-DefaultPipeline::DefaultPipeline(Pixels width, Pixels height) : buffer_(width, height, Color32{0, 0, 0, 255}) {
-}
-
-PipelineResult DefaultPipeline::renderScene(Scene& scene, ProjectionInfo& projectionInfo) {
-    buffer_.clear();
-    auto tr = renderSceneToBuffer(scene, projectionInfo, buffer_);
-    return {tr, buffer_.getColorBuffer().get_pointer()};
-}
-
 ConvertingPipeline::ConvertingPipeline(Pixels width, Pixels height) : buffer_(width, height, Color128{0.0f, 0.0f, 0.0f, 1.0f}), result_(width, height) {
 }
 
