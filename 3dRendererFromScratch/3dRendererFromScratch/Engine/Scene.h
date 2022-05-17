@@ -29,6 +29,9 @@ class Scene {
     const std::string& getName() const;
     std::string& getName();
 
+    const std::string& getPipeline() const;
+    std::string& getPipeline();
+
     template <typename T>
     void addObject(std::string name, const T& t) {
         if (objects_.count(name) == 0)
@@ -42,7 +45,9 @@ class Scene {
     ObjectsVec objects_;
     LightsVec pointLights_;
 
-    std::string name_ = std::string("unnamed scene");
+    std::string name_ = "unnamed scene";
+
+    std::string pipeline_ = "default";
 };
 
 }  // namespace eng

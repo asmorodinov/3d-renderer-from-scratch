@@ -2,7 +2,6 @@
 
 #include <cstdint>
 #include <string>
-#include <vector>
 
 #include <SFML/Graphics.hpp>
 
@@ -19,17 +18,16 @@ namespace eng {
 
 class Renderer {
  public:
-    using Pipeline = DefaultPipeline;
-
- public:
     Renderer(Pixels width, Pixels height);
 
     ProjectionInfo& getProjectionInfo();
-    Pipeline& getPipeline();
+
+    PipelineResult renderScene(Scene& scene);
 
  private:
     ProjectionInfo projectionInfo_;
-    Pipeline pipeline_;
+    DefaultPipeline defaultPipeline_;
+    ConvertingPipeline convertingPipeline_;
 };
 
 }  // namespace eng

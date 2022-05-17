@@ -11,16 +11,10 @@ SFMLRenderer::SFMLRenderer(Pixels width, Pixels height, sf::RenderWindow& mainAp
 }
 
 size_t SFMLRenderer::render(eng::Scene& scene) {
-    auto& info = renderer_.getProjectionInfo();
-    auto& pipeline = renderer_.getPipeline();
+    auto res = renderer_.renderScene(scene);
 
-    size_t trianglesDrawn = pipeline.renderScene(scene, info);
-
-    Pixels width = info.getWidth();
-    Pixels height = info.getHeight();
-
-    screenTexture_.update(reinterpret_cast<const eng::Byte*>(pipeline.getResultBuffer().get_pointer()));
+    screenTexture_.update(reinterpret_cast<const eng::Byte*>(res.buffer));
     mainAppWindow_.get().draw(screenSprite_);
 
-    return trianglesDrawn;
+    return res.trianglesCount;
 }

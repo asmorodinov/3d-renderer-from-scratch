@@ -97,7 +97,7 @@ Mesh createMesh(const Properties& pr) {
     };
 
     return Mesh(meshData, vun, fun, transform, pr.wireframeMode, pr.writeToDepthBuffer,
-                convertColor<eng::Color128, eng::Color32>(eng::Color128(pr.wireframeColor, 1.0f)), pr.drawingEnabled);
+                eng::DefaultConversion<eng::Color128, eng::Color32>::convertColor(eng::Color128(pr.wireframeColor, 1.0f)), pr.drawingEnabled);
 }
 
 // get properties from Mesh

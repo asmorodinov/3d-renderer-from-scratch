@@ -1,5 +1,7 @@
 #include "Application.h"
 
+#include "Engine/Pipeline.h"
+
 static bool endsWith(std::string_view str, std::string_view suffix) {
     return str.size() >= suffix.size() && (0 == str.compare(str.size() - suffix.size(), suffix.size(), suffix));
 }
@@ -102,6 +104,10 @@ void Application::onKeyPressOrRelease(sf::Keyboard::Key key, bool mode) {
     }
     if (mode && key == sf::Keyboard::LShift) {
         currentSceneIndex_ = (currentSceneIndex_ + 1) % scenes_.size();
+    }
+
+    if (mode && key == sf::Keyboard::LControl) {
+        scenes_[currentSceneIndex_].getPipeline() = eng::getNextPipeline(scenes_[currentSceneIndex_].getPipeline());
     }
 
     if (!pause) cameraControl_.keyPressedOrReleased(key, mode);

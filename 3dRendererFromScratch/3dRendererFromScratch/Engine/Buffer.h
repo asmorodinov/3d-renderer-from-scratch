@@ -1,47 +1,24 @@
 #pragma once
 
-#include <algorithm>
-#include <iostream>
 #include <limits>
 #include <cstddef>
-#include <cassert>
-#include <vector>
-
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 
 #include "Vector2d.h"
 
 #include "Types.h"
+#include "Conversion.h"
 
 namespace eng {
 
-// helper functions to convert colors
-template <typename Color1, typename Color2>
-inline Color2 convertColor(Color1 color) {
-    assert(false);  // do not use this specific conversion
-    return Color2(color);
-}
-
-template <typename Color>
-inline Color convertColor(Color color) {
-    return color;
-}
-template <>
-inline Color32 convertColor(Color128 color) {
-    return Color32{Byte(255.99f * color.r), Byte(255.99 * color.g), Byte(255.99 * color.b), Byte(255.99 * color.a)};
-}
-template <>
-inline Color128 convertColor(Color32 color) {
-    return Color128{color.r, color.g, color.b, color.a} / 255.0f;
-}
-
-template <typename ColorType>
+template <typename ColorType, template <typename Color1, typename Color2> class ConvertionType>
 class ColorAndDepthBuffer {
  public:
     using Color = ColorType;
     using ColorBuffer = Vector2d<Color>;
     using DepthBuffer = Vector2d<Depth>;
+
+    template <typename Color1, typename Color2>
+    using Convertion = ConvertionType<Color1, Color2>;
 
  public:
     ColorAndDepthBuffer(Pixels width, Pixels height, Color clearColor)
@@ -81,6 +58,11 @@ class ColorAndDepthBuffer {
     }
     Color getClearColor() const {
         return clearColor_;
+    }
+
+    template <typename Color1, typename Color2>
+    static Color2 convertColor(Color1 color) {
+        return Convertion<Color1, Color2>::convertColor(color);
     }
 
  private:

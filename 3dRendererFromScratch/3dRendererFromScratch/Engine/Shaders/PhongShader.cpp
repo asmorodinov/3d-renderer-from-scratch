@@ -34,8 +34,6 @@ glm::vec4 PhongShader::computePixelColor(const Var& var, const LightsVec& lights
         lighting += light.intensity * glm::vec3(1.0f) * (diffuse + specular);
     }
 
-    lighting = glm::clamp(glm::pow(lighting, glm::vec3(1.0f / 2.2f)), 0.0f, 1.0f);
-
     return glm::vec4(lighting, 1.0f);
 }
 

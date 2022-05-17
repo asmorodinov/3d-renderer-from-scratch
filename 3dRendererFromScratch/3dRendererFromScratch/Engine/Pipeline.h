@@ -2,7 +2,10 @@
 
 #include <cstdint>
 #include <string>
+#include <algorithm>
 #include <vector>
+#include <cassert>
+#include <cstdlib>
 
 #include <SFML/Graphics.hpp>
 
@@ -14,6 +17,7 @@
 #include "Types.h"
 #include "Buffer.h"
 #include "MeshTypes.h"
+#include "Conversion.h"
 
 namespace eng {
 
@@ -43,7 +47,7 @@ size_t renderSceneToBuffer(Scene& scene, ProjectionInfo& projectionInfo, Buffer&
     for (const auto& light : lights) {
         lightMesh.getTransform().setPosition(light.position);
         lightMesh.getTransform().setScale(glm::clamp(light.intensity, 0.1f, 5.0f) * glm::vec3(1.0f));
-        lightMesh.setWireframeColor(convertColor<Color128, Color32>(Color128(light.color, 1.0f)));
+        lightMesh.setWireframeColor(DefaultConversion<Color128, Color32>::convertColor(Color128(light.color, 1.0f)));
         lightMesh.getFragmentShaderUniform().flatColor = light.color;
 
         lightMesh.draw(camera, projectionInfo, lights, buffer);
@@ -54,26 +58,40 @@ size_t renderSceneToBuffer(Scene& scene, ProjectionInfo& projectionInfo, Buffer&
     return trianglesDrawn;
 }
 
+struct PipelineResult {
+    size_t trianglesCount;
+    const Color32* buffer;
+};
+
+inline std::string getNextPipeline(std::string pipeline) {
+    auto pipelines = std::vector<std::string>{"default", "converting"};
+    auto it = std::find(pipelines.begin(), pipelines.end(), pipeline);
+    if (it == pipelines.end()) {
+        assert(false);
+        std::exit(1);
+    }
+    auto index = it - pipelines.begin();
+    return pipelines[(index + 1) % pipelines.size()];
+}
+
 // just render scene to buffer (one render pass)
 class DefaultPipeline {
  public:
     DefaultPipeline(Pixels width, Pixels height);
-    size_t renderScene(Scene& scene, ProjectionInfo& projectionInfo);
-    const ColorBuffer32& getResultBuffer() const;
+    PipelineResult renderScene(Scene& scene, ProjectionInfo& projectionInfo);
 
  private:
-    ColorAndDepthBuffer<Color32> buffer_;
+    ColorAndDepthBuffer<Color32, ClampConversion> buffer_;
 };
 
 // first render into buffer of Color128, then convert ColorBuffer128 to ColorBuffer32 (one render pass + buffer convertion)
 class ConvertingPipeline {
  public:
     ConvertingPipeline(Pixels width, Pixels height);
-    size_t renderScene(Scene& scene, ProjectionInfo& projectionInfo);
-    const ColorBuffer32& getResultBuffer() const;
+    PipelineResult renderScene(Scene& scene, ProjectionInfo& projectionInfo);
 
  private:
-    ColorAndDepthBuffer<Color128> buffer_;
+    ColorAndDepthBuffer<Color128, DefaultConversion> buffer_;
     ColorBuffer32 result_;
 };
 

@@ -2,6 +2,8 @@
 
 #include <cstdlib>
 
+#include <vector>
+
 UserInterface::UserInterface(sf::RenderWindow& window_) : mainAppWindow_(window_) {
     if (!font_.loadFromFile("data/fonts/arial.ttf")) {
         std::cout << "Failed to load font\n";
@@ -18,21 +20,20 @@ UserInterface::UserInterface(sf::RenderWindow& window_) : mainAppWindow_(window_
     style.FrameRounding = 7.0f;
     style.Alpha = 0.95f;
 
-    text_.setFont(font_);
-    text_.setCharacterSize(18);
     text_.setOrigin({0.0f, -22.0f});
-
-    text2_.setFont(font_);
-    text2_.setCharacterSize(18);
     text2_.setOrigin({0.0f, -44.0f});
-
-    text3_.setFont(font_);
-    text3_.setCharacterSize(18);
     text3_.setOrigin({0.0f, 0.0f});
-
-    text4_.setFont(font_);
-    text4_.setCharacterSize(18);
     text4_.setOrigin({0.0f, -66.0f});
+    text5_.setOrigin({0.0f, -88.0f});
+
+    auto texts = std::vector{&text_, &text2_, &text3_, &text4_, &text5_};
+    for (auto text : texts) {
+        text->setFont(font_);
+        text->setCharacterSize(18);
+        text->setFillColor(sf::Color(255, 255, 255, 255));
+        text->setOutlineColor(sf::Color(0, 0, 0, 255));
+        text->setOutlineThickness(2);
+    }
 }
 
 void UserInterface::updateAndDraw(Seconds deltaTime, size_t trianglesCount, size_t& sceneIndex, std::vector<eng::Scene>& scenes) {
@@ -49,11 +50,13 @@ void UserInterface::updateAndDraw(Seconds deltaTime, size_t trianglesCount, size
 
     text3_.setString("triangles: " + std::to_string(trianglesCount));
     text4_.setString(scenes[sceneIndex].getName());
+    text5_.setString(scenes[sceneIndex].getPipeline());
 
     mainAppWindow_.get().draw(text_);
     mainAppWindow_.get().draw(text2_);
     mainAppWindow_.get().draw(text3_);
     mainAppWindow_.get().draw(text4_);
+    mainAppWindow_.get().draw(text5_);
 
     ImGui::SFML::Update(mainAppWindow_, sf::seconds(deltaTime));
 
@@ -272,6 +275,9 @@ void UserInterface::updateAndDraw(Seconds deltaTime, size_t trianglesCount, size
                 ImGui::BeginChild("top", ImVec2(0, -ImGui::GetFrameHeightWithSpacing()));
 
                 // Left
+
+                static int pipeline_current = 0;
+                std::array<const char*, 2> pipelines = {"default", "converting"};
                 {
                     ImGui::BeginChild("left", ImVec2(150, 0));
                     ImGui::BeginChild("left panel", ImVec2(150, 0), true);
@@ -281,6 +287,12 @@ void UserInterface::updateAndDraw(Seconds deltaTime, size_t trianglesCount, size
 
                         if (ImGui::Selectable(name.c_str(), i == sceneIndex)) {
                             sceneIndex = i;
+
+                            for (size_t j = 0; j < pipelines.size(); ++j) {
+                                if (scenes[sceneIndex].getPipeline() == std::string(pipelines[j])) {
+                                    pipeline_current = j;
+                                }
+                            }
                         }
                     }
                     ImGui::EndChild();
@@ -302,6 +314,12 @@ void UserInterface::updateAndDraw(Seconds deltaTime, size_t trianglesCount, size
                         lastIndex = sceneIndex;
                         currentSceneCopy = scenes[sceneIndex];
                         currentSceneCopy2 = scenes[sceneIndex];
+
+                        for (size_t j = 0; j < pipelines.size(); ++j) {
+                            if (scenes[sceneIndex].getPipeline() == std::string(pipelines[j])) {
+                                pipeline_current = j;
+                            }
+                        }
                     }
 
                     ImGui::InputText("", &currentSceneCopy.getName());
@@ -314,6 +332,10 @@ void UserInterface::updateAndDraw(Seconds deltaTime, size_t trianglesCount, size
                     ImGui::SameLine();
                     if (ImGui::Button("Save as")) {
                         eng::saveSceneToFile(scenes[sceneIndex], currentSceneCopy2.getName());
+                    }
+
+                    if (ImGui::Combo("Pipeline", &pipeline_current, pipelines.data(), pipelines.size())) {
+                        scenes[sceneIndex].getPipeline() = std::string(pipelines[pipeline_current]);
                     }
 
                     ImGui::EndChild();

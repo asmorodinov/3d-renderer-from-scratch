@@ -13,7 +13,10 @@ Properties loadProperties(std::ifstream& file) {
 
         if (file.fail()) break;
 
-        if (name == "{") start = true;
+        if (name == "{") {
+            start = true;
+            continue;
+        }
 
         if (!start) continue;
 
@@ -60,7 +63,10 @@ PointLight loadPointLightFromFile(std::ifstream& file) {
 
         if (file.fail()) break;
 
-        if (name == "{") start = true;
+        if (name == "{") {
+            start = true;
+            continue;
+        }
 
         if (!start) continue;
 

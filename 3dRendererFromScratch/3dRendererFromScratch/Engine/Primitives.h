@@ -43,7 +43,7 @@ void drawLine(glm::vec3 pos1, glm::vec3 pos2, Color32 color, Buffer& buffer) {
         float z = t * p2.z + (1 - t) * p1.z;
 
         if (z >= -1.0f && z <= 1.0f && x >= 0 && y >= 0 && x < buffer.getWidth() && y < buffer.getHeight()) {
-            buffer.setPixelColor(size_t(x), size_t(y), convertColor<Color32, Buffer::Color>(color), z);
+            buffer.setPixelColor(size_t(x), size_t(y), Buffer::template convertColor<Color32, Buffer::Color>(color), z);
         }
 
         if (x == x1 && y == y1) break;
@@ -292,7 +292,7 @@ void rasterizeTriangle(const Triangle<Var>& t, Shader& shader, Buffer& buffer, c
             Var t = (t0 * w0 + t1 * w1 + t2 * w2) * (1.0f / w);
             auto lighting = shader.computePixelColor(t, lights);
 
-            if (lighting.a > 0.0f) buffer.setPixelColor(Pixels(x), Pixels(y), convertColor<glm::vec4, Buffer::Color>(lighting), z);
+            if (lighting.a > 0.0f) buffer.setPixelColor(Pixels(x), Pixels(y), Buffer::template convertColor<Color128, Buffer::Color>(lighting), z);
         }
     }
 }
