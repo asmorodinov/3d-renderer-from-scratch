@@ -173,9 +173,11 @@
     <ClCompile Include="..\ThirdPartyLibraries\imgui-sfml-master\imgui-SFML.cpp" />
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="Engine\Assets.cpp" />
+    <ClCompile Include="Engine\Blending.cpp" />
     <ClCompile Include="Engine\Buffer.cpp" />
     <ClCompile Include="Engine\Camera.cpp" />
     <ClCompile Include="Engine\Conversion.cpp" />
+    <ClCompile Include="Engine\Discard.cpp" />
     <ClCompile Include="Engine\MeshData.cpp" />
     <ClCompile Include="Engine\Light.cpp" />
     <ClCompile Include="Engine\Mesh.cpp" />
@@ -206,9 +208,11 @@
   <ItemGroup>
     <ClInclude Include="Application.h" />
     <ClInclude Include="Engine\Assets.h" />
+    <ClInclude Include="Engine\Blending.h" />
     <ClInclude Include="Engine\Buffer.h" />
     <ClInclude Include="Engine\Camera.h" />
     <ClInclude Include="Engine\Conversion.h" />
+    <ClInclude Include="Engine\Discard.h" />
     <ClInclude Include="Engine\MeshData.h" />
     <ClInclude Include="Engine\InterpolatableTuple.h" />
     <ClInclude Include="Engine\Light.h" />

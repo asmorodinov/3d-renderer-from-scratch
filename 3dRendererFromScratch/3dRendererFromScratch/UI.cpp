@@ -194,6 +194,7 @@ void UserInterface::updateAndDraw(Seconds deltaTime, size_t trianglesCount, size
                     if (ImGui::Checkbox("wireframe mode", &selectedProperties.wireframeMode)) changedProperty = true;
                     if (ImGui::Checkbox("write to depth buffer", &selectedProperties.writeToDepthBuffer)) changedProperty = true;
                     if (ImGui::Checkbox("enable draw", &selectedProperties.drawingEnabled)) changedProperty = true;
+                    if (ImGui::Checkbox("is transparent", &selectedProperties.isTransparent)) changedProperty = true;
 
                     ImGui::EndChild();
 
@@ -277,7 +278,7 @@ void UserInterface::updateAndDraw(Seconds deltaTime, size_t trianglesCount, size
                 // Left
 
                 static int pipeline_current = 0;
-                std::array<const char*, 4> pipelines = {"default", "hdr", "bloom", "converting"};
+                std::array<const char*, 6> pipelines = {"default", "hdr", "bloom", "blending", "blending with sort", "converting"};
                 {
                     ImGui::BeginChild("left", ImVec2(150, 0));
                     ImGui::BeginChild("left panel", ImVec2(150, 0), true);

@@ -8,7 +8,7 @@ namespace eng {
 // helper function
 
 std::string getNextPipeline(std::string pipeline, bool next) {
-    auto pipelines = std::vector<std::string>{"default", "hdr", "bloom"};
+    auto pipelines = std::vector<std::string>{"default", "hdr", "bloom", "blending", "blending with sort"};
     auto it = std::find(pipelines.begin(), pipelines.end(), pipeline);
     if (it == pipelines.end()) {
         assert(false);

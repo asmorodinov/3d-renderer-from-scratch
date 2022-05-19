@@ -9,7 +9,7 @@ Texture::Texture(const std::string& file) {
     fileName = file;
 
     int x = 0, y = 0, n = 0;
-    unsigned char* data = stbi_load(("data/textures/" + file).c_str(), &x, &y, &n, 3);
+    unsigned char* data = stbi_load(("data/textures/" + file).c_str(), &x, &y, &n, 4);
 
     assert(x > 0 && y > 0 && n >= 3 && data);
     textureWidth = x;
@@ -19,8 +19,8 @@ Texture::Texture(const std::string& file) {
 
     for (size_t i = 0; i < textureWidth; ++i) {
         for (size_t j = 0; j < textureHeight; ++j) {
-            unsigned char* pixel = data + (i + textureWidth * j) * 3;
-            colorBuffer.set(i, j, Color128(pixel[0], pixel[1], pixel[2], 255.0f) / 255.0f);
+            unsigned char* pixel = data + (i + textureWidth * j) * 4;
+            colorBuffer.set(i, j, Color128(pixel[0], pixel[1], pixel[2], pixel[3]) / 255.0f);
         }
     }
 

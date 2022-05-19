@@ -1,0 +1,55 @@
+Mesh
+{
+	name	Mesh1
+	typeName	TextureMesh
+	diffuseTextureName	grass.png
+	meshFileName	plane
+	meshScale	0.68
+	meshOnlyVertices	0
+	transformPosition	0 0 0.36
+	transformScale	1 1 0.001
+	wireframeColor	253 253 253
+}
+Mesh
+{
+	name	Mesh2
+	typeName	TextureMesh
+	diffuseTextureName	glass.png
+	meshFileName	cube
+	meshScale	0.68
+	meshOnlyVertices	0
+	isTransparent	1
+	transformPosition	0.12 0.14 0.54
+	transformScale	0.6 0.6 0.031
+	wireframeColor	253 253 253
+}
+Mesh
+{
+	name	Mesh3
+	typeName	TextureMesh
+	diffuseTextureName	glass2.png
+	meshFileName	cube
+	meshScale	0.68
+	meshOnlyVertices	0
+	isTransparent	1
+	transformPosition	-0.22 0 0.78
+	transformScale	0.58 0.58 0.04
+	wireframeColor	253 253 253
+}
+Mesh
+{
+	name	Mesh4
+	typeName	TextureMesh
+	diffuseTextureName	glass3.png
+	meshFileName	cube
+	meshOnlyVertices	0
+	isTransparent	1
+	transformPosition	0 0 0.13
+	transformScale	1 1 0.03
+	wireframeColor	253 253 253
+}
+PointLight
+{
+	position	-0.39 0.11 -0.17
+	intensity	2.595
+}

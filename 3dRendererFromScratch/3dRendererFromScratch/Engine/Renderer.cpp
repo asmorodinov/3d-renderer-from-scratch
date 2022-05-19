@@ -10,6 +10,8 @@ Renderer::Renderer(Pixels width, Pixels height)
       defaultPipeline_(width, height),
       hdrPipeline_(width, height),
       bloomPipeline_(width, height),
+      blendingPipeline_(width, height),
+      blendingSortingPipeline_(width, height),
       convertingPipeline_(width, height) {
 }
 
@@ -25,6 +27,10 @@ PipelineResult Renderer::renderScene(Scene& scene) {
         return hdrPipeline_.renderScene(scene, projectionInfo_);
     } else if (pipeline == "bloom") {
         return bloomPipeline_.renderScene(scene, projectionInfo_);
+    } else if (pipeline == "blending") {
+        return blendingPipeline_.renderScene(scene, projectionInfo_);
+    } else if (pipeline == "blending with sort") {
+        return blendingSortingPipeline_.renderScene(scene, projectionInfo_);
     } else if (pipeline == "converting") {
         return convertingPipeline_.renderScene(scene, projectionInfo_);
     }

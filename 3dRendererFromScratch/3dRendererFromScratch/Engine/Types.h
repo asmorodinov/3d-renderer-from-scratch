@@ -12,6 +12,7 @@ using Pixels = size_t;
 using AspectRatio = float;
 using Degrees = float;
 using Depth = float;
+using Distance = float;
 
 using Color128 = glm::vec4;   // float, 4 * 32 = 128 bits per color
 using Color96 = glm::vec3;    // float, 3 * 32 = 96 bits per color

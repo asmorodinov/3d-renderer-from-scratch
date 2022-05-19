@@ -291,8 +291,11 @@ void rasterizeTriangle(const Triangle<Var>& t, Shader& shader, Buffer& buffer, c
 
             Var t = (t0 * w0 + t1 * w1 + t2 * w2) * (1.0f / w);
             auto lighting = shader.computePixelColor(t, lights);
-
-            if (lighting.a > 0.0f) buffer.setPixelColor(Pixels(x), Pixels(y), Buffer::template convertColor<Color128, Buffer::Color>(lighting), z);
+            if (!Buffer::template discard<Color128>(lighting)) {
+                auto destination = Buffer::template convertColor<Buffer::Color, Color128>(buffer.getPixelColor(Pixels(x), Pixels(y)));
+                auto blended = Buffer::template blend<Color128>(lighting, destination);
+                buffer.setPixelColor(Pixels(x), Pixels(y), Buffer::template convertColor<Color128, Buffer::Color>(blended), z);
+            }
         }
     }
 }

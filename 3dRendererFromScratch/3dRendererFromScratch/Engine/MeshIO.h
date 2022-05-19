@@ -67,6 +67,7 @@ struct Properties {
     bool wireframeMode = false;
     bool writeToDepthBuffer = true;
     bool drawingEnabled = true;
+    bool isTransparent = false;
     bool cubemapDefaultFormat = true;
     glm::vec3 transformPosition = glm::vec3();
     glm::vec3 transformScale = glm::vec3(1.0f);
@@ -97,7 +98,7 @@ Mesh createMesh(const Properties& pr) {
     };
 
     return Mesh(meshData, vun, fun, transform, pr.wireframeMode, pr.writeToDepthBuffer,
-                eng::DefaultConversion<eng::Color128, eng::Color32>::convertColor(eng::Color128(pr.wireframeColor, 1.0f)), pr.drawingEnabled);
+                eng::DefaultConversion<eng::Color128, eng::Color32>::convertColor(eng::Color128(pr.wireframeColor, 1.0f)), pr.drawingEnabled, pr.isTransparent);
 }
 
 // get properties from Mesh
@@ -120,6 +121,7 @@ Properties getProperties(const Mesh& mesh, std::string name) {
     pr.wireframeMode = mesh.getWireframeMode();
     pr.writeToDepthBuffer = mesh.getWriteToDepthBuffer();
     pr.drawingEnabled = mesh.getDrawingEnabled();
+    pr.isTransparent = mesh.getIsTransparent();
 
     // fragment shader uniform properties
     const FragmentShaderUniform& uniform = mesh.getFragmentShaderUniform();
