@@ -39,6 +39,13 @@ class Vector2d {
         return &vector_[0];
     }
 
+    size_t getWidth() const {
+        return matrixWidth_;
+    }
+    size_t getHeight() const {
+        return matrixHeight_;
+    }
+
  private:
     std::pmr::vector<T> vector_;
     size_t matrixWidth_, matrixHeight_;

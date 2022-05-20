@@ -3,12 +3,14 @@
 #include <algorithm>
 #include <array>
 
+#include "Assets.h"
+
 namespace eng {
 
 // helper function
 
 std::string getNextPipeline(std::string pipeline, bool next) {
-    auto pipelines = std::vector<std::string>{"default", "hdr", "bloom", "blending", "blending with sort"};
+    auto pipelines = std::vector<std::string>{"default", "hdr", "bloom", "shadow mapping", "blending", "blending with sort"};
     auto it = std::find(pipelines.begin(), pipelines.end(), pipeline);
     if (it == pipelines.end()) {
         assert(false);
@@ -107,6 +109,64 @@ PipelineResult BloomPipeline::renderScene(Scene& scene, ProjectionInfo& projecti
     }
 
     return {triangles, result_.get_pointer()};
+}
+
+// shadow mapping
+
+ShadowMappingPipeline::ShadowMappingPipeline(Pixels width, Pixels height, Pixels depthMapWidth, Pixels depthMapHeight)
+    : depthMapBuffer_(depthMapWidth, depthMapHeight, Color32(0, 0, 0, 255)),
+      result_(width, height, Color32(0, 0, 0, 255)),
+      mesh_(Assets::getMeshData("cube", 0.05f), {}, FragmentShaderUniform(), ObjectTransform(), false) {
+}
+
+#include <iostream>
+
+PipelineResult ShadowMappingPipeline::renderScene(Scene& scene, ProjectionInfo& projectionInfo) {
+    // 1) render scene and get depth map
+    const auto& camera = scene.getCamera();
+    const auto& lights = scene.getPointLights();
+
+    // no shadows
+    if (lights.size() == 0) {
+        result_.clear();
+        auto tr = renderSceneToBuffer(scene, projectionInfo, result_);
+        return {tr, result_.getColorBuffer().get_pointer()};
+    }
+
+    // get light information
+    auto light = lights.front();
+    auto lightPos = light.position;
+    auto lightDir = glm::normalize(-lightPos);  // light is always directed towards center of the scene, this is just a temporary placeholder until directioanl
+                                                // lights are properly implemented.
+    if (lightDir == glm::vec3(0, -1, 0)) {
+        // can not look directly below when using glm::lookAt
+        lightDir = glm::normalize(lightDir + glm::vec3(0.001f, 0.0f, 0.0f));
+    }
+
+    auto lightCamera = Camera(lightPos, lightDir);
+    auto lightProjectionInfo = ProjectionInfo(depthMapBuffer_.getWidth(), depthMapBuffer_.getHeight());  // perspective projection
+
+    // render into depthMapBuffer from light perspective to get depth map
+    depthMapBuffer_.clear();
+    for (auto& [name, mesh] : scene.getAllObjects()) {
+        std::visit([&](auto&& arg) -> void { copyMeshParamsToOtherMesh(mesh_, arg); }, mesh);  // copy parameters to flat mesh
+        auto meshVar = MeshVariant{mesh_};
+        renderMesh(meshVar, lightCamera, lightProjectionInfo, lights, depthMapBuffer_);  // render flat mesh
+    }
+
+    // now we have depth map
+    const auto& depthMap = depthMapBuffer_.getDepthBuffer();
+    auto lightSpaceMatrix = lightProjectionInfo.getProjectionMatrix() * lightCamera.getViewMatrix();
+    Assets::setShadowMappingInfo(ShadowMappingInfo{depthMap, lightSpaceMatrix});
+
+    // 2) render scene with lighting and depth map information
+    result_.clear();
+    auto tr = renderSceneToBuffer(scene, projectionInfo, result_);
+
+    // remove shadow mapping info
+    Assets::setShadowMappingInfo(std::nullopt);
+
+    return {tr, result_.getColorBuffer().get_pointer()};
 }
 
 }  // namespace eng

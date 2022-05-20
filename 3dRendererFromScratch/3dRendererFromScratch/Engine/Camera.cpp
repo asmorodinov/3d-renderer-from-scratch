@@ -2,7 +2,8 @@
 
 namespace eng {
 
-Camera::Camera(glm::vec3 position, glm::vec3 direction) : position_(position), direction_(direction) {
+Camera::Camera(glm::vec3 position, glm::vec3 direction)
+    : position_(position), direction_(direction), viewMatrix_(glm::lookAt(position_, position_ + direction_, glm::vec3(0.0f, 1.0f, 0.0f))) {
 }
 
 const glm::mat4& Camera::getViewMatrix() const {

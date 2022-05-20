@@ -41,6 +41,9 @@ class ColorAndDepthBuffer {
     const ColorBuffer& getColorBuffer() const {
         return colorBuffer_;
     }
+    const DepthBuffer& getDepthBuffer() const {
+        return depthBuffer_;
+    }
     void setPixelColor(Pixels x, Pixels y, Color color, Depth z) {
         depthCheckSetPixelColor(x, y, z, color);
     }

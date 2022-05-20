@@ -268,4 +268,12 @@ class Mesh {
     FragmentShader fragmentShader_;
 };
 
+template <typename VS1, typename FS1, typename VS2, typename FS2>
+void copyMeshParamsToOtherMesh(Mesh<VS1, FS1>& to, const Mesh<VS2, FS2>& from) {
+    to.setMeshData(from.getMeshData());
+    to.setTransform(from.getTransform());
+    to.setDrawingMode(false, from.getDrawingEnabled(), from.getWriteToDepthBuffer());
+    to.setFragmentShaderUniform(from.getFragmentShaderUniform());
+}
+
 }  // namespace eng

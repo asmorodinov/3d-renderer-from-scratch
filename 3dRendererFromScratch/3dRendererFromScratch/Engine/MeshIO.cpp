@@ -108,6 +108,7 @@ void addMesh(const Properties& pr, Scene& scene) {
     ADD_MESH(PhongMesh);
     ADD_MESH(NormalMapMesh);
     ADD_MESH(ParallaxMapMesh);
+    ADD_MESH(PhongShadowMappingMesh);
 
     assert(correctMeshType);
 }

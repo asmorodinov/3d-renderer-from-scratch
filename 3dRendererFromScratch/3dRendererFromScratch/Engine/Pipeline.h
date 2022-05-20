@@ -153,7 +153,7 @@ using DefaultPipeline = OnePassPipeline<ClampConversion, NoBlending, NoDiscard>;
 using HDRPipeline = OnePassPipeline<HDRConversion, NoBlending, NoDiscard>;
 using BlendingPipeline = OnePassPipeline<ClampConversion, AlphaBlending, AlphaDiscard>;
 
-// first render into buffer of Color128, then convert ColorBuffer128 to ColorBuffer32 (one render pass + buffer convertion)
+// first render into buffer of Color128, then convert ColorBuffer128 to ColorBuffer32 (one render pass + buffer conversion)
 class ConvertingPipeline {
  public:
     ConvertingPipeline(Pixels width, Pixels height);
@@ -196,5 +196,20 @@ class OnePassTransparentPipeline {
 };
 
 using BlendingSortingPipeline = OnePassTransparentPipeline<ClampConversion, AlphaBlending, AlphaDiscard>;
+
+// shadow mapping pipeline
+
+// 1) render to depth map
+// 2) lighting pass using depth map
+class ShadowMappingPipeline {
+ public:
+    ShadowMappingPipeline(Pixels width, Pixels height, Pixels depthMapWidth = 512, Pixels depthMapHeight = 512);
+    PipelineResult renderScene(Scene& scene, ProjectionInfo& projectionInfo);
+
+ private:
+    ColorAndDepthBuffer<Color32, DefaultConversion, NoBlending, NoDiscard> depthMapBuffer_;  // we actually only need depth buffer from this
+    ColorAndDepthBuffer<Color32, ClampConversion, NoBlending, NoDiscard> result_;
+    FlatMesh mesh_;  // for depth map rendering purposes
+};
 
 }  // namespace eng

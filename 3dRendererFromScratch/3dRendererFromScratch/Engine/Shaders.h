@@ -8,5 +8,6 @@
 #include "Shaders/PhongShader.h"
 #include "Shaders/TextureShader.h"
 #include "Shaders/UVShader.h"
+#include "Shaders/PhongShadowMappingShader.h"
 
 namespace eng {}  // namespace eng

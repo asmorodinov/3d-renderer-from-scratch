@@ -49,4 +49,12 @@ MeshDataRef Assets::getMeshData(std::string filename, float scale, bool in, bool
     return std::cref(meshDatas[name]);
 }
 
+const std::optional<ShadowMappingInfo>& Assets::getShadowMappingInfo() {
+    return Assets::get().shadowMappingInfo_;
+}
+
+void Assets::setShadowMappingInfo(const std::optional<ShadowMappingInfo>& info) {
+    Assets::get().shadowMappingInfo_ = info;
+}
+
 }  // namespace eng

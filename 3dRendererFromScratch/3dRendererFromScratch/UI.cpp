@@ -79,8 +79,9 @@ void UserInterface::updateAndDraw(Seconds deltaTime, size_t trianglesCount, size
                 static eng::Properties selectedPropertiesCopy4;
 
                 static int item_current = 0;
-                std::array<const char*, 8> items = {"FlatMesh",   "TextureMesh", "CubemapMesh",   "UVMesh",
-                                                    "NormalMesh", "PhongMesh",   "NormalMapMesh", "ParallaxMapMesh"};
+                std::array<const char*, 9> items = {
+                    "FlatMesh",      "TextureMesh",    "CubemapMesh", "UVMesh", "NormalMesh", "PhongMesh", "PhongShadowMappingMesh",
+                    "NormalMapMesh", "ParallaxMapMesh"};
 
                 {
                     ImGui::BeginChild("left", ImVec2(150, 0));
@@ -279,7 +280,7 @@ void UserInterface::updateAndDraw(Seconds deltaTime, size_t trianglesCount, size
                 // Left
 
                 static int pipeline_current = 0;
-                std::array<const char*, 6> pipelines = {"default", "hdr", "bloom", "blending", "blending with sort", "converting"};
+                std::array<const char*, 7> pipelines = {"default", "hdr", "bloom", "shadow mapping", "blending", "blending with sort", "converting"};
                 {
                     ImGui::BeginChild("left", ImVec2(150, 0));
                     ImGui::BeginChild("left panel", ImVec2(150, 0), true);

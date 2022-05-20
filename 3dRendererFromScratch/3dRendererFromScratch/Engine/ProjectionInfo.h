@@ -21,6 +21,7 @@ class ProjectionInfo {
     Pixels getHeight() const;
 
     Depth getNearPlaneDistance() const;
+    Depth getFarPlaneDistance() const;
 
  private:
     Depth nearPlaneDistance_, farPlaneDistance_;

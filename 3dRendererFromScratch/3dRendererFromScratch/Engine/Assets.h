@@ -5,12 +5,18 @@
 #include <string>
 #include <map>
 #include <memory_resource>
+#include <optional>
+
+#include <cassert>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "Texture.h"
 #include "MeshData.h"
+#include "Types.h"
+#include "Camera.h"
+#include "ProjectionInfo.h"
 
 #include "Pool.h"
 
@@ -21,6 +27,12 @@ using namespace std::string_literals;
 using TextureRef = std::reference_wrapper<const Texture>;
 using CubemapTextureRef = std::reference_wrapper<const CubemapTexture>;
 using MeshDataRef = std::reference_wrapper<const MeshData>;
+
+// shadow mapping stuff
+struct ShadowMappingInfo {
+    std::reference_wrapper<const DepthBuffer> depthMap;
+    std::reference_wrapper<const glm::mat4> lightSpaceMatrix;
+};
 
 class Assets {
  public:
@@ -37,6 +49,9 @@ class Assets {
 
     static MeshDataRef getMeshData(std::string filename, float scale = 1.0f, bool in = false, bool ov = false);
 
+    static const std::optional<ShadowMappingInfo>& getShadowMappingInfo();
+    static void setShadowMappingInfo(const std::optional<ShadowMappingInfo>& info);
+
  private:
     Texture texture = Texture();
     CubemapTexture cubemapTexture = CubemapTexture();
@@ -44,6 +59,8 @@ class Assets {
     std::pmr::map<std::string, Texture> textures_{Pool::getPool()};
     std::pmr::map<std::string, CubemapTexture> cubemapTextures_{Pool::getPool()};
     std::pmr::map<std::string, MeshData> meshDatas_{Pool::getPool()};
+
+    std::optional<ShadowMappingInfo> shadowMappingInfo_ = std::nullopt;
 
     Assets() = default;
 };

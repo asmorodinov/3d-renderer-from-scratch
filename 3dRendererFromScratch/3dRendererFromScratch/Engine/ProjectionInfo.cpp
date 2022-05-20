@@ -27,4 +27,8 @@ Depth ProjectionInfo::getNearPlaneDistance() const {
     return nearPlaneDistance_;
 }
 
+Depth ProjectionInfo::getFarPlaneDistance() const {
+    return farPlaneDistance_;
+}
+
 }  // namespace eng

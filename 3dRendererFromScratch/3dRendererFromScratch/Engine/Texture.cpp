@@ -28,12 +28,7 @@ Texture::Texture(const std::string& file) {
 }
 
 glm::vec4 Texture::sample(glm::vec2 uv) const {
-    Pixels xc = uv.s * textureWidth;
-    Pixels yc = uv.t * textureHeight;
-    xc = std::min(xc, textureWidth - 1);
-    yc = std::min(yc, textureHeight - 1);
-
-    return colorBuffer.get(xc, textureHeight - 1 - yc);
+    return sample2dBuffer(colorBuffer, uv);
 }
 
 CubemapTexture::CubemapTexture() {

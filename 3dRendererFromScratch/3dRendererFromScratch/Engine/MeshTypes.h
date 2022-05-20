@@ -19,8 +19,9 @@ using NormalMesh = Mesh<NormalVertexShader, NormalShader>;
 using PhongMesh = Mesh<PhongVertexShader, PhongShader>;
 using NormalMapMesh = Mesh<NormalMapVertexShader, NormalMapShader>;
 using ParallaxMapMesh = Mesh<ParallaxMapVertexShader, ParallaxMapShader>;
+using PhongShadowMappingMesh = Mesh<PhongShadowMappingVertexShader, PhongShadowMappingShader>;
 
-using MeshVariant = std::variant<FlatMesh, TextureMesh, CubemapMesh, UVMesh, NormalMesh, PhongMesh, NormalMapMesh, ParallaxMapMesh>;
+using MeshVariant = std::variant<FlatMesh, TextureMesh, CubemapMesh, UVMesh, NormalMesh, PhongMesh, NormalMapMesh, ParallaxMapMesh, PhongShadowMappingMesh>;
 
 using ObjectsVec = std::map<std::string, MeshVariant>;
 
@@ -45,5 +46,6 @@ SPECIFY_TYPE_NAME_FOR_SOME_TYPE(NormalMesh);
 SPECIFY_TYPE_NAME_FOR_SOME_TYPE(PhongMesh);
 SPECIFY_TYPE_NAME_FOR_SOME_TYPE(NormalMapMesh);
 SPECIFY_TYPE_NAME_FOR_SOME_TYPE(ParallaxMapMesh);
+SPECIFY_TYPE_NAME_FOR_SOME_TYPE(PhongShadowMappingMesh);
 
 }  // namespace eng

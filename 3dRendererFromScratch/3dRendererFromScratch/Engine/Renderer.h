@@ -29,6 +29,7 @@ class Renderer {
     DefaultPipeline defaultPipeline_;
     HDRPipeline hdrPipeline_;
     BloomPipeline bloomPipeline_;
+    ShadowMappingPipeline shadowMappingPipeline_;
     BlendingPipeline blendingPipeline_;
     BlendingSortingPipeline blendingSortingPipeline_;
     ConvertingPipeline convertingPipeline_;
