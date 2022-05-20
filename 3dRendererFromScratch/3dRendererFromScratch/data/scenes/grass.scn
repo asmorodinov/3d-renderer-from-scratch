@@ -93,6 +93,18 @@ Mesh
 	transformPosition	-1.39 0 1.71
 	wireframeColor	253 253 253
 }
+Mesh
+{
+	name	Mesh9
+	typeName	TextureMesh
+	diffuseTextureName	glass2.png
+	meshFileName	teapot
+	meshScale	0.25
+	isTransparent	1
+	drawBackface	1
+	transformPosition	0 -1.07 2.27
+	wireframeColor	253 253 253
+}
 PointLight
 {
 	position	-0.39 0.11 -0.55
