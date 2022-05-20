@@ -195,6 +195,7 @@ void UserInterface::updateAndDraw(Seconds deltaTime, size_t trianglesCount, size
                     if (ImGui::Checkbox("write to depth buffer", &selectedProperties.writeToDepthBuffer)) changedProperty = true;
                     if (ImGui::Checkbox("enable draw", &selectedProperties.drawingEnabled)) changedProperty = true;
                     if (ImGui::Checkbox("is transparent", &selectedProperties.isTransparent)) changedProperty = true;
+                    if (ImGui::Checkbox("draw backface", &selectedProperties.drawBackface)) changedProperty = true;
 
                     ImGui::EndChild();
 

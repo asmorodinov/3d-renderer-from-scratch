@@ -37,7 +37,7 @@ class Mesh {
 
     Mesh(MeshDataRef mesh, const VertexShaderUniform& vertexShaderUniform, const FragmentShaderUniform& fragmentShaderUniform,
          const ObjectTransform& objectTransform, bool wireframeMode = false, bool writeToDepthBuffer = true, Color32 wireframeColor = Color32(255),
-         bool drawingEnabled = true, bool transparent = false)
+         bool drawingEnabled = true, bool transparent = false, bool drawBackface = false)
         : mesh_(mesh),
           vertexShaderUniform_(vertexShaderUniform),
           fragmentShaderUniform_(fragmentShaderUniform),
@@ -48,7 +48,16 @@ class Mesh {
           writeToDepthBuffer_(writeToDepthBuffer),
           drawingEnabled_(drawingEnabled),
           wireframeColor_(wireframeColor),
-          isTransparent_(transparent) {
+          isTransparent_(transparent),
+          drawBackface_(drawBackface) {
+    }
+
+    glm::vec3 getCenter(const eng::MeshData& mesh, const eng::Face& face, const glm::mat4& model) {
+        auto p0 = glm::vec3(model * glm::vec4(mesh.vertices[face.i], 1.0f));
+        auto p1 = glm::vec3(model * glm::vec4(mesh.vertices[face.j], 1.0f));
+        auto p2 = glm::vec3(model * glm::vec4(mesh.vertices[face.k], 1.0f));
+        auto center = (p0 + p1 + p2) / 3.0f;
+        return center;
     }
 
     std::vector<Distance> getDistances(const Camera& camera) {
@@ -60,10 +69,7 @@ class Mesh {
         const auto& model = objectTransform_.getModel();
 
         for (const auto& face : mesh.faces) {
-            auto p0 = glm::vec3(model * glm::vec4(mesh.vertices[face.i], 1.0f));
-            auto p1 = glm::vec3(model * glm::vec4(mesh.vertices[face.j], 1.0f));
-            auto p2 = glm::vec3(model * glm::vec4(mesh.vertices[face.k], 1.0f));
-            auto center = (p0 + p1 + p2) / 3.0f;
+            auto center = getCenter(mesh, face, model);
             res.push_back(glm::length(center - viewPos));
         }
 
@@ -127,12 +133,30 @@ class Mesh {
         const auto& mesh = mesh_.get();
 
         const auto& face = mesh.faces[faceIndex];
+
+        auto i = face.i;
+        auto j = face.j;
+        auto ti = face.ti;
+        auto tj = face.tj;
+
+        if (drawBackface_) {
+            auto normalMatrix = glm::mat3(glm::transpose(glm::inverse(model)));
+            auto normal = glm::normalize(normalMatrix * mesh.normals[face.ni]);
+            auto center = getCenter(mesh, face, model);
+            auto viewDir = glm::normalize(viewPos - center);
+
+            if (glm::dot(viewDir, normal) < 0.0f) {
+                std::swap(i, j);
+                std::swap(ti, tj);
+            }
+        }
+
         VertexShaderOutput out = vertexShader_.run({
-            mesh.vertices[face.i], mesh.vertices[face.j], mesh.vertices[face.k],                    // vertices
-            mesh.textureCoords[face.ti], mesh.textureCoords[face.tj], mesh.textureCoords[face.tk],  // texture coords
-            mesh.tangents[face.ni],                                                                 // tangent
-            mesh.bitangents[face.ni],                                                               // bitangent
-            mesh.normals[face.ni]                                                                   // normal
+            mesh.vertices[i], mesh.vertices[j], mesh.vertices[face.k],                    // vertices
+            mesh.textureCoords[ti], mesh.textureCoords[tj], mesh.textureCoords[face.tk],  // texture coords
+            mesh.tangents[face.ni],                                                       // tangent
+            mesh.bitangents[face.ni],                                                     // bitangent
+            mesh.normals[face.ni]                                                         // normal
         });
 
         const auto& triangle = out.triangle;
@@ -223,6 +247,10 @@ class Mesh {
         return mesh_.get().faces.size();
     }
 
+    bool getDrawBackface() const {
+        return drawBackface_;
+    }
+
  private:
     MeshDataRef mesh_;
     VertexShaderUniform vertexShaderUniform_;
@@ -234,6 +262,7 @@ class Mesh {
     bool drawingEnabled_ = true;
     bool writeToDepthBuffer_ = true;
     bool isTransparent_ = false;
+    bool drawBackface_ = false;
 
     VertexShader vertexShader_;
     FragmentShader fragmentShader_;

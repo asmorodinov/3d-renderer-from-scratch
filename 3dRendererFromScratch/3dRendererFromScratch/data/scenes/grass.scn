@@ -6,8 +6,8 @@ Mesh
 	meshFileName	plane
 	meshScale	0.68
 	meshOnlyVertices	0
-	transformPosition	0 0 0.36
-	transformScale	1 1 0.001
+	transformPosition	0 0 0.19
+	transformScale	1.4 1.4 0.001
 	wireframeColor	253 253 253
 }
 Mesh
@@ -44,12 +44,58 @@ Mesh
 	meshFileName	cube
 	meshOnlyVertices	0
 	isTransparent	1
-	transformPosition	0 0 0.13
+	transformPosition	0 0 -0.29
 	transformScale	1 1 0.03
+	wireframeColor	253 253 253
+}
+Mesh
+{
+	name	Mesh5
+	typeName	TextureMesh
+	diffuseTextureName	glass.png
+	meshFileName	light_bulb
+	meshScale	0.55
+	meshOnlyVertices	0
+	isTransparent	1
+	transformPosition	-0.68 0.24 0.51
+	wireframeColor	253 253 253
+}
+Mesh
+{
+	name	Mesh6
+	meshFileName	cube
+	meshOnlyVertices	0
+	transformPosition	0 0 -0.81
+	transformScale	1.85 1.85 0.01
+	wireframeColor	253 253 253
+}
+Mesh
+{
+	name	Mesh7
+	typeName	TextureMesh
+	diffuseTextureName	glass.png
+	meshScale	0.6
+	isTransparent	1
+	drawBackface	1
+	transformPosition	1.82 -0.02 1.54
+	wireframeColor	253 253 253
+}
+Mesh
+{
+	name	Mesh8
+	typeName	TextureMesh
+	diffuseTextureName	glass3.png
+	meshFileName	cube
+	meshScale	0.4
+	meshOnlyVertices	0
+	isTransparent	1
+	drawBackface	1
+	transformPosition	-1.39 0 1.71
 	wireframeColor	253 253 253
 }
 PointLight
 {
-	position	-0.39 0.11 -0.17
+	position	-0.39 0.11 -0.55
+	color	0.938224 0.166634 0.166634
 	intensity	2.595
 }
