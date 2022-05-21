@@ -14,7 +14,11 @@ class ProjectionInfo {
     static constexpr const Degrees defaultFieldOfViewAngle_ = 60.0f;
 
  public:
-    ProjectionInfo(Pixels width, Pixels height);
+    ProjectionInfo(Pixels width, Pixels height, Depth near = defaultNearPlaneDistance_, Depth far = defaultFarPlaneDistance_,
+                   Degrees fov = defaultFieldOfViewAngle_);  // perspective
+    ProjectionInfo(Pixels width, Pixels height, bool dummy, Distance frustrumSize = 10.0f, Depth near = defaultNearPlaneDistance_,
+                   Depth far = defaultFarPlaneDistance_);  // ortho
+
     const glm::mat4& getProjectionMatrix() const;
 
     Pixels getWidth() const;

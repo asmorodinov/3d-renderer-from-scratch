@@ -34,8 +34,9 @@ glm::vec4 PhongShadowMappingShader::computePixelColor(const Var& var, const Ligh
             closestDepth = sample2dBuffer(depthMap, glm::vec2(projCoords));
         }
 
+        auto bias = 0.2f;
         auto currentDepth = projCoords.z;
-        shadow = ((currentDepth - 0.2f) > closestDepth) ? 1.0f : 0.0f;
+        shadow = ((currentDepth - bias) > closestDepth) ? 1.0f : 0.0f;
     }
 
     // phong lighting
