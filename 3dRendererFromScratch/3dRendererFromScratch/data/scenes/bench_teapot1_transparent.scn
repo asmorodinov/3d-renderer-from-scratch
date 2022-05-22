@@ -1,0 +1,12 @@
+Mesh
+{
+	name	Mesh1
+	typeName	TextureMesh
+	diffuseTextureName	glass.png
+	meshFileName	teapot
+	meshScale	0.54
+	isTransparent	1
+	drawBackface	1
+	transformPosition	0 -0.94 3.52
+	wireframeColor	253 253 253
+}

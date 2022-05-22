@@ -1,0 +1,16 @@
+Mesh
+{
+	name	Mesh1
+	typeName	ParallaxMapMesh
+	diffuseTextureName	bricks2.jpg
+	normalTextureName	bricks2_normal.jpg
+	meshFileName	teapot
+	meshScale	0.54
+	transformPosition	0 -0.94 4.76
+	wireframeColor	253 253 253
+}
+PointLight
+{
+	position	0.56 -0.01 7.47
+	intensity	2.055
+}

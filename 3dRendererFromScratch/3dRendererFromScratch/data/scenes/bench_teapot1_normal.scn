@@ -1,0 +1,14 @@
+Mesh
+{
+	name	Mesh1
+	typeName	NormalMapMesh
+	meshFileName	teapot
+	meshScale	0.54
+	transformPosition	0 -0.94 4.75
+	wireframeColor	253 253 253
+}
+PointLight
+{
+	position	0.56 -0.01 7.27
+	intensity	2.115
+}
