@@ -32,7 +32,7 @@ struct GenericDiscard<Color128, D128, D32> {
 };
 template <typename D128, typename D32>
 struct GenericDiscard<Color32, D128, D32> {
-    static Color32 discard(Color32 color) {
+    static bool discard(Color32 color) {
         return D32::discard(color);
     }
 };

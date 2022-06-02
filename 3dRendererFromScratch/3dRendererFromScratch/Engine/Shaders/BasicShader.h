@@ -10,6 +10,8 @@
 #include "../Texture.h"
 #include "../InterpolatableTuple.h"
 #include "../Primitives.h"
+#include "../Types.h"
+#include "../Conversion.h"
 
 namespace eng {
 

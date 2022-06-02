@@ -2,8 +2,8 @@
 
 namespace eng {
 
-glm::vec4 FlatShader::computePixelColor(const Var& var, const LightsVec& lights) {
-    return glm::vec4(uniform.flatColor, 1.0f);
+Color32 FlatShader::computePixelColor(const Var& var, const LightsVec& lights) {
+    return ClampConversion<Color128, Color32>::convertColor(Color128(uniform.flatColor, 1.0f));
 }
 
 void FlatVertexShader::setMVP(glm::mat4 model_, glm::mat4 view_, glm::mat4 projection_, glm::vec3 viewPos_) {
