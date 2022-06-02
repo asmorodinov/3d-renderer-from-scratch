@@ -14,6 +14,7 @@ Renderer::Renderer(Pixels width, Pixels height)
       blendingPipeline_(width, height),
       blendingSortingPipeline_(width, height),
       deferredShadingPipeline_(width, height),
+      ssaoPipeline_(width, height),
       convertingPipeline_(width, height) {
 }
 
@@ -37,6 +38,8 @@ PipelineResult Renderer::renderScene(Scene& scene) {
         return blendingSortingPipeline_.renderScene(scene, projectionInfo_);
     } else if (pipeline == "deferred shading") {
         return deferredShadingPipeline_.renderScene(scene, projectionInfo_);
+    } else if (pipeline == "SSAO") {
+        return ssaoPipeline_.renderScene(scene, projectionInfo_);
     } else if (pipeline == "converting") {
         return convertingPipeline_.renderScene(scene, projectionInfo_);
     }

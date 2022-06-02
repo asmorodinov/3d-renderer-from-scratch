@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <array>
 #include <utility>
+#include <random>
 
 #include "Assets.h"
 
@@ -11,7 +12,7 @@ namespace eng {
 // helper function
 
 std::string getNextPipeline(std::string pipeline, bool next) {
-    auto pipelines = std::vector<std::string>{"default", "hdr", "bloom", "shadow mapping", "blending", "blending with sort", "deferred shading"};
+    auto pipelines = std::vector<std::string>{"default", "hdr", "bloom", "shadow mapping", "blending", "blending with sort", "deferred shading", "SSAO"};
     auto it = std::find(pipelines.begin(), pipelines.end(), pipeline);
     if (it == pipelines.end()) {
         assert(false);
@@ -168,6 +169,8 @@ PipelineResult ShadowMappingPipeline::renderScene(Scene& scene, ProjectionInfo& 
     return {tr, result_.getColorBuffer().get_pointer()};
 }
 
+// deferred shading
+
 DeferredShadingPipeline::DeferredShadingPipeline(Pixels width, Pixels height)
     : gBuffer_(width, height, GeometryInfo{}),
       result_(width, height, Color32(0, 0, 0, 255)),
@@ -195,6 +198,139 @@ PipelineResult DeferredShadingPipeline::renderScene(Scene& scene, ProjectionInfo
     for (size_t i = 0; i < gBuffer_.getWidth() * gBuffer_.getHeight(); ++i) {
         auto info = source.get(i);
         auto lighting = DeferredPhongShader::computePixelColor(camera.getPosition(), info, lights);
+        result_.getColorBuffer().get(i) = ClampConversion<Color128, Color32>::convertColor(lighting);
+    }
+
+    // also render lights (forward rendering), but before that copy depth buffer from deferred pass to forward pass
+    result_.getDepthBuffer() = gBuffer_.getDepthBuffer();
+
+    tr += renderLightsToBuffer(scene, projectionInfo, result_);
+
+    return {tr, result_.getColorBuffer().get_pointer()};
+}
+
+// SSAO
+
+SSAOPipeline::SSAOPipeline(Pixels width, Pixels height)
+    : gBuffer_(width, height, GeometryInfo{}),
+      result_(width, height, Color32(0, 0, 0, 255)),
+      mesh_(Assets::getMeshData("cube", 0.05f), {}, FragmentShaderUniform(), ObjectTransform(), false),
+      occlusionTexture(width, height, 0.0f),
+      blurredOcclusionTexture(width, height, 0.0f) {
+    // generate sample kernel
+    // ----------------------
+    auto lerp = [](float a, float b, float f) { return a + f * (b - a); };
+
+    std::uniform_real_distribution<float> randomFloats(0.0, 1.0);  // generates random floats between 0.0 and 1.0
+    std::default_random_engine generator;
+
+    for (size_t i = 0; i < sampleCount; ++i) {
+        glm::vec3 sample(randomFloats(generator) * 2.0 - 1.0, randomFloats(generator) * 2.0 - 1.0, randomFloats(generator));
+        sample = glm::normalize(sample);
+        sample *= randomFloats(generator);
+        float scale = float(i) / sampleCount;
+
+        // scale samples s.t. they're more aligned to center of kernel
+        scale = lerp(0.1f, 1.0f, scale * scale);
+        sample *= scale;
+
+        ssaoKernel.push_back(sample);
+    }
+
+    // generate noise texture
+    // ----------------------
+    for (size_t i = 0; i < noiseTextureSize * noiseTextureSize; i++) {
+        glm::vec3 noise(randomFloats(generator) * 2.0 - 1.0, randomFloats(generator) * 2.0 - 1.0, 0.0f);  // rotate around z-axis (in tangent space)
+        ssaoNoise.push_back(noise);
+    }
+}
+
+PipelineResult SSAOPipeline::renderScene(Scene& scene, ProjectionInfo& projectionInfo) {
+    // geometry pass
+
+    const auto& camera = scene.getCamera();
+    const auto& lights = scene.getPointLights();
+    const auto& projection = projectionInfo.getProjectionMatrix();
+    auto width = gBuffer_.getWidth();
+    auto height = gBuffer_.getHeight();
+
+    auto cameraSpaceLights = lights;
+    for (auto& light : cameraSpaceLights) {
+        light.position = glm::vec3(camera.getViewMatrix() * glm::vec4(light.position, 1.0f));
+    }
+
+    // render scene geometry into gBuffer
+    gBuffer_.clear();
+    size_t tr = 0;
+    for (auto& [name, mesh] : scene.getAllObjects()) {
+        std::visit([&](auto&& arg) -> void { copyMeshParamsToOtherMesh(mesh_, arg); }, mesh);  // copy parameters to flat mesh
+
+        mesh_.draw(camera, projectionInfo, lights, gBuffer_);  // render mesh
+        tr += mesh_.getTriangleCount();
+    }
+
+    // SSAO
+    static constexpr float radius = 0.5f;
+    static constexpr float bias = 0.025f;
+    for (size_t x = 0; x < width; ++x) {
+        for (size_t y = 0; y < height; ++y) {
+            const auto& info = gBuffer_.getPixelColor(x, y);
+
+            auto fragPos = info.position;
+            auto normal = info.normal;
+            auto randomVec = ssaoNoise[(y % noiseTextureSize) * noiseTextureSize + (x % noiseTextureSize)];
+
+            auto tangent = glm::normalize(randomVec - normal * glm::dot(randomVec, normal));
+            auto bitangent = glm::cross(normal, tangent);
+            auto TBN = glm::mat3(tangent, bitangent, normal);
+
+            auto occlusion = 0.0f;
+            for (size_t i = 0; i < sampleCount; ++i) {
+                auto samplePos = fragPos + radius * (TBN * ssaoKernel[i]);
+
+                auto offset = projection * glm::vec4(samplePos, 1.0f);
+                offset /= offset.w;
+                offset = offset * 0.5f + 0.5f;
+
+                auto sampleDepth = sample2dBuffer(gBuffer_.getColorBuffer(), glm::vec2(offset.x, 1.0f - offset.y)).position.z;
+
+                auto rangeCheck = glm::smoothstep(0.0f, 1.0f, radius / glm::abs(fragPos.z - sampleDepth));
+                occlusion += (sampleDepth >= samplePos.z + bias ? 1.0f : 0.0f) * rangeCheck;
+            }
+            occlusion = 1.0f - (occlusion / sampleCount);
+
+            occlusionTexture.set(x, y, occlusion);
+        }
+    }
+
+    // blur occlusion texture
+    auto widthInt = static_cast<int>(width);
+    auto heightInt = static_cast<int>(height);
+    auto range = static_cast<int>(noiseTextureSize / 2);
+    for (int x = 0; x < widthInt; ++x) {
+        for (int y = 0; y < heightInt; ++y) {
+            auto result = 0.0f;
+            for (int dx = -range; dx < range; ++dx) {
+                for (int dy = -range; dy < range; ++dy) {
+                    auto x1 = std::max(0, std::min(x + dx, widthInt - 1));
+                    auto y1 = std::max(0, std::min(y + dy, heightInt - 1));
+                    result += occlusionTexture.get(x1, y1);
+                }
+            }
+            blurredOcclusionTexture.set(size_t(x), size_t(y), result / (noiseTextureSize * noiseTextureSize));
+        }
+    }
+
+    // lighting pass with occlusion info (everything is in camera space)
+
+    result_.clear();
+    const auto& source = gBuffer_.getColorBuffer();
+    for (size_t i = 0; i < gBuffer_.getWidth() * gBuffer_.getHeight(); ++i) {
+        auto occlusion = blurredOcclusionTexture.get(i);
+        
+        auto info = source.get(i);
+        auto lighting = SSAOPhongShader::computePixelColor(glm::vec3(0.0f), occlusion, info, cameraSpaceLights);
+        
         result_.getColorBuffer().get(i) = ClampConversion<Color128, Color32>::convertColor(lighting);
     }
 

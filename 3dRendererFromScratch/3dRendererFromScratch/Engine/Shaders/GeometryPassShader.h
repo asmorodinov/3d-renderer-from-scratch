@@ -23,6 +23,7 @@ struct GeometryPassShader {
     VertexShaderOutput vso;
 };
 
+// outputs positions and normals in world space
 struct GeometryPassVertexShader {
     using Uniform = VertexShaderUniform;
     struct Output {
@@ -35,6 +36,22 @@ struct GeometryPassVertexShader {
 
     Uniform uniform;
     BasicVertexShader bvs;
+};
+
+// ouputs positions and normals in view (camera) space
+struct SSAOGeometryPassVertexShader {
+    using Uniform = VertexShaderUniform;
+    struct Output {
+        Triangle<GeometryPassShader::Var> triangle;
+        GeometryPassShader::VertexShaderOutput uniformOutput;
+    };
+
+    void setMVP(glm::mat4 model_, glm::mat4 view_, glm::mat4 projection_, glm::vec3 viewPos_);
+    Output run(const WorldSpaceTriangle& tr);
+
+    Uniform uniform;
+    BasicVertexShader bvs;
+    glm::mat3 normalMatrix;  // view space normal matrix
 };
 
 }  // namespace eng

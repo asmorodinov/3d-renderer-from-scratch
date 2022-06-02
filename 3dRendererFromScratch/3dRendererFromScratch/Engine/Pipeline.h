@@ -229,4 +229,27 @@ class DeferredShadingPipeline {
     Mesh<GeometryPassVertexShader, GeometryPassShader> mesh_;  // needed for geometry pass
 };
 
+// SSAO pipeline
+// 1) geometry pass -> G buffer
+// 2) lighting pass
+class SSAOPipeline {
+    static constexpr size_t sampleCount = 24;
+    static constexpr size_t noiseTextureSize = 4;
+
+ public:
+    SSAOPipeline(Pixels width, Pixels height);
+    PipelineResult renderScene(Scene& scene, ProjectionInfo& projectionInfo);
+
+ private:
+    ColorAndDepthBuffer<GeometryInfo, DefaultConversion, NoBlending, NoDiscard> gBuffer_;
+    ColorAndDepthBuffer<Color32, ClampConversion, NoBlending, NoDiscard> result_;
+    Mesh<SSAOGeometryPassVertexShader, GeometryPassShader> mesh_;  // needed for geometry pass
+    // SSAO samples info
+    std::vector<glm::vec3> ssaoKernel;
+    std::vector<glm::vec3> ssaoNoise;
+    // occlusion texture
+    Vector2d<float> occlusionTexture;
+    Vector2d<float> blurredOcclusionTexture;
+};
+
 }  // namespace eng

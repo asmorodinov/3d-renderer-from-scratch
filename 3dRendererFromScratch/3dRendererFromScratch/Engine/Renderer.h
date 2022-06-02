@@ -33,6 +33,7 @@ class Renderer {
     BlendingPipeline blendingPipeline_;
     BlendingSortingPipeline blendingSortingPipeline_;
     DeferredShadingPipeline deferredShadingPipeline_;
+    SSAOPipeline ssaoPipeline_;
     ConvertingPipeline convertingPipeline_;
 };
 

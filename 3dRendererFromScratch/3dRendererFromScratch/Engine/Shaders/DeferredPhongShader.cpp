@@ -1,14 +1,15 @@
 #include "DeferredPhongShader.h"
 
 namespace eng {
-namespace DeferredPhongShader {
 
-Color128 computePixelColor(glm::vec3 viewPos, const GeometryInfo& info, const LightsVec& lights) {
+namespace PhongShaderCommon {
+
+glm::vec3 computePhong(glm::vec3 viewPos, const GeometryInfo& info, const LightsVec& lights) {
     auto FragPos = info.position;
     auto normal = info.normal;
     auto color = info.diffuseColor;
 
-    auto lighting = 0.1f * color;
+    auto lighting = glm::vec3(0.0f);
     auto viewDir = glm::normalize(viewPos - FragPos);
 
     for (const auto& light : lights) {
@@ -28,8 +29,31 @@ Color128 computePixelColor(glm::vec3 viewPos, const GeometryInfo& info, const Li
         lighting += light.intensity * (diffuse + specular);
     }
 
+    return lighting;
+}
+
+}  // namespace PhongShaderCommon
+
+namespace DeferredPhongShader {
+
+Color128 computePixelColor(glm::vec3 viewPos, const GeometryInfo& info, const LightsVec& lights) {
+    auto lighting = 0.3f * info.diffuseColor;
+    lighting += PhongShaderCommon::computePhong(viewPos, info, lights);
+
     return Color128(lighting, 1.0f);
 }
 
 }  // namespace DeferredPhongShader
+
+namespace SSAOPhongShader {
+
+Color128 computePixelColor(glm::vec3 viewPos, float occlusion, const GeometryInfo& info, const LightsVec& lights) {
+    auto lighting = 0.3f * info.diffuseColor * occlusion;
+    lighting += PhongShaderCommon::computePhong(viewPos, info, lights);
+
+    return Color128(lighting, 1.0f);
+}
+
+}  // namespace SSAOPhongShader
+
 }  // namespace eng
