@@ -280,7 +280,8 @@ void UserInterface::updateAndDraw(Seconds deltaTime, size_t trianglesCount, size
                 // Left
 
                 static int pipeline_current = 0;
-                std::array<const char*, 7> pipelines = {"default", "hdr", "bloom", "shadow mapping", "blending", "blending with sort", "converting"};
+                std::array<const char*, 8> pipelines = {"default",          "hdr",       "bloom", "shadow mapping", "blending", "blending with sort",
+                                                        "deferred shading", "converting"};
                 {
                     ImGui::BeginChild("left", ImVec2(150, 0));
                     ImGui::BeginChild("left panel", ImVec2(150, 0), true);

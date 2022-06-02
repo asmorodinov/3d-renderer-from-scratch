@@ -16,7 +16,7 @@ struct TransformationConversion {
     static Color2 convertColor(Color1 color) {
         assert(false);  // do not use this specific conversion
         exit(1);
-        return Color2(color);
+        return Color2();
     }
 };
 template <typename Color, typename T1, typename T2>

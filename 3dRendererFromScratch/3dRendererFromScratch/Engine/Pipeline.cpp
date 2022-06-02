@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <array>
+#include <utility>
 
 #include "Assets.h"
 
@@ -10,7 +11,7 @@ namespace eng {
 // helper function
 
 std::string getNextPipeline(std::string pipeline, bool next) {
-    auto pipelines = std::vector<std::string>{"default", "hdr", "bloom", "shadow mapping", "blending", "blending with sort"};
+    auto pipelines = std::vector<std::string>{"default", "hdr", "bloom", "shadow mapping", "blending", "blending with sort", "deferred shading"};
     auto it = std::find(pipelines.begin(), pipelines.end(), pipeline);
     if (it == pipelines.end()) {
         assert(false);
@@ -119,8 +120,6 @@ ShadowMappingPipeline::ShadowMappingPipeline(Pixels width, Pixels height, Pixels
       mesh_(Assets::getMeshData("cube", 0.05f), {}, FragmentShaderUniform(), ObjectTransform(), false) {
 }
 
-#include <iostream>
-
 PipelineResult ShadowMappingPipeline::renderScene(Scene& scene, ProjectionInfo& projectionInfo) {
     // 1) render scene and get depth map
     const auto& camera = scene.getCamera();
@@ -165,6 +164,44 @@ PipelineResult ShadowMappingPipeline::renderScene(Scene& scene, ProjectionInfo& 
 
     // remove shadow mapping info
     Assets::setShadowMappingInfo(std::nullopt);
+
+    return {tr, result_.getColorBuffer().get_pointer()};
+}
+
+DeferredShadingPipeline::DeferredShadingPipeline(Pixels width, Pixels height)
+    : gBuffer_(width, height, GeometryInfo{}),
+      result_(width, height, Color32(0, 0, 0, 255)),
+      mesh_(Assets::getMeshData("cube", 0.05f), {}, FragmentShaderUniform(), ObjectTransform(), false) {
+}
+
+PipelineResult DeferredShadingPipeline::renderScene(Scene& scene, ProjectionInfo& projectionInfo) {
+    // geometry pass
+    const auto& camera = scene.getCamera();
+    const auto& lights = scene.getPointLights();
+
+    // render scene geometry into gBuffer
+    gBuffer_.clear();
+    size_t tr = 0;
+    for (auto& [name, mesh] : scene.getAllObjects()) {
+        std::visit([&](auto&& arg) -> void { copyMeshParamsToOtherMesh(mesh_, arg); }, mesh);  // copy parameters to flat mesh
+
+        mesh_.draw(camera, projectionInfo, lights, gBuffer_);  // render mesh
+        tr += mesh_.getTriangleCount();
+    }
+
+    // lighting pass
+    result_.clear();
+    const auto& source = gBuffer_.getColorBuffer();
+    for (size_t i = 0; i < gBuffer_.getWidth() * gBuffer_.getHeight(); ++i) {
+        auto info = source.get(i);
+        auto lighting = DeferredPhongShader::computePixelColor(camera.getPosition(), info, lights);
+        result_.getColorBuffer().get(i) = ClampConversion<Color128, Color32>::convertColor(lighting);
+    }
+
+    // also render lights (forward rendering), but before that copy depth buffer from deferred pass to forward pass
+    result_.getDepthBuffer() = gBuffer_.getDepthBuffer();
+
+    tr += renderLightsToBuffer(scene, projectionInfo, result_);
 
     return {tr, result_.getColorBuffer().get_pointer()};
 }

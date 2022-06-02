@@ -22,6 +22,9 @@
 #include "Blending.h"
 #include "Discard.h"
 
+#include "Shaders/GeometryPassShader.h"
+#include "Shaders/DeferredPhongShader.h"
+
 namespace eng {
 
 template <typename Buffer>
@@ -210,6 +213,20 @@ class ShadowMappingPipeline {
     ColorAndDepthBuffer<Color32, DefaultConversion, NoBlending, NoDiscard> depthMapBuffer_;  // we actually only need depth buffer from this
     ColorAndDepthBuffer<Color32, ClampConversion, NoBlending, NoDiscard> result_;
     FlatMesh mesh_;  // for depth map rendering purposes
+};
+
+// deferred shading pipeline
+// 1) geometry pass -> G buffer
+// 2) lighting pass
+class DeferredShadingPipeline {
+ public:
+    DeferredShadingPipeline(Pixels width, Pixels height);
+    PipelineResult renderScene(Scene& scene, ProjectionInfo& projectionInfo);
+
+ private:
+    ColorAndDepthBuffer<GeometryInfo, DefaultConversion, NoBlending, NoDiscard> gBuffer_;
+    ColorAndDepthBuffer<Color32, ClampConversion, NoBlending, NoDiscard> result_;
+    Mesh<GeometryPassVertexShader, GeometryPassShader> mesh_;  // needed for geometry pass
 };
 
 }  // namespace eng

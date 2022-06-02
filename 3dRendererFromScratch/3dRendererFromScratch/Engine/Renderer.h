@@ -32,6 +32,7 @@ class Renderer {
     ShadowMappingPipeline shadowMappingPipeline_;
     BlendingPipeline blendingPipeline_;
     BlendingSortingPipeline blendingSortingPipeline_;
+    DeferredShadingPipeline deferredShadingPipeline_;
     ConvertingPipeline convertingPipeline_;
 };
 

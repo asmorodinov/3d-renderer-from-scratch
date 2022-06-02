@@ -9,7 +9,7 @@ struct FlatShader {
     using VertexShaderOutput = EmptyStruct;
     using Var = NoVariables;
 
-    Color32 computePixelColor(const Var& var, const LightsVec& lights);
+    Color128 computePixelColor(const Var& var, const LightsVec& lights);
 
     Uniform uniform;
     VertexShaderOutput vso;

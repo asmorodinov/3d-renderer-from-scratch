@@ -251,6 +251,11 @@ class Mesh {
         return drawBackface_;
     }
 
+    // not needed in most cases, but useful for things like deferred rendering pipeline, where we are using special shaders with additional uniform variables
+    FragmentShader& getFragmentShader() {
+        return fragmentShader_;
+    }
+
  private:
     MeshDataRef mesh_;
     VertexShaderUniform vertexShaderUniform_;
