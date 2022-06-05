@@ -18,3 +18,11 @@ size_t SFMLRenderer::render(eng::Scene& scene) {
 
     return res.trianglesCount;
 }
+
+void SFMLRenderer::renderToFile(eng::Scene& scene, const std::string& file) {
+    auto res = renderer_.renderScene(scene);
+    screenTexture_.update(reinterpret_cast<const eng::Byte*>(res.buffer));
+    auto img = screenTexture_.copyToImage();
+    img.flipVertically();
+    img.saveToFile(file);
+}

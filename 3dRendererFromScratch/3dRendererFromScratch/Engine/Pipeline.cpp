@@ -327,10 +327,10 @@ PipelineResult SSAOPipeline::renderScene(Scene& scene, ProjectionInfo& projectio
     const auto& source = gBuffer_.getColorBuffer();
     for (size_t i = 0; i < gBuffer_.getWidth() * gBuffer_.getHeight(); ++i) {
         auto occlusion = blurredOcclusionTexture.get(i);
-        
+        // auto lighting = Color128(glm::vec3(occlusion), 1.0f);
         auto info = source.get(i);
         auto lighting = SSAOPhongShader::computePixelColor(glm::vec3(0.0f), occlusion, info, cameraSpaceLights);
-        
+
         result_.getColorBuffer().get(i) = ClampConversion<Color128, Color32>::convertColor(lighting);
     }
 

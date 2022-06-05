@@ -18,6 +18,7 @@ class SFMLRenderer {
     SFMLRenderer(Pixels width, Pixels height, sf::RenderWindow& mainAppWindow);
 
     size_t render(eng::Scene& scene);
+    void renderToFile(eng::Scene& scene, const std::string& file);
 
  private:
     Pixels windowWidth_;

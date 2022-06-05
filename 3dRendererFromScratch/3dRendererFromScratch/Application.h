@@ -6,6 +6,7 @@
 #include <thread>
 #include <chrono>
 #include <cstddef>
+#include <iostream>
 
 #include <filesystem>
 namespace fs = std::filesystem;

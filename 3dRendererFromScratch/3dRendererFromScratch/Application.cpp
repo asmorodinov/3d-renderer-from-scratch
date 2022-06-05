@@ -106,6 +106,11 @@ void Application::onKeyPressOrRelease(sf::Keyboard::Key key, bool mode) {
         currentSceneIndex_ = (currentSceneIndex_ + 1) % scenes_.size();
     }
 
+    if (mode && key == sf::Keyboard::RControl) {
+        renderer_.renderToFile(scenes_[currentSceneIndex_], "data/screenshots/scene.png");
+        std::cout << "saved screenshot\n";
+    }
+
     if (mode && key == sf::Keyboard::Right) {
         scenes_[currentSceneIndex_].getPipeline() = eng::getNextPipeline(scenes_[currentSceneIndex_].getPipeline(), true);
     }
