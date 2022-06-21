@@ -37,7 +37,7 @@ glm::vec3 computePhong(glm::vec3 viewPos, const GeometryInfo& info, const Lights
 namespace DeferredPhongShader {
 
 Color128 computePixelColor(glm::vec3 viewPos, const GeometryInfo& info, const LightsVec& lights) {
-    auto lighting = 0.3f * info.diffuseColor;
+    auto lighting = 0.5f * info.diffuseColor;
     lighting += PhongShaderCommon::computePhong(viewPos, info, lights);
 
     return Color128(lighting, 1.0f);
@@ -48,7 +48,7 @@ Color128 computePixelColor(glm::vec3 viewPos, const GeometryInfo& info, const Li
 namespace SSAOPhongShader {
 
 Color128 computePixelColor(glm::vec3 viewPos, float occlusion, const GeometryInfo& info, const LightsVec& lights) {
-    auto lighting = 0.3f * info.diffuseColor * occlusion;
+    auto lighting = 0.5f * info.diffuseColor * occlusion;
     lighting += PhongShaderCommon::computePhong(viewPos, info, lights);
 
     return Color128(lighting, 1.0f);
