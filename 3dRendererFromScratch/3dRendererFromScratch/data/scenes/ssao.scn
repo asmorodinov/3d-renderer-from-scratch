@@ -1,0 +1,65 @@
+Mesh
+{
+	name	Mesh1
+	typeName	PhongMesh
+	diffuseTextureName	white.png
+	meshFileName	teapot
+	meshScale	0.54
+	transformPosition	0 -0.94 3.52
+	wireframeColor	253 253 253
+}
+Mesh
+{
+	name	Mesh2
+	diffuseTextureName	white.png
+	meshFileName	plane
+	meshScale	2.88
+	meshOnlyVertices	0
+	transformPosition	0 -0.2 -2.34
+	transformScale	1.55 1 0.9
+	wireframeColor	253 253 253
+}
+Mesh
+{
+	name	Mesh3
+	diffuseTextureName	white.png
+	meshFileName	cube
+	meshOnlyVertices	0
+	transformPosition	0 -1.78 0
+	transformScale	5.67 0.73 4.5
+	wireframeColor	253 253 253
+}
+Mesh
+{
+	name	Mesh4
+	diffuseTextureName	white.png
+	meshScale	0.45
+	transformPosition	2.91 1.69 0.86
+	wireframeColor	253 253 253
+}
+Mesh
+{
+	name	Mesh5
+	diffuseTextureName	white.png
+	meshFileName	cube
+	meshOnlyVertices	0
+	transformPosition	4.9 0.36 1.4
+	transformScale	1 2.33 2.66
+	wireframeColor	253 253 253
+}
+Mesh
+{
+	name	Mesh6
+	diffuseTextureName	white.png
+	meshFileName	cube
+	meshOnlyVertices	0
+	transformPosition	-2.45 0 0
+	transformScale	0.09 2.68 4.57
+	wireframeColor	253 253 253
+}
+PointLight
+{
+	position	0.11 -0.14 4.98
+	color	0.0692297 0.554755 0.996139
+	intensity	0.535
+}

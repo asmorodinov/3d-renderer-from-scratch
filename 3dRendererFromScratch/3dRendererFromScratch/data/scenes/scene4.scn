@@ -1,0 +1,13 @@
+Mesh
+{
+	name	Mesh1
+	typeName	NormalMapMesh
+	meshFileName	cube
+	meshScale	0.68
+	meshOnlyVertices	0
+}
+PointLight
+{
+	position	0.65 -0.08 1.47
+	intensity	2.595
+}

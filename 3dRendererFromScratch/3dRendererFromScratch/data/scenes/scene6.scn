@@ -1,0 +1,41 @@
+Mesh
+{
+	name	Mesh1
+	typeName	PhongMesh
+	meshFileName	teapot
+	meshScale	0.39
+}
+Mesh
+{
+	name	Mesh2
+	meshScale	0.1
+	transformPosition	1 0 0
+	flatColor	1 0 0
+}
+Mesh
+{
+	name	Mesh3
+	meshScale	0.1
+	transformPosition	-1 0 0
+	flatColor	0.5 0 0
+}
+Mesh
+{
+	name	Mesh4
+	meshScale	0.1
+	transformPosition	0 0 1
+	flatColor	0 0 1
+}
+Mesh
+{
+	name	Mesh5
+	meshScale	0.1
+	transformPosition	0 0 -1
+	flatColor	0 0 0.5
+}
+PointLight
+{
+	position	0 1.84 0
+	color	0.168692 0.949807 0.397899
+	intensity	3.355
+}

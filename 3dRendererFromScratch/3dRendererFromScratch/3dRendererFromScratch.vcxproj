@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>16.0</VCProjectVersion>
+    <ProjectGuid>{76F65A57-789D-4E7F-B3D4-C855367255B6}</ProjectGuid>
+    <RootNamespace>My3dRendererFromScratch</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>SFML_STATIC;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(SolutionDir)ThirdPartyLibraries\glm;$(SolutionDir)ThirdPartyLibraries\stb_image;$(SolutionDir)ThirdPartyLibraries\sfml\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(SolutionDir)ThirdPartyLibraries\sfml\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>sfml-graphics-s.lib;sfml-window-s.lib;sfml-system-s.lib;opengl32.lib;freetype.lib;winmm.lib;gdi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>SFML_STATIC;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(SolutionDir)ThirdPartyLibraries\imgui-sfml-master;$(SolutionDir)ThirdPartyLibraries\imgui-master;$(SolutionDir)ThirdPartyLibraries\glm;$(SolutionDir)ThirdPartyLibraries\stb_image;$(SolutionDir)ThirdPartyLibraries\sfml\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(SolutionDir)ThirdPartyLibraries\sfml\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>sfml-graphics-s-d.lib;sfml-window-s-d.lib;sfml-system-s-d.lib;opengl32.lib;freetype.lib;winmm.lib;gdi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>SFML_STATIC;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(SolutionDir)ThirdPartyLibraries\glm;$(SolutionDir)ThirdPartyLibraries\stb_image;$(SolutionDir)ThirdPartyLibraries\sfml\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(SolutionDir)ThirdPartyLibraries\sfml\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>sfml-graphics-s.lib;sfml-window-s.lib;sfml-system-s.lib;opengl32.lib;freetype.lib;winmm.lib;gdi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>SFML_STATIC;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(SolutionDir)ThirdPartyLibraries\imgui-sfml-master;$(SolutionDir)ThirdPartyLibraries\imgui-master;$(SolutionDir)ThirdPartyLibraries\glm;$(SolutionDir)ThirdPartyLibraries\stb_image;$(SolutionDir)ThirdPartyLibraries\sfml\include;$(SolutionDir)ThirdPartyLibraries\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <OpenMPSupport>false</OpenMPSupport>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <MinimalRebuild>true</MinimalRebuild>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(SolutionDir)ThirdPartyLibraries\sfml\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>sfml-graphics-s.lib;sfml-window-s.lib;sfml-system-s.lib;opengl32.lib;freetype.lib;winmm.lib;gdi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\ThirdPartyLibraries\imgui-master\imgui.cpp" />
+    <ClCompile Include="..\ThirdPartyLibraries\imgui-master\imgui_demo.cpp" />
+    <ClCompile Include="..\ThirdPartyLibraries\imgui-master\imgui_draw.cpp" />
+    <ClCompile Include="..\ThirdPartyLibraries\imgui-master\imgui_tables.cpp" />
+    <ClCompile Include="..\ThirdPartyLibraries\imgui-master\imgui_widgets.cpp" />
+    <ClCompile Include="..\ThirdPartyLibraries\imgui-master\misc\cpp\imgui_stdlib.cpp" />
+    <ClCompile Include="..\ThirdPartyLibraries\imgui-sfml-master\imgui-SFML.cpp" />
+    <ClCompile Include="Application.cpp" />
+    <ClCompile Include="Engine\Assets.cpp" />
+    <ClCompile Include="Engine\Blending.cpp" />
+    <ClCompile Include="Engine\Buffer.cpp" />
+    <ClCompile Include="Engine\Camera.cpp" />
+    <ClCompile Include="Engine\Conversion.cpp" />
+    <ClCompile Include="Engine\Discard.cpp" />
+    <ClCompile Include="Engine\MeshData.cpp" />
+    <ClCompile Include="Engine\Light.cpp" />
+    <ClCompile Include="Engine\Mesh.cpp" />
+    <ClCompile Include="Engine\CameraControl.cpp" />
+    <ClCompile Include="Engine\MeshIO.cpp" />
+    <ClCompile Include="Engine\ObjectTransform.cpp" />
+    <ClCompile Include="Engine\Pipeline.cpp" />
+    <ClCompile Include="Engine\Pool.cpp" />
+    <ClCompile Include="Engine\Primitives.cpp" />
+    <ClCompile Include="Engine\Renderer.cpp" />
+    <ClCompile Include="Engine\SampleScenes.cpp" />
+    <ClCompile Include="Engine\ProjectionInfo.cpp" />
+    <ClCompile Include="Engine\Shaders\BasicShader.cpp" />
+    <ClCompile Include="Engine\Shaders\CubemapShader.cpp" />
+    <ClCompile Include="Engine\Shaders\DeferredPhongShader.cpp" />
+    <ClCompile Include="Engine\Shaders\FlatShader.cpp" />
+    <ClCompile Include="Engine\Shaders\GeometryPassShader.cpp" />
+    <ClCompile Include="Engine\Shaders\NormalMapShader.cpp" />
+    <ClCompile Include="Engine\Shaders\NormalShader.cpp" />
+    <ClCompile Include="Engine\Shaders\ParallaxMapShader.cpp" />
+    <ClCompile Include="Engine\Shaders\PhongShader.cpp" />
+    <ClCompile Include="Engine\Shaders\PhongShadowMappingShader.cpp" />
+    <ClCompile Include="Engine\Shaders\TextureShader.cpp" />
+    <ClCompile Include="Engine\Shaders\UVShader.cpp" />
+    <ClCompile Include="Engine\Texture.cpp" />
+    <ClCompile Include="Engine\Scene.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="SFMLRenderer.cpp" />
+    <ClCompile Include="UI.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Application.h" />
+    <ClInclude Include="Engine\Assets.h" />
+    <ClInclude Include="Engine\Blending.h" />
+    <ClInclude Include="Engine\Buffer.h" />
+    <ClInclude Include="Engine\Camera.h" />
+    <ClInclude Include="Engine\Conversion.h" />
+    <ClInclude Include="Engine\Discard.h" />
+    <ClInclude Include="Engine\MeshData.h" />
+    <ClInclude Include="Engine\InterpolatableTuple.h" />
+    <ClInclude Include="Engine\Light.h" />
+    <ClInclude Include="Engine\Mesh.h" />
+    <ClInclude Include="Engine\MeshIO.h" />
+    <ClInclude Include="Engine\MeshTypes.h" />
+    <ClInclude Include="Engine\CameraControl.h" />
+    <ClInclude Include="Engine\ObjectTransform.h" />
+    <ClInclude Include="Engine\Pipeline.h" />
+    <ClInclude Include="Engine\Pool.h" />
+    <ClInclude Include="Engine\Primitives.h" />
+    <ClInclude Include="Engine\Renderer.h" />
+    <ClInclude Include="Engine\SampleScenes.h" />
+    <ClInclude Include="Engine\ProjectionInfo.h" />
+    <ClInclude Include="Engine\Shaders.h" />
+    <ClInclude Include="Engine\Shaders\BasicShader.h" />
+    <ClInclude Include="Engine\Shaders\CubemapShader.h" />
+    <ClInclude Include="Engine\Shaders\DeferredPhongShader.h" />
+    <ClInclude Include="Engine\Shaders\FlatShader.h" />
+    <ClInclude Include="Engine\Shaders\GeometryPassShader.h" />
+    <ClInclude Include="Engine\Shaders\NormalMapShader.h" />
+    <ClInclude Include="Engine\Shaders\NormalShader.h" />
+    <ClInclude Include="Engine\Shaders\ParallaxMapShader.h" />
+    <ClInclude Include="Engine\Shaders\PhongShader.h" />
+    <ClInclude Include="Engine\Shaders\PhongShadowMappingShader.h" />
+    <ClInclude Include="Engine\Shaders\TextureShader.h" />
+    <ClInclude Include="Engine\Shaders\UVShader.h" />
+    <ClInclude Include="Engine\Texture.h" />
+    <ClInclude Include="Engine\Scene.h" />
+    <ClInclude Include="Engine\Types.h" />
+    <ClInclude Include="Engine\Vector2d.h" />
+    <ClInclude Include="SFMLRenderer.h" />
+    <ClInclude Include="UI.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

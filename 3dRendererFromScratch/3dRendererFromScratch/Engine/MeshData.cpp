@@ -1,0 +1,168 @@
+#include "MeshData.h"
+
+namespace eng {
+
+MeshData MeshData::generateCubeData(float size, bool invertNormals) {
+    auto res = MeshData{{{-size, -size, -size},
+                         {-size, -size, size},
+                         {-size, size, -size},
+                         {-size, size, size},
+                         {size, -size, -size},
+                         {size, -size, size},
+                         {size, size, -size},
+                         {size, size, size}},
+                        {},  // tangents
+                        {},  // bitangents
+                        {{0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, -1.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, -1.0f, 0.0f}, {1.0f, 0.0f, 0.0f}, {-1.0f, 0.0f, 0.0f}},
+                        {{0, 0}, {0, 1}, {1, 1}, {1, 0}},
+                        {{1, 7, 3, 0, 2, 1, 0, 0, 0},
+                         {1, 5, 7, 0, 3, 2, 0, 0, 0},
+                         {5, 6, 7, 0, 2, 1, 4, 4, 4},
+                         {5, 4, 6, 0, 3, 2, 4, 4, 4},
+                         {4, 2, 6, 0, 2, 1, 1, 1, 1},
+                         {4, 0, 2, 0, 3, 2, 1, 1, 1},
+                         {0, 3, 2, 0, 2, 1, 5, 5, 5},
+                         {0, 1, 3, 0, 3, 2, 5, 5, 5},
+                         {3, 6, 2, 0, 2, 1, 2, 2, 2},
+                         {3, 7, 6, 0, 3, 2, 2, 2, 2},
+                         {0, 5, 1, 0, 2, 1, 3, 3, 3},
+                         {0, 4, 5, 0, 3, 2, 3, 3, 3}}};
+
+    if (invertNormals) {
+        for (auto& face : res.faces) {
+            std::swap(face.i, face.j);
+            std::swap(face.ti, face.tj);
+            std::swap(face.ni, face.nj);
+        }
+        for (auto& normal : res.normals) normal *= -1.0f;
+    }
+    res.generateTBNVectors();
+
+    return res;
+}
+
+void MeshData::generateTBNVectors() {
+    normals.clear();
+    tangents.clear();
+    bitangents.clear();
+
+    for (size_t i = 0; i < faces.size(); ++i) {
+        auto& face = faces[i];
+        face.ni = i;
+        face.nj = i;
+        face.nk = i;
+
+        glm::vec3 v0 = vertices[face.i];
+        glm::vec3 v1 = vertices[face.j];
+        glm::vec3 v2 = vertices[face.k];
+        glm::vec3 normal = glm::normalize(glm::cross(v1 - v0, v2 - v0));
+
+        glm::vec2 uv0 = textureCoords[face.ti];
+        glm::vec2 uv1 = textureCoords[face.tj];
+        glm::vec2 uv2 = textureCoords[face.tk];
+
+        glm::vec3 edge1 = v1 - v0;
+        glm::vec3 edge2 = v2 - v0;
+        glm::vec2 deltaUV1 = uv1 - uv0;
+        glm::vec2 deltaUV2 = uv2 - uv0;
+
+        glm::vec3 tangent;
+        glm::vec3 bitangent;
+        float f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
+
+        tangent.x = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
+        tangent.y = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
+        tangent.z = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
+
+        bitangent.x = f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
+        bitangent.y = f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
+        bitangent.z = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
+
+        normals.push_back(normal);
+        tangents.push_back(tangent);
+        bitangents.push_back(bitangent);
+    }
+}
+
+MeshData loadFromObj(const std::string& filename, float scale, bool invertNormals, bool onlyVertices) {
+    std::ifstream file("data/models/" + filename + ".obj");
+    assert(file);
+
+    MeshData mesh;
+
+    mesh.fileName = filename;
+    mesh.scale = scale;
+    mesh.invertNormals = invertNormals;
+    mesh.onlyVertices = onlyVertices;
+
+    if (onlyVertices) {
+        mesh.textureCoords.push_back(glm::vec2(0.0f, 0.0f));
+        mesh.textureCoords.push_back(glm::vec2(1.0f, 0.0f));
+        mesh.textureCoords.push_back(glm::vec2(1.0f, 1.0f));
+    }
+
+    size_t faceCnt = 0;
+
+    std::string s;
+    while (file >> s) {
+        if (s == "v") {
+            float x, y, z;
+            file >> x >> y >> z;
+
+            mesh.vertices.push_back(scale * glm::vec3(x, y, z));
+        } else if (s == "vt") {
+            float u, v;
+            file >> u >> v;
+            mesh.textureCoords.push_back({u, v});
+        } else if (s == "vn") {
+            float x, y, z;
+            file >> x >> y >> z;
+            if (invertNormals) {
+                x *= -1.0f;
+                y *= -1.0f;
+                z *= -1.0f;
+            }
+            mesh.normals.push_back({x, y, z});
+        } else if (s == "f") {
+            size_t i, j, k;
+            size_t ti = 1, tj = 2, tk = 3;
+            size_t ni = faceCnt + 1, nj = faceCnt + 1, nk = faceCnt + 1;
+            ++faceCnt;
+
+            if (onlyVertices) {
+                file >> i >> j >> k;
+
+                if (invertNormals) std::swap(i, j);
+            } else {
+                char c;
+                file >> i >> c >> ti >> c >> ni >> j >> c >> tj >> c >> nj >> k >> c >> tk >> c >> nk;
+
+                if (invertNormals) {
+                    std::swap(i, j);
+                    std::swap(ti, tj);
+                    std::swap(ni, nj);
+                }
+            }
+
+            if (onlyVertices) {
+                glm::vec3 v0 = mesh.vertices[i - 1];
+                glm::vec3 v1 = mesh.vertices[j - 1];
+                glm::vec3 v2 = mesh.vertices[k - 1];
+                glm::vec3 normal = glm::normalize(glm::cross(v1 - v0, v2 - v0));
+                mesh.normals.push_back(normal);
+            }
+
+            mesh.faces.push_back({i - 1, j - 1, k - 1, ti - 1, tj - 1, tk - 1, ni - 1, nj - 1, nk - 1});
+        } else {
+            std::string line;
+            std::getline(file, line);
+        }
+    }
+    file.close();
+
+    mesh.generateTBNVectors();
+
+    return mesh;
+}
+
+}  // namespace eng

@@ -1,0 +1,18 @@
+#include "NormalShader.h"
+
+namespace eng {
+
+glm::vec4 NormalShader::computePixelColor(const Var& var, const LightsVec& lights) {
+    return glm::vec4(0.5f * (vso + 1.0f), 1.0f);
+}
+
+void NormalVertexShader::setMVP(glm::mat4 model_, glm::mat4 view_, glm::mat4 projection_, glm::vec3 viewPos_) {
+    bvs.setMVP(model_, view_, projection_, viewPos_);
+}
+
+NormalVertexShader::Output NormalVertexShader::run(const WorldSpaceTriangle& tr) {
+    auto bvso = bvs.run(tr);
+    return {{bvso.cv0, bvso.cv1, bvso.cv2, {}, {}, {}}, {glm::normalize(bvs.normalMatrix * tr.normal)}};
+}
+
+}  // namespace eng

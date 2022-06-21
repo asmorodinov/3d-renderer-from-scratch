@@ -1,0 +1,12 @@
+Mesh
+{
+	name	Mesh1
+	typeName	NormalMapMesh
+	meshScale	4.72
+	meshInvertNormals	1
+}
+PointLight
+{
+	position	0.08 -0.04 0.1
+	intensity	1.025
+}

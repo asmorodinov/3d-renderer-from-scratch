@@ -1,0 +1,15 @@
+Mesh
+{
+	name	Mesh1
+	typeName	ParallaxMapMesh
+	diffuseTextureName	Bricks/Bricks076C_1K_Color.jpg
+	normalTextureName	Bricks/Bricks076C_1K_NormalGL.jpg
+	displacementTextureName	Bricks/Bricks076C_1K_Displacement.jpg
+	meshFileName	cube
+	meshOnlyVertices	0
+}
+PointLight
+{
+	position	0.79 0 2.19
+	intensity	2.155
+}
