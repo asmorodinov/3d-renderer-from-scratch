@@ -1,19 +1,16 @@
-# 3d-renderer-from-scratch-advanced
-
-Here are some more advanced features that are planned to be implemented in future:
-
+## TODO list: 
 - [ ] Performance optimization
-- [ ] Improved (finished) normal mapping
-- [ ] Parallax mapping (displacement mapping)
-- [ ] HDR
-- [ ] Bloom
-- [ ] Deferred shading (maybe/probably won't happen)
-- [ ] SSAO
+- [x] Improved (finished) normal mapping
+- [x] Parallax mapping (displacement mapping)
+- [x] HDR
+- [x] Bloom
+- [x] Deferred shading
+- [x] SSAO
 - [ ] PBR
-- [ ] Transparent objects
-- [ ] Shadows
+- [x] Transparent objects
+- [x] Shadows
 - [ ] Scene level frustrum culling (e.g. with octrees)
-- [ ] Geometric shader support (also probably won't happen)
+- [ ] Geometric shader support (probably won't happen)
 - [ ] Post processing (maybe)
 - [ ] Antialiasing
 - [ ] Some particle effects / particle system support
